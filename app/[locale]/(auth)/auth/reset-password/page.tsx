@@ -1,36 +1,46 @@
 'use client';
 
 import { Suspense, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { authLogin } from '@/lib/api';
+import { authResetPassword } from '@/lib/api';
 
-function LoginForm() {
+function ResetForm() {
   const t = useTranslations('auth');
   const router = useRouter();
   const searchParams = useSearchParams();
-  const resetOk = searchParams.get('reset') === '1';
+  const token = searchParams.get('token') ?? '';
 
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [confirm, setConfirm] = useState('');
+  const [errors, setErrors] = useState<{ password?: string; confirm?: string }>({});
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
 
   function validate() {
-    const errs: { email?: string; password?: string } = {};
-    if (!email) errs.email = t('errorRequired');
-    else if (!email.endsWith('@uniovi.es')) errs.email = t('errorEmailDomain');
+    const errs: { password?: string; confirm?: string } = {};
     if (!password) errs.password = t('errorRequired');
+    else if (password.length < 8) errs.password = t('errorPasswordMin');
+    else if (!/[A-Z]/.test(password)) errs.password = t('errorPasswordUpper');
+    else if (!/[0-9]/.test(password)) errs.password = t('errorPasswordNumber');
+
+    if (!confirm) errs.confirm = t('errorRequired');
+    else if (password && confirm !== password) errs.confirm = t('errorPasswordMatch');
+
     return errs;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!token) {
+      setApiError(t('errorNoToken'));
+      return;
+    }
+
     const errs = validate();
     if (Object.keys(errs).length) {
       setErrors(errs);
@@ -40,8 +50,8 @@ function LoginForm() {
     setApiError('');
     setLoading(true);
     try {
-      await authLogin(email, password);
-      router.push('/');
+      await authResetPassword(token, password);
+      router.push('/auth/login?reset=1');
     } catch (err) {
       setApiError(err instanceof Error ? err.message : t('errorGeneric'));
     } finally {
@@ -52,38 +62,29 @@ function LoginForm() {
   return (
     <div className="w-full max-w-sm">
       <h1 className="text-xl font-semibold text-primary text-center mb-8">
-        {t('loginTitle')}
+        {t('resetTitle')}
       </h1>
-
-      {resetOk && (
-        <p
-          role="status"
-          className="mb-4 text-sm text-success bg-success-subtle border border-success rounded-sm px-3 py-2 text-center"
-        >
-          {t('resetSuccess')}
-        </p>
-      )}
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <Input
-          id="email"
-          type="email"
-          label={t('emailLabel')}
-          placeholder={t('emailPlaceholder')}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          error={errors.email}
-          autoComplete="email"
-        />
-        <Input
           id="password"
           type="password"
-          label={t('passwordLabel')}
+          label={t('newPasswordLabel')}
           placeholder={t('passwordPlaceholder')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
-          autoComplete="current-password"
+          autoComplete="new-password"
+        />
+        <Input
+          id="confirm"
+          type="password"
+          label={t('confirmPasswordLabel')}
+          placeholder={t('confirmPasswordPlaceholder')}
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          error={errors.confirm}
+          autoComplete="new-password"
         />
 
         {apiError && (
@@ -95,36 +96,29 @@ function LoginForm() {
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          <Link
-            href="/auth/recover"
-            className="text-sm text-secondary hover:text-primary"
-          >
-            {t('forgotPassword')}
-          </Link>
+        <div className="flex justify-end pt-2">
           <Button type="submit" loading={loading}>
-            {t('loginSubmit')}
+            {t('resetSubmit')}
           </Button>
         </div>
       </form>
 
       <p className="mt-6 text-center text-sm text-secondary">
-        {t('noAccount')}{' '}
         <Link
-          href="/auth/register"
+          href="/auth/login"
           className="text-accent hover:text-accent-hover font-medium"
         >
-          {t('register')}
+          {t('backToLogin')}
         </Link>
       </p>
     </div>
   );
 }
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   return (
     <Suspense>
-      <LoginForm />
+      <ResetForm />
     </Suspense>
   );
 }

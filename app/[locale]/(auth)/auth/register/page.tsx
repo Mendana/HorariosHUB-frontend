@@ -1,31 +1,40 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { authLogin } from '@/lib/api';
+import { authRegister } from '@/lib/api';
 
-function LoginForm() {
+export default function RegisterPage() {
   const t = useTranslations('auth');
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const resetOk = searchParams.get('reset') === '1';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [confirm, setConfirm] = useState('');
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    confirm?: string;
+  }>({});
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   function validate() {
-    const errs: { email?: string; password?: string } = {};
+    const errs: { email?: string; password?: string; confirm?: string } = {};
     if (!email) errs.email = t('errorRequired');
     else if (!email.endsWith('@uniovi.es')) errs.email = t('errorEmailDomain');
+
     if (!password) errs.password = t('errorRequired');
+    else if (password.length < 8) errs.password = t('errorPasswordMin');
+    else if (!/[A-Z]/.test(password)) errs.password = t('errorPasswordUpper');
+    else if (!/[0-9]/.test(password)) errs.password = t('errorPasswordNumber');
+
+    if (!confirm) errs.confirm = t('errorRequired');
+    else if (password && confirm !== password) errs.confirm = t('errorPasswordMatch');
+
     return errs;
   }
 
@@ -40,8 +49,8 @@ function LoginForm() {
     setApiError('');
     setLoading(true);
     try {
-      await authLogin(email, password);
-      router.push('/');
+      await authRegister(email, password);
+      setSuccess(true);
     } catch (err) {
       setApiError(err instanceof Error ? err.message : t('errorGeneric'));
     } finally {
@@ -49,20 +58,29 @@ function LoginForm() {
     }
   }
 
+  if (success) {
+    return (
+      <div className="w-full max-w-sm text-center">
+        <p className="text-sm text-success bg-success-subtle border border-success rounded-sm px-4 py-3">
+          {t('registerSuccess')}
+        </p>
+        <p className="mt-4 text-sm text-secondary">
+          <Link
+            href="/auth/login"
+            className="text-accent hover:text-accent-hover font-medium"
+          >
+            {t('backToLogin')}
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-sm">
       <h1 className="text-xl font-semibold text-primary text-center mb-8">
-        {t('loginTitle')}
+        {t('registerTitle')}
       </h1>
-
-      {resetOk && (
-        <p
-          role="status"
-          className="mb-4 text-sm text-success bg-success-subtle border border-success rounded-sm px-3 py-2 text-center"
-        >
-          {t('resetSuccess')}
-        </p>
-      )}
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <Input
@@ -83,7 +101,17 @@ function LoginForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
-          autoComplete="current-password"
+          autoComplete="new-password"
+        />
+        <Input
+          id="confirm"
+          type="password"
+          label={t('confirmPasswordLabel')}
+          placeholder={t('confirmPasswordPlaceholder')}
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          error={errors.confirm}
+          autoComplete="new-password"
         />
 
         {apiError && (
@@ -95,36 +123,22 @@ function LoginForm() {
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          <Link
-            href="/auth/recover"
-            className="text-sm text-secondary hover:text-primary"
-          >
-            {t('forgotPassword')}
-          </Link>
+        <div className="flex justify-end pt-2">
           <Button type="submit" loading={loading}>
-            {t('loginSubmit')}
+            {t('registerSubmit')}
           </Button>
         </div>
       </form>
 
       <p className="mt-6 text-center text-sm text-secondary">
-        {t('noAccount')}{' '}
+        {t('hasAccount')}{' '}
         <Link
-          href="/auth/register"
+          href="/auth/login"
           className="text-accent hover:text-accent-hover font-medium"
         >
-          {t('register')}
+          {t('login')}
         </Link>
       </p>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
   );
 }
