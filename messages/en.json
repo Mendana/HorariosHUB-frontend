@@ -1,5 +1,29 @@
 {
   "common": {
     "appName": "PCEO Hub"
+  },
+  "nav": {
+    "ariaLabel": "Main navigation",
+    "schedule": "Schedule",
+    "mySubjects": "My Subjects",
+    "proposals": "Proposals",
+    "manage": "Management"
+  },
+  "auth": {
+    "login": "Log in",
+    "logout": "Log out"
+  },
+  "topbar": {
+    "toggleTheme": "Toggle theme",
+    "notifications": "Notifications",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "profile": "Profile"
+  },
+  "roles": {
+    "visitor": "Visitor",
+    "user": "Student",
+    "professor": "Professor",
+    "admin": "Admin"
   }
 }
