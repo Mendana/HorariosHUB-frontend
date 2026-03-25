@@ -94,7 +94,7 @@ function DayColumn({ day, subjects, isLoading, isToday, currentTimePx }: DayColu
           style={{ top: currentTimePx }}
         >
           <div className="relative border-t-2 border-accent">
-            <span className="absolute -top-[5px] -left-1.5 size-2.5 rounded-full bg-accent" />
+            <span className="absolute -top-1.25 -left-1.5 size-2.5 rounded-full bg-accent" />
           </div>
         </div>
       )}
@@ -176,7 +176,7 @@ export function ScheduleGrid({
   const isEmpty = !isLoading && weekSubs.length === 0;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="w-full">
       {/* Mobile day tabs */}
       <div className="flex sm:hidden border-b border-subtle">
         {DAY_LABELS_SHORT.map((label, i) => {
@@ -204,7 +204,7 @@ export function ScheduleGrid({
       </div>
 
       {/* Grid body */}
-      <div className="relative flex">
+      <div className="relative flex w-full">
         {/* Time labels */}
         <div
           className="relative shrink-0 select-none"
