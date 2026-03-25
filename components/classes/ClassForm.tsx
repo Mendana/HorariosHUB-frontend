@@ -1,0 +1,284 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
+import type { Class, ClassInput, ClassType } from '@/lib/types/classes';
+import { Modal } from '@/components/ui/Modal';
+import { Spinner } from '@/components/ui/Spinner';
+
+// ── Subject list (hardcoded PCEO catalogue) ───────────────────────────────────
+
+export const PCEO_SUBJECTS: { code: string; name: string }[] = [
+  // Matemáticas — gama fría
+  { code: 'ALG',  name: 'Álgebra Lineal' },
+  { code: 'CDI',  name: 'Cálculo Diferencial e Integral' },
+  { code: 'GEO',  name: 'Geometría' },
+  { code: 'TOP',  name: 'Topología' },
+  { code: 'ANA',  name: 'Análisis Matemático' },
+  { code: 'ALB',  name: 'Álgebra' },
+  { code: 'EST',  name: 'Estadística y Probabilidad' },
+  { code: 'EDP',  name: 'Ecuaciones Diferenciales' },
+  { code: 'MN',   name: 'Métodos Numéricos' },
+  { code: 'TN',   name: 'Teoría de Números' },
+  { code: 'GDF',  name: 'Geometría Diferencial' },
+  { code: 'AMV',  name: 'Análisis en Varias Variables' },
+  // Informática — gama cálida
+  { code: 'PRG',  name: 'Programación' },
+  { code: 'EDT',  name: 'Estructuras de Datos' },
+  { code: 'BDA',  name: 'Bases de Datos' },
+  { code: 'SO',   name: 'Sistemas Operativos' },
+  { code: 'RS',   name: 'Redes de Computadores' },
+  { code: 'IA',   name: 'Inteligencia Artificial' },
+  { code: 'IS',   name: 'Ingeniería del Software' },
+  { code: 'ARC',  name: 'Arquitectura de Computadores' },
+  { code: 'CO',   name: 'Compiladores' },
+  { code: 'LP',   name: 'Lenguajes de Programación' },
+  { code: 'IHC',  name: 'Interacción Humano-Computadora' },
+  { code: 'TFG',  name: 'Trabajo Fin de Grado' },
+];
+
+const CLASS_TYPES: ClassType[] = ['Teoría', 'Práctica', 'Examen', 'Otros'];
+
+// Time slots 08:00–21:00 in 30-min increments
+const TIME_SLOTS: string[] = [];
+for (let h = 8; h <= 21; h++) {
+  TIME_SLOTS.push(`${String(h).padStart(2, '0')}:00`);
+  if (h < 21) TIME_SLOTS.push(`${String(h).padStart(2, '0')}:30`);
+}
+
+const DURATIONS: { value: number; labelKey: string }[] = [
+  { value: 30,  labelKey: 'dur30' },
+  { value: 60,  labelKey: 'dur60' },
+  { value: 90,  labelKey: 'dur90' },
+  { value: 120, labelKey: 'dur120' },
+  { value: 150, labelKey: 'dur150' },
+  { value: 180, labelKey: 'dur180' },
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function apiDateToStr(d: { year: number; month: number; day: number }): string {
+  return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
+}
+
+function strToApiDate(s: string): { year: number; month: number; day: number } {
+  const [year, month, day] = s.split('-').map(Number);
+  return { year, month, day };
+}
+
+function calcEndTime(startTime: string, durationMinutes: number): string | null {
+  if (!startTime) return null;
+  const [h, m] = startTime.split(':').map(Number);
+  const total = h * 60 + m + durationMinutes;
+  if (total > 21 * 60 + 30) return null;
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+}
+
+// ── Form state ────────────────────────────────────────────────────────────────
+
+interface FormState {
+  name: string;
+  type: string;
+  date: string;       // YYYY-MM-DD
+  startTime: string;
+  durationMinutes: number;
+  classroom: string;
+}
+
+interface FormErrors {
+  name?: string;
+  type?: string;
+  date?: string;
+  startTime?: string;
+  durationMinutes?: string;
+}
+
+function initState(initial?: Class): FormState {
+  if (!initial) return { name: '', type: '', date: '', startTime: '', durationMinutes: 60, classroom: '' };
+  return {
+    name: initial.name,
+    type: initial.type,
+    date: apiDateToStr(initial.date),
+    startTime: initial.startTime,
+    durationMinutes: initial.durationMinutes,
+    classroom: initial.classroom ?? '',
+  };
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+interface ClassFormProps {
+  initial?: Class;
+  onSubmit: (input: ClassInput) => Promise<void>;
+  onClose: () => void;
+}
+
+const inputClass =
+  'h-10 w-full px-3 rounded-sm bg-surface-sunken border border-subtle text-sm text-primary ' +
+  'placeholder:text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ' +
+  'disabled:opacity-50';
+
+const labelClass = 'block text-sm font-medium text-primary mb-1';
+const errorClass = 'mt-1 text-xs text-error';
+
+export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
+  const t = useTranslations('classes');
+  const [form, setForm] = useState<FormState>(() => initState(initial));
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  const set = (field: keyof FormState) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => setForm((prev) => ({ ...prev, [field]: field === 'durationMinutes' ? Number(e.target.value) : e.target.value }));
+
+  const endTime = useMemo(
+    () => (form.startTime ? calcEndTime(form.startTime, form.durationMinutes) : null),
+    [form.startTime, form.durationMinutes],
+  );
+
+  function validate(): boolean {
+    const errs: FormErrors = {};
+    if (!form.name) errs.name = t('errorRequired');
+    if (!form.type) errs.type = t('errorRequired');
+    if (!form.date) errs.date = t('errorRequired');
+    if (!form.startTime) errs.startTime = t('errorRequired');
+    if (!form.durationMinutes) errs.durationMinutes = t('errorRequired');
+    if (form.startTime && endTime === null) errs.durationMinutes = t('endTimeExceeds');
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+    setIsSaving(true);
+    try {
+      await onSubmit({
+        name: form.name,
+        type: form.type as ClassType,
+        date: strToApiDate(form.date),
+        startTime: form.startTime,
+        durationMinutes: form.durationMinutes,
+        classroom: form.classroom.trim() || undefined,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <Modal onClose={onClose} size="max-w-2xl">
+      <div className="px-6 py-5">
+        <h2 className="text-lg font-semibold text-primary mb-5">
+          {initial ? t('editClass') : t('newClass')}
+        </h2>
+
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Subject */}
+            <div>
+              <label className={labelClass}>{t('fieldSubject')}</label>
+              <select value={form.name} onChange={set('name')} className={inputClass}>
+                <option value="">{t('selectSubject')}</option>
+                {PCEO_SUBJECTS.map((s) => (
+                  <option key={s.code} value={s.code}>{s.code} — {s.name}</option>
+                ))}
+              </select>
+              {errors.name && <p className={errorClass}>{errors.name}</p>}
+            </div>
+
+            {/* Type */}
+            <div>
+              <label className={labelClass}>{t('fieldType')}</label>
+              <select value={form.type} onChange={set('type')} className={inputClass}>
+                <option value="">{t('selectType')}</option>
+                {CLASS_TYPES.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+              {errors.type && <p className={errorClass}>{errors.type}</p>}
+            </div>
+
+            {/* Date */}
+            <div>
+              <label className={labelClass}>{t('fieldDate')}</label>
+              <input
+                type="date"
+                value={form.date}
+                onChange={set('date')}
+                className={inputClass}
+              />
+              {errors.date && <p className={errorClass}>{errors.date}</p>}
+            </div>
+
+            {/* Start time */}
+            <div>
+              <label className={labelClass}>{t('fieldStartTime')}</label>
+              <select value={form.startTime} onChange={set('startTime')} className={inputClass}>
+                <option value="">{t('selectStartTime')}</option>
+                {TIME_SLOTS.map((slot) => (
+                  <option key={slot} value={slot}>{slot}</option>
+                ))}
+              </select>
+              {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
+            </div>
+
+            {/* Duration */}
+            <div>
+              <label className={labelClass}>{t('fieldDuration')}</label>
+              <select
+                value={form.durationMinutes}
+                onChange={set('durationMinutes')}
+                className={inputClass}
+              >
+                {DURATIONS.map((d) => (
+                  <option key={d.value} value={d.value}>{t(d.labelKey)}</option>
+                ))}
+              </select>
+              {endTime && !errors.durationMinutes && (
+                <p className="mt-1 text-xs text-secondary">
+                  {t('endTimeLabel', { time: endTime })}
+                </p>
+              )}
+              {errors.durationMinutes && <p className={errorClass}>{errors.durationMinutes}</p>}
+            </div>
+
+            {/* Classroom */}
+            <div>
+              <label className={labelClass}>{t('classroomOptional')}</label>
+              <input
+                type="text"
+                value={form.classroom}
+                onChange={set('classroom')}
+                placeholder={t('placeholderClassroom')}
+                className={inputClass}
+              />
+            </div>
+
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-subtle">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="px-4 py-2 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-50"
+            >
+              {t('cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-accent text-white rounded-sm hover:bg-accent-hover transition-colors disabled:opacity-50"
+            >
+              {isSaving && <Spinner size={14} />}
+              {t('save')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  );
+}
