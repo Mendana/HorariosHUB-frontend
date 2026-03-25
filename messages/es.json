@@ -236,5 +236,16 @@
     "errorSelfDelete": "No puedes eliminarte a ti mismo",
     "paginationPrev": "Anterior",
     "paginationNext": "Siguiente"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todas como leídas",
+    "empty": "No tienes notificaciones",
+    "dismiss": "Descartar",
+    "relativeNow": "ahora",
+    "relativeMinutes": "hace {n} min",
+    "relativeHours": "hace {h} h",
+    "relativeYesterday": "ayer",
+    "relativeDays": "hace {d} días"
   }
 }

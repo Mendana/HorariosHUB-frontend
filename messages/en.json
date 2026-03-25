@@ -236,5 +236,16 @@
     "errorSelfDelete": "You cannot delete yourself",
     "paginationPrev": "Previous",
     "paginationNext": "Next"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications",
+    "dismiss": "Dismiss",
+    "relativeNow": "just now",
+    "relativeMinutes": "{n} min ago",
+    "relativeHours": "{h}h ago",
+    "relativeYesterday": "yesterday",
+    "relativeDays": "{d} days ago"
   }
 }

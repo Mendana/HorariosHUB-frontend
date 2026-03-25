@@ -1,6 +1,7 @@
 'use client';
 
-import { Bell, Menu, Moon, Sun } from 'lucide-react';
+import { Menu, Moon, Sun } from 'lucide-react';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -55,17 +56,8 @@ export function Topbar() {
               )}
             </button>
 
-            {/* Campana — solo autenticado, solo ≥ 640px */}
-            {user && (
-              <button
-                type="button"
-                aria-label={t('topbar.notifications')}
-                className="hidden sm:flex p-2 rounded-sm text-secondary hover:text-primary hover:bg-surface-raised"
-              >
-                {/* TODO: badge con contador de no leídas */}
-                <Bell size={18} aria-hidden />
-              </button>
-            )}
+            {/* Campana — autenticado, visible en todos los breakpoints */}
+            {user && <NotificationBell />}
 
             {/* Menú de perfil o botón login — solo ≥ 640px */}
             <div className="hidden sm:block">
