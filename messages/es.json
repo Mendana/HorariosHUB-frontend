@@ -86,5 +86,21 @@
     "user": "Estudiante",
     "professor": "Profesor",
     "admin": "Administrador"
+  },
+  "mySubjects": {
+    "title": "Mis Asignaturas",
+    "searchPlaceholder": "Buscar asignatura...",
+    "noResults": "Sin resultados",
+    "groupsSelected": "{selected} de {total} grupos",
+    "autoSelect": "Autoselección",
+    "autoSelectRunning": "Analizando tu horario… esto puede tardar unos minutos",
+    "autoSelectSuccess": "{count} grupos seleccionados automáticamente",
+    "autoSelectError": "Error en la autoselección. Inténtalo de nuevo.",
+    "unsavedChanges": "{count} cambio sin guardar",
+    "unsavedChangesMultiple": "{count} cambios sin guardar",
+    "saveChanges": "Guardar selección",
+    "discard": "Descartar",
+    "loadError": "Error al cargar el catálogo. Inténtalo de nuevo.",
+    "retry": "Reintentar"
   }
 }

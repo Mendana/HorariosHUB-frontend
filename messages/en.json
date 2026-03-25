@@ -86,5 +86,21 @@
     "user": "Student",
     "professor": "Professor",
     "admin": "Admin"
+  },
+  "mySubjects": {
+    "title": "My Subjects",
+    "searchPlaceholder": "Search subjects...",
+    "noResults": "No results",
+    "groupsSelected": "{selected} of {total} groups",
+    "autoSelect": "Auto-select",
+    "autoSelectRunning": "Analysing your schedule… this may take a few minutes",
+    "autoSelectSuccess": "{count} groups selected automatically",
+    "autoSelectError": "Auto-select failed. Please try again.",
+    "unsavedChanges": "{count} unsaved change",
+    "unsavedChangesMultiple": "{count} unsaved changes",
+    "saveChanges": "Save selection",
+    "discard": "Discard",
+    "loadError": "Failed to load catalog. Please try again.",
+    "retry": "Retry"
   }
 }

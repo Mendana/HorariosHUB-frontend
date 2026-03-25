@@ -15,9 +15,9 @@ export interface AuthUser {
  * TODO: conectar a GET /api/auth/me cuando esté disponible el backend.
  */
 export function useAuth(): { user: AuthUser | null } {
-  const user: AuthUser | null = null;
+  // const user: AuthUser | null = null;
 
-  // const user: AuthUser = { email: 'alumno@uniovi.es', role: 'user' };
+  const user: AuthUser = { email: 'alumno@uniovi.es', role: 'user' };
   // const user: AuthUser = { email: 'profesor@uniovi.es', role: 'professor' };
   // const user: AuthUser = { email: 'admin@uniovi.es', role: 'admin' };
 
