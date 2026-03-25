@@ -1,14 +1,37 @@
-import { getTranslations } from 'next-intl/server';
-import { setRequestLocale } from 'next-intl/server';
+'use client';
 
-interface Props {
-  params: Promise<{ locale: string }>;
-}
+import { useState, useCallback } from 'react';
+import { getCurrentWeek } from '@/lib/utils/scheduleHelpers';
+import { useSchedule } from '@/lib/hooks/useSchedule';
+import { ScheduleSearch } from '@/components/schedule/ScheduleSearch';
+import { WeekNavigator } from '@/components/schedule/WeekNavigator';
+import { ScheduleGrid } from '@/components/schedule/ScheduleGrid';
 
-export default async function SchedulePage({ params }: Props) {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations('nav');
+export default function SchedulePage() {
+  const [identifier, setIdentifier] = useState<string | null>(null);
 
-  return <h1>{t('schedule')}</h1>;
+  const initial = getCurrentWeek();
+  const [selectedYear, setSelectedYear] = useState(initial.year);
+  const [selectedWeek, setSelectedWeek] = useState(initial.week);
+
+  const { subjects, isLoading } = useSchedule(identifier);
+
+  const handleWeekChange = useCallback((year: number, week: number) => {
+    setSelectedYear(year);
+    setSelectedWeek(week);
+  }, []);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <ScheduleSearch identifier={identifier} onIdentifierChange={setIdentifier} />
+      <WeekNavigator year={selectedYear} week={selectedWeek} onWeekChange={handleWeekChange} />
+      <ScheduleGrid
+        subjects={subjects}
+        isLoading={isLoading}
+        year={selectedYear}
+        week={selectedWeek}
+        hasIdentifier={identifier !== null}
+      />
+    </div>
+  );
 }
