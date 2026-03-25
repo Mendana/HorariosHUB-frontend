@@ -7,7 +7,8 @@
     "schedule": "Horario",
     "mySubjects": "Mis Asignaturas",
     "proposals": "Propuestas",
-    "manage": "Gestión"
+    "manage": "Gestión",
+    "manageUsers": "Usuarios"
   },
   "auth": {
     "login": "Iniciar sesión",
@@ -207,5 +208,33 @@
     "discard": "Descartar",
     "loadError": "Error al cargar el catálogo. Inténtalo de nuevo.",
     "retry": "Reintentar"
+  },
+  "users": {
+    "title": "Gestión de Usuarios",
+    "you": "Tú",
+    "colEmail": "Email",
+    "colRole": "Rol",
+    "colActions": "Acciones",
+    "filterSearchPlaceholder": "Buscar por email...",
+    "filterRoleAll": "Todos",
+    "filterRoleAdmin": "Admin",
+    "filterRoleProfessor": "Profesor",
+    "filterRoleUser": "Usuario",
+    "filterClear": "Limpiar filtros",
+    "countFoundOne": "1 usuario encontrado",
+    "countFoundMany": "{count} usuarios encontrados",
+    "empty": "No se encontraron usuarios",
+    "loadError": "Error al cargar los usuarios. Inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "delete": "Eliminar",
+    "deleteTitle": "Eliminar usuario",
+    "deleteMessage": "¿Seguro que quieres eliminar al usuario {email}?",
+    "deleteConfirm": "Eliminar",
+    "deleteCancel": "Cancelar",
+    "changeRoleDisabledTip": "No puedes cambiar tu propio rol",
+    "errorSelfRole": "No puedes cambiar tu propio rol",
+    "errorSelfDelete": "No puedes eliminarte a ti mismo",
+    "paginationPrev": "Anterior",
+    "paginationNext": "Siguiente"
   }
 }

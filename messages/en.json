@@ -7,7 +7,8 @@
     "schedule": "Schedule",
     "mySubjects": "My Subjects",
     "proposals": "Proposals",
-    "manage": "Management"
+    "manage": "Management",
+    "manageUsers": "Users"
   },
   "auth": {
     "login": "Log in",
@@ -207,5 +208,33 @@
     "discard": "Discard",
     "loadError": "Failed to load catalog. Please try again.",
     "retry": "Retry"
+  },
+  "users": {
+    "title": "User Management",
+    "you": "You",
+    "colEmail": "Email",
+    "colRole": "Role",
+    "colActions": "Actions",
+    "filterSearchPlaceholder": "Search by email...",
+    "filterRoleAll": "All",
+    "filterRoleAdmin": "Admin",
+    "filterRoleProfessor": "Professor",
+    "filterRoleUser": "Student",
+    "filterClear": "Clear filters",
+    "countFoundOne": "1 user found",
+    "countFoundMany": "{count} users found",
+    "empty": "No users found",
+    "loadError": "Failed to load users. Please try again.",
+    "retry": "Retry",
+    "delete": "Delete",
+    "deleteTitle": "Delete user",
+    "deleteMessage": "Are you sure you want to delete user {email}?",
+    "deleteConfirm": "Delete",
+    "deleteCancel": "Cancel",
+    "changeRoleDisabledTip": "You cannot change your own role",
+    "errorSelfRole": "You cannot change your own role",
+    "errorSelfDelete": "You cannot delete yourself",
+    "paginationPrev": "Previous",
+    "paginationNext": "Next"
   }
 }
