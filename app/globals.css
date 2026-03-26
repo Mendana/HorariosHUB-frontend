@@ -47,6 +47,23 @@
   --space-8:  32px;
   --space-10: 40px;
   --space-12: 48px;
+
+  /* ── Visual System: sombras — light mode ──────────────────
+     Sutiles: el color de superficie ya comunica profundidad.
+     shadow-inset da sensación de hundimiento en inputs/active. */
+  --shadow-sm:          0 1px 2px oklch(0% 0 0 / 6%);
+  --shadow-md:          0 4px 8px oklch(0% 0 0 / 8%), 0 1px 3px oklch(0% 0 0 / 6%);
+  --shadow-inset:       inset 0 1px 2px oklch(0% 0 0 / 7%);
+  --shadow-focus:       0 0 0 2px var(--accent), 0 0 0 5px oklch(52% 0.23 278 / 20%);
+  --shadow-focus-error: 0 0 0 2px var(--error), 0 0 0 5px oklch(55% 0.22 22 / 20%);
+
+  /* ── Visual System: transiciones ─────────────────────────
+     Mismos valores en light y dark — no cambian por tema.
+     Usadas directamente en CSS y como utilidades Tailwind. */
+  --transition-fast:   100ms ease-out;
+  --transition-base:   150ms ease-out;
+  --transition-smooth: 250ms ease-in-out;
+  --transition-slow:   350ms ease-in-out;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -82,6 +99,15 @@
   --success-subtle: oklch(62% 0.18 145 / 15%);
   --info:           oklch(65% 0.18 232);
   --info-subtle:    oklch(65% 0.18 232 / 15%);
+
+  /* ── Visual System: sombras — dark mode ──────────────────
+     Más pronunciadas: en dark la profundidad se comunica
+     mejor con sombra que con diferencia de superficie. */
+  --shadow-sm:          0 1px 3px oklch(0% 0 0 / 30%);
+  --shadow-md:          0 4px 16px oklch(0% 0 0 / 45%), 0 2px 4px oklch(0% 0 0 / 30%);
+  --shadow-inset:       inset 0 1px 3px oklch(0% 0 0 / 40%);
+  --shadow-focus:       0 0 0 2px var(--accent), 0 0 0 5px oklch(52% 0.23 278 / 25%);
+  --shadow-focus-error: 0 0 0 2px var(--error), 0 0 0 5px oklch(62% 0.22 22 / 25%);
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -133,6 +159,36 @@
 }
 
 /* ─────────────────────────────────────────────────────────
+   ## Visual System — utilidades Tailwind
+   ───────────────────────────────────────────────────────── */
+
+/* Sombras — se usan como className="shadow-sm" o como valor CSS directo
+   var(--shadow-sm). Las clases anulan las sombras por defecto de Tailwind. */
+@utility shadow-sm    { box-shadow: var(--shadow-sm); }
+@utility shadow-md    { box-shadow: var(--shadow-md); }
+@utility shadow-inset { box-shadow: var(--shadow-inset); }
+@utility shadow-focus { box-shadow: var(--shadow-focus); }
+
+/* Transiciones nombradas — combinan duración + curva en una sola clase.
+   Uso: className="transition-colors transition-base" */
+@utility transition-fast {
+  transition-duration: 100ms;
+  transition-timing-function: ease-out;
+}
+@utility transition-base {
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+@utility transition-smooth {
+  transition-duration: 250ms;
+  transition-timing-function: ease-in-out;
+}
+@utility transition-slow {
+  transition-duration: 350ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* ─────────────────────────────────────────────────────────
    Base global
    ───────────────────────────────────────────────────────── */
 @layer base {
@@ -150,5 +206,23 @@
     background-color: var(--surface-base);
     color: var(--text-primary);
     font-family: var(--font-geist-sans), system-ui, sans-serif;
+  }
+
+  /* Focus visible — anillo accent solo para navegación por teclado.
+     Nunca el outline nativo del navegador. Regla 100% CSS, sin clases manuales.
+     Componentes con shadows compuestas en focus deben sobrescribir localmente
+     (ej: inputs que necesitan shadow-inset + shadow-focus combinadas). */
+  *:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  /* Active/pressed — feedback físico de escala en todos los clicables.
+     button y [role="button"] cubren la gran mayoría de elementos accionables.
+     Duración: transition-fast (100ms), sensación instantánea pero perceptible. */
+  button:active,
+  [role="button"]:active {
+    transform: scale(0.97);
+    transition: transform var(--transition-fast);
   }
 }
