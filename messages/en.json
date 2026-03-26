@@ -191,7 +191,16 @@
     "paginationNext": "Next",
     "paginationOf": "of",
     "rejectReasonLabel": "Rejection reason",
-    "noRejectReason": "No reason provided"
+    "noRejectReason": "No reason provided",
+    "proposeTitle": "Propose change",
+    "proposeTypeLabel": "Proposal type",
+    "proposeUpdate": "Edit class",
+    "proposeDelete": "Delete class",
+    "proposeReasonLabel": "Reason (optional)",
+    "proposeSubmit": "Send proposal",
+    "proposeSuccessTitle": "Proposal submitted",
+    "proposeSuccessMessage": "Your proposal has been submitted and is pending review.",
+    "proposeClose": "Close"
   },
   "mySubjects": {
     "title": "My Subjects",

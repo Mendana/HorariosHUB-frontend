@@ -191,7 +191,16 @@
     "paginationNext": "Siguiente",
     "paginationOf": "de",
     "rejectReasonLabel": "Motivo del rechazo",
-    "noRejectReason": "Sin motivo indicado"
+    "noRejectReason": "Sin motivo indicado",
+    "proposeTitle": "Proponer cambio",
+    "proposeTypeLabel": "Tipo de propuesta",
+    "proposeUpdate": "Editar clase",
+    "proposeDelete": "Eliminar clase",
+    "proposeReasonLabel": "Motivo (opcional)",
+    "proposeSubmit": "Enviar propuesta",
+    "proposeSuccessTitle": "Propuesta enviada",
+    "proposeSuccessMessage": "Tu propuesta ha sido enviada y está pendiente de revisión.",
+    "proposeClose": "Cerrar"
   },
   "mySubjects": {
     "title": "Mis Asignaturas",

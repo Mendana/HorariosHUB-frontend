@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { createPortal } from 'react-dom';
-import { X, MapPin, Clock, Calendar, Pencil, Trash2, MessageSquare } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, Pencil, Trash2, MessageSquare, CheckCircle } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
+import { ClassForm } from '@/components/classes/ClassForm';
+import { ClassDeleteConfirm } from '@/components/classes/ClassDeleteConfirm';
+import { ProposalForm } from '@/components/proposals/ProposalForm';
+import { ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
+import { timeToMinutes } from '@/lib/utils/scheduleHelpers';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
+import type { Class, ClassType } from '@/lib/types/classes';
 
 // Full-type badge styling used inside the popover (wider badges than the block corner)
 const TYPE_BADGE_CLS: Partial<Record<string, string>> = {
@@ -19,13 +25,29 @@ const POPOVER_WIDTH = 256;
 const POPOVER_HEIGHT_EST = 248; // estimated height for position clamping
 const GAP = 8; // min distance from viewport edges
 
+type Mode = 'info' | 'editing' | 'deleting' | 'proposing';
+
+function subjectToClass(s: SubjectWithLayout): Class {
+  const durationMinutes = timeToMinutes(s.endTime) - timeToMinutes(s.startTime);
+  return {
+    id:              s.id,
+    name:            s.name.split(' - ')[0].trim(),
+    type:            s.type as ClassType,
+    classroom:       s.classroom || undefined,
+    date:            s.date,
+    startTime:       s.startTime,
+    endTime:         s.endTime,
+    durationMinutes,
+  };
+}
+
 interface SubjectPopoverProps {
   subject: SubjectWithLayout;
   anchorRef: React.RefObject<HTMLDivElement | null>;
   onClose: () => void;
-  /** undefined = user cannot edit (hide button) */
+  /** Kept for backward compatibility — SubjectPopover now manages modals internally */
   onEdit?: () => void;
-  /** undefined = user cannot delete (hide button) */
+  /** Kept for backward compatibility — SubjectPopover now manages modals internally */
   onDelete?: () => void;
 }
 
@@ -33,21 +55,21 @@ export function SubjectPopover({
   subject,
   anchorRef,
   onClose,
-  onEdit,
-  onDelete,
 }: SubjectPopoverProps) {
   const [pos, setPos]         = useState<{ top: number; left: number } | null>(null);
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [mode, setMode]         = useState<Mode>('info');
+  const [proposalSent, setProposalSent] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const tc     = useTranslations('classes');
   const tp     = useTranslations('proposals');
   const locale = useLocale();
   const { user } = useAuth();
+  const refreshSchedule = useContext(ScheduleRefreshContext);
 
   const canManage = user?.role === 'professor' || user?.role === 'admin';
-  // Authenticated non-manager users can propose changes
   const canPropose = user !== null && !canManage;
 
   // ── Portal mount guard ──────────────────────────────────────────────────────
@@ -64,7 +86,7 @@ export function SubjectPopover({
     let top = rect.bottom + GAP;
     if (top + POPOVER_HEIGHT_EST > window.innerHeight - GAP) {
       top = rect.top - POPOVER_HEIGHT_EST - GAP;
-      if (top < GAP) top = GAP; // last resort: top of viewport
+      if (top < GAP) top = GAP;
     }
 
     // Horizontal: align with block left, clamp to viewport
@@ -75,12 +97,12 @@ export function SubjectPopover({
     left = Math.max(GAP, left);
 
     setPos({ top, left });
-    // Slight delay so the element exists before we trigger the transition
     requestAnimationFrame(() => setVisible(true));
   }, [anchorRef]);
 
-  // ── Close on outside click ──────────────────────────────────────────────────
+  // ── Close on outside click (only in info mode) ──────────────────────────────
   useEffect(() => {
+    if (mode !== 'info') return;
     function handleMouseDown(e: MouseEvent) {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
         onClose();
@@ -88,16 +110,17 @@ export function SubjectPopover({
     }
     document.addEventListener('mousedown', handleMouseDown);
     return () => document.removeEventListener('mousedown', handleMouseDown);
-  }, [onClose]);
+  }, [onClose, mode]);
 
-  // ── Close on Escape ─────────────────────────────────────────────────────────
+  // ── Close on Escape (only in info mode) ─────────────────────────────────────
   useEffect(() => {
+    if (mode !== 'info') return;
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose();
     }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, mode]);
 
   // ── Type label & badge ──────────────────────────────────────────────────────
   const TYPE_LABELS: Record<string, string> = {
@@ -124,6 +147,46 @@ export function SubjectPopover({
 
   if (!mounted) return null;
 
+  // ── Modal modes — ClassForm / ClassDeleteConfirm / ProposalForm ──────────────
+  // Modal components handle their own overlay/portal; no need for createPortal here.
+
+  if (mode === 'editing') {
+    return (
+      <ClassForm
+        initial={subjectToClass(subject)}
+        onSubmit={async () => {
+          refreshSchedule();
+          onClose();
+        }}
+        onClose={() => setMode('info')}
+      />
+    );
+  }
+
+  if (mode === 'deleting') {
+    return (
+      <ClassDeleteConfirm
+        cls={subjectToClass(subject)}
+        onConfirm={async () => {
+          refreshSchedule();
+          onClose();
+        }}
+        onClose={() => setMode('info')}
+      />
+    );
+  }
+
+  if (mode === 'proposing') {
+    return (
+      <ProposalForm
+        subject={subject}
+        onClose={() => setMode('info')}
+        onSuccess={() => { setProposalSent(true); setMode('info'); }}
+      />
+    );
+  }
+
+  // ── Info popover (default) ──────────────────────────────────────────────────
   const content = (
     <div
       ref={popoverRef}
@@ -135,7 +198,6 @@ export function SubjectPopover({
         left:     pos?.left ?? 0,
         width:    POPOVER_WIDTH,
         zIndex:   50,
-        // Hidden until position is calculated to avoid flash at (0,0)
         visibility: pos ? 'visible' : 'hidden',
       }}
       className={[
@@ -146,7 +208,7 @@ export function SubjectPopover({
     >
       {/* ── Header: name + close button ──────────────────────────────────── */}
       <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="text-sm font-medium text-primary leading-snug break-words min-w-0">
+        <h3 className="text-sm font-medium text-primary leading-snug wrap-break-word min-w-0">
           {subject.name}
         </h3>
         <button
@@ -190,38 +252,44 @@ export function SubjectPopover({
         </span>
       </div>
 
-      {/* ── Actions ──────────────────────────────────────────────────────── */}
-      {(canManage || canPropose) && (
+      {/* ── Actions / proposal confirmation ──────────────────────────────── */}
+      {proposalSent ? (
+        <div className="flex items-start gap-2 pt-3 border-t border-subtle">
+          <CheckCircle size={13} className="text-success shrink-0 mt-0.5" aria-hidden />
+          <p className="text-xs text-success leading-snug">
+            {tp('proposeSuccessMessage')}
+          </p>
+        </div>
+      ) : (canManage || canPropose) && (
         <div className="flex flex-wrap gap-2 pt-3 border-t border-subtle">
-          {canManage && onEdit && (
+          {canManage && (
             <Button
               size="sm"
               variant="secondary"
               iconLeft={Pencil}
-              onClick={onEdit}
+              onClick={() => setMode('editing')}
             >
               {tc('edit')}
             </Button>
           )}
-          {canManage && onDelete && (
+          {canManage && (
             <Button
               size="sm"
               variant="destructive"
               iconLeft={Trash2}
-              onClick={onDelete}
+              onClick={() => setMode('deleting')}
             >
               {tc('delete')}
             </Button>
           )}
           {canPropose && (
-            // TODO: add "schedule.proposeChange" translation key and wire up ProposalForm
             <Button
               size="sm"
               variant="secondary"
               iconLeft={MessageSquare}
-              onClick={onClose}
+              onClick={() => setMode('proposing')}
             >
-              {tp('actionCreate')}
+              {tp('proposeTitle')}
             </Button>
           )}
         </div>

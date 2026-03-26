@@ -1,19 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import type { Subject } from '../types/schedule';
 import { MOCK_SUBJECTS } from '../mock/schedule';
+
+// Context so deep components (e.g. SubjectPopover) can trigger a schedule refresh
+// without prop-drilling through ScheduleGrid → SubjectBlock.
+export const ScheduleRefreshContext = createContext<() => void>(() => {});
 
 interface UseScheduleResult {
   subjects: Subject[];
   isLoading: boolean;
   error: string | null;
+  refreshSchedule: () => void;
 }
 
 export function useSchedule(identifier: string | null): UseScheduleResult {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Incrementing this counter re-triggers the effect without changing identifier
+  const [version, setVersion] = useState(0);
+
+  const refreshSchedule = useCallback(() => setVersion(v => v + 1), []);
 
   useEffect(() => {
     if (!identifier) {
@@ -41,8 +50,10 @@ export function useSchedule(identifier: string | null): UseScheduleResult {
     //   enabled: !!identifier,
     //   staleTime: 5 * 60 * 1000,
     // });
-    // return { subjects: data?.subjects ?? [], isLoading, error: error?.message ?? null };
-  }, [identifier]); // Re-runs only when identifier changes — rule 15 (no duplicate fetches)
+    // To refresh after an edit or delete:
+    //   queryClient.invalidateQueries({ queryKey: ['schedule'] });
+    // return { subjects: data?.subjects ?? [], isLoading, error: error?.message ?? null, refreshSchedule };
+  }, [identifier, version]); // `version` re-triggers the fetch on demand (rule 15 compatible)
 
-  return { subjects, isLoading, error };
+  return { subjects, isLoading, error, refreshSchedule };
 }
