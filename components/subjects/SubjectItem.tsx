@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { CatalogSubject } from '@/lib/types/subjects';
 import { GroupItem } from './GroupItem';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface SubjectItemProps {
   subject: CatalogSubject;
@@ -15,35 +16,25 @@ interface SubjectItemProps {
 export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemProps) {
   const t = useTranslations('mySubjects');
   const [isOpen, setIsOpen] = useState(false);
-  const headerCheckboxRef = useRef<HTMLInputElement>(null);
 
   const total = subject.groups.length;
   const selectedCount = subject.groups.filter((g) => localSelection.has(g.id)).length;
   const allSelected = selectedCount === total;
   const isIndeterminate = selectedCount > 0 && !allSelected;
 
-  // indeterminate cannot be set as a React prop — needs direct DOM access
-  useEffect(() => {
-    if (headerCheckboxRef.current) {
-      headerCheckboxRef.current.indeterminate = isIndeterminate;
+  // Toggles all groups in this subject without consuming a React mouse event.
+  // Wrapped in useCallback so GroupItem renders are stable.
+  const handleHeaderCheckboxChange = useCallback(() => {
+    if (allSelected) {
+      subject.groups.forEach((g) => {
+        if (localSelection.has(g.id)) onToggle(g.id);
+      });
+    } else {
+      subject.groups.forEach((g) => {
+        if (!localSelection.has(g.id)) onToggle(g.id);
+      });
     }
-  }, [isIndeterminate]);
-
-  const handleHeaderCheckbox = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (allSelected) {
-        subject.groups.forEach((g) => {
-          if (localSelection.has(g.id)) onToggle(g.id);
-        });
-      } else {
-        subject.groups.forEach((g) => {
-          if (!localSelection.has(g.id)) onToggle(g.id);
-        });
-      }
-    },
-    [allSelected, subject.groups, localSelection, onToggle],
-  );
+  }, [allSelected, subject.groups, localSelection, onToggle]);
 
   return (
     <div>
@@ -55,16 +46,19 @@ export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemPr
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setIsOpen((o) => !o)}
         className="flex items-center gap-3 py-3 px-1 cursor-pointer hover:bg-surface-raised transition-colors select-none"
       >
-        <input
-          ref={headerCheckboxRef}
-          type="checkbox"
-          checked={allSelected}
-          onChange={() => {/* controlled via onClick below */}}
-          onClick={handleHeaderCheckbox}
-          className="h-4 w-4 shrink-0 cursor-pointer rounded-sm"
-          style={{ accentColor: 'var(--accent)' }}
-          aria-label={subject.name}
-        />
+        {/*
+         * Stop propagation here so a click on the checkbox doesn't also
+         * toggle the accordion. The Checkbox itself is a <label> element
+         * wrapping a native input, so we intercept at this span level.
+         */}
+        <span onClick={(e) => e.stopPropagation()}>
+          <Checkbox
+            checked={allSelected}
+            indeterminate={isIndeterminate}
+            onChange={handleHeaderCheckboxChange}
+            ariaLabel={subject.name}
+          />
+        </span>
 
         <div className="flex-1 min-w-0">
           <span className="text-sm font-medium text-primary">{subject.name}</span>

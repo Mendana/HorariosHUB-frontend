@@ -1,3 +1,4 @@
+import { Checkbox } from '@/components/ui/Checkbox';
 import type { SubjectGroup } from '@/lib/types/subjects';
 
 interface GroupItemProps {
@@ -8,17 +9,12 @@ interface GroupItemProps {
 
 export function GroupItem({ group, checked, onChange }: GroupItemProps) {
   return (
-    <label className="flex items-center gap-2.5 py-2 cursor-pointer select-none">
-      <input
-        type="checkbox"
+    <div className="py-2">
+      <Checkbox
         checked={checked}
-        onChange={onChange}
-        className="h-4 w-4 shrink-0 cursor-pointer rounded-sm"
-        style={{ accentColor: 'var(--accent)' }}
+        onChange={() => onChange()}
+        label={group.name}
       />
-      <span className={`text-sm ${checked ? 'text-primary' : 'text-secondary'}`}>
-        {group.name}
-      </span>
-    </label>
+    </div>
   );
 }
