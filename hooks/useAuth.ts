@@ -17,9 +17,9 @@ export interface AuthUser {
 export function useAuth(): { user: AuthUser | null } {
   // const user: AuthUser | null = null;
 
-  // const user: AuthUser = { email: 'alumno@uniovi.es', role: 'user' };
+  const user: AuthUser = { email: 'alumno@uniovi.es', role: 'user' };
   // const user: AuthUser = { email: 'profesor@uniovi.es', role: 'professor' };
-  const user: AuthUser = { email: 'admin@uniovi.es', role: 'admin' };
+  // const user: AuthUser = { email: 'admin@uniovi.es', role: 'admin' };
 
   return { user };
 }
