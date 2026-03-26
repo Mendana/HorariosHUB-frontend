@@ -1,12 +1,12 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { Proposal, ProposalStatus } from '@/lib/types/proposals';
+import type { Proposal } from '@/lib/types/proposals';
+import { TableRoot, TableHead, TableBody, TableSkeletonRows, type TableColumnDef } from '@/components/ui/Table';
 import { ProposalRow } from './ProposalRow';
 import { ProposalCard } from './ProposalCard';
 
 const PAGE_SIZE = 10;
-const SKELETON_ROWS = 5;
 
 interface ProposalListProps {
   proposals: Proposal[];
@@ -46,6 +46,17 @@ export function ProposalList({
         ? 'emptyMine'
         : 'emptyFiltered';
 
+  // Column definitions for the header + skeleton.
+  // ProposalRow handles actual row rendering — col widths here approximate row content.
+  const columns: TableColumnDef[] = [
+    { key: 'action',  label: t('colAction'),  width: '90px'  },
+    { key: 'subject', label: t('colSubject')                 },
+    { key: 'author',  label: t('colAuthor')                  },
+    { key: 'date',    label: t('colDate'),    width: '100px' },
+    { key: 'status',  label: t('colStatus'),  width: '100px' },
+    { key: 'acts',    label: t('colActions'), isActions: true, width: '140px' },
+  ];
+
   if (error) {
     return (
       <div className="mt-4 flex items-center justify-between gap-4 px-4 py-3 rounded-sm bg-error-subtle border border-error">
@@ -57,55 +68,7 @@ export function ProposalList({
     );
   }
 
-  if (isLoading) {
-    return (
-      <>
-        {/* Desktop skeleton */}
-        <div className="hidden lg:block">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-subtle">
-                {[t('colAction'), t('colSubject'), t('colAuthor'), t('colDate'), t('colStatus'), t('colActions')].map(
-                  (col) => (
-                    <th key={col} className="pb-2 px-3 text-xs font-medium text-tertiary">{col}</th>
-                  ),
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: SKELETON_ROWS }, (_, i) => (
-                <tr key={i} className="border-b border-subtle">
-                  {[20, 40, 50, 20, 20, 30].map((w, j) => (
-                    <td key={j} className="py-3 px-3">
-                      <div
-                        className="h-5 rounded-sm bg-surface-raised animate-pulse"
-                        style={{ width: `${w + (i % 3) * 5}%` }}
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {/* Mobile skeleton */}
-        <div className="lg:hidden flex flex-col gap-3">
-          {Array.from({ length: SKELETON_ROWS }, (_, i) => (
-            <div key={i} className="rounded-sm border border-subtle bg-surface-raised p-3 flex flex-col gap-2">
-              <div className="flex justify-between">
-                <div className="h-5 w-16 rounded-sm bg-surface-sunken animate-pulse" />
-                <div className="h-5 w-16 rounded-sm bg-surface-sunken animate-pulse" />
-              </div>
-              <div className="h-4 rounded-sm bg-surface-sunken animate-pulse" style={{ width: `${60 + i * 5}%` }} />
-              <div className="h-3 w-40 rounded-sm bg-surface-sunken animate-pulse" />
-            </div>
-          ))}
-        </div>
-      </>
-    );
-  }
-
-  if (proposals.length === 0) {
+  if (!isLoading && proposals.length === 0) {
     return (
       <p className="py-10 text-center text-sm text-secondary">{t(emptyKey)}</p>
     );
@@ -113,47 +76,55 @@ export function ProposalList({
 
   return (
     <div>
-      {/* Desktop table */}
+      {/* Desktop table — TableRoot/TableHead/TableBody used directly so ProposalRow
+          can render its own <tr> elements (including the expandable diff row). */}
       <div className="hidden lg:block">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-subtle">
-              {[t('colAction'), t('colSubject'), t('colAuthor'), t('colDate'), t('colStatus'), t('colActions')].map(
-                (col) => (
-                  <th key={col} className="pb-2 px-3 text-xs font-medium text-tertiary">{col}</th>
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {proposals.map((p) => (
-              <ProposalRow
+        <TableRoot>
+          <TableHead columns={columns} />
+          <TableBody>
+            {isLoading
+              ? <TableSkeletonRows colCount={columns.length} />
+              : proposals.map((p) => (
+                  <ProposalRow
+                    key={p.id}
+                    proposal={p}
+                    showActions={showActions}
+                    onApprove={onApprove}
+                    onReject={onReject}
+                  />
+                ))
+            }
+          </TableBody>
+        </TableRoot>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="lg:hidden flex flex-col gap-3">
+        {isLoading
+          ? Array.from({ length: 5 }, (_, i) => (
+              <div key={i} className="rounded-sm border border-subtle bg-surface-raised p-3 flex flex-col gap-2">
+                <div className="flex justify-between">
+                  <div className="h-5 w-16 rounded-sm bg-surface-sunken animate-pulse" />
+                  <div className="h-5 w-16 rounded-sm bg-surface-sunken animate-pulse" />
+                </div>
+                <div className="h-4 rounded-sm bg-surface-sunken animate-pulse" style={{ width: `${60 + i * 5}%` }} />
+                <div className="h-3 w-40 rounded-sm bg-surface-sunken animate-pulse" />
+              </div>
+            ))
+          : proposals.map((p) => (
+              <ProposalCard
                 key={p.id}
                 proposal={p}
                 showActions={showActions}
                 onApprove={onApprove}
                 onReject={onReject}
               />
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mobile cards */}
-      <div className="lg:hidden flex flex-col gap-3">
-        {proposals.map((p) => (
-          <ProposalCard
-            key={p.id}
-            proposal={p}
-            showActions={showActions}
-            onApprove={onApprove}
-            onReject={onReject}
-          />
-        ))}
+            ))
+        }
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {!isLoading && totalPages > 1 && (
         <div className="mt-4 flex items-center justify-center gap-2">
           <button
             onClick={() => onPageChange(page - 1)}
