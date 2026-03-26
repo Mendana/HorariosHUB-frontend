@@ -47,7 +47,7 @@ export function Topbar() {
               type="button"
               onClick={toggleTheme}
               aria-label={t('topbar.toggleTheme')}
-              className="hidden sm:flex p-2 rounded-sm text-secondary hover:text-primary hover:bg-surface-raised"
+              className="hidden sm:flex size-9 items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
             >
               {theme === 'dark' ? (
                 <Sun size={18} aria-hidden />
@@ -78,7 +78,7 @@ export function Topbar() {
               type="button"
               onClick={() => setMobileOpen(true)}
               aria-label={t('topbar.openMenu')}
-              className="sm:hidden p-2 rounded-sm text-secondary hover:text-primary"
+              className="sm:hidden size-9 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
             >
               <Menu size={20} aria-hidden />
             </button>

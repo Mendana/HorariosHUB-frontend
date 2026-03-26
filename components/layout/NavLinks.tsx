@@ -69,9 +69,26 @@ export function NavLinks({ role, onNavigate, vertical = false }: NavLinksProps) 
     ? 'flex flex-col gap-1'
     : 'flex items-center gap-1';
 
-  const linkBase = vertical
-    ? 'block px-3 py-2 rounded-sm text-sm font-medium'
-    : 'px-3 py-1.5 rounded-sm text-sm font-medium';
+  function linkCls(isActive: boolean) {
+    const shared = 'transition-[background-color,color,transform] transition-base';
+    if (vertical) {
+      return [
+        'block w-full px-3 py-2.5 rounded-sm text-sm',
+        'active:scale-[0.98]',
+        shared,
+        isActive
+          ? 'font-medium text-primary bg-accent-subtle'
+          : 'text-secondary hover:text-primary hover:bg-surface-raised',
+      ].join(' ');
+    }
+    return [
+      'px-3 py-1.5 rounded-sm text-sm',
+      shared,
+      isActive
+        ? 'font-medium text-primary bg-accent-subtle [border-bottom:2px_solid_var(--accent)]'
+        : 'text-secondary hover:text-primary hover:bg-surface-raised',
+    ].join(' ');
+  }
 
   return (
     <nav aria-label={t('ariaLabel')} className={wrapperClass}>
@@ -85,12 +102,7 @@ export function NavLinks({ role, onNavigate, vertical = false }: NavLinksProps) 
             href={item.href}
             onClick={onNavigate}
             aria-current={isActive ? 'page' : undefined}
-            className={[
-              linkBase,
-              isActive
-                ? 'text-accent'
-                : 'text-secondary hover:text-primary',
-            ].join(' ')}
+            className={linkCls(isActive)}
           >
             {labels[item.labelKey]}
           </Link>

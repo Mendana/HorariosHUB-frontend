@@ -45,7 +45,7 @@ export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemPr
         tabIndex={0}
         onClick={() => setIsOpen((o) => !o)}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setIsOpen((o) => !o)}
-        className="flex items-center gap-3 py-3 px-1 cursor-pointer hover:bg-surface-raised transition-colors select-none"
+        className="flex items-center gap-3 py-3 px-1 cursor-pointer hover:bg-surface-raised transition-colors transition-base select-none"
       >
         {/*
          * Stop propagation here so a click on the checkbox doesn't also
@@ -73,7 +73,7 @@ export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemPr
         <ChevronDown
           size={14}
           aria-hidden
-          className={`text-tertiary shrink-0 transition-transform duration-150 ${
+          className={`text-tertiary shrink-0 transition-[transform] transition-smooth ${
             isOpen ? 'rotate-180' : ''
           }`}
         />
@@ -84,7 +84,7 @@ export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemPr
         style={{
           display: 'grid',
           gridTemplateRows: isOpen ? '1fr' : '0fr',
-          transition: 'grid-template-rows 200ms ease',
+          transition: 'grid-template-rows var(--transition-smooth) ease-in-out',
         }}
       >
         <div className="overflow-hidden">

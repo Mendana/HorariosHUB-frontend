@@ -6,6 +6,8 @@ import { CheckCircle, XCircle, Clock, Calendar, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Notification, NotificationType } from '@/lib/types/notifications';
 
+const DURATION_MS = 250;
+
 interface TypeConfig {
   Icon: LucideIcon;
   iconClass: string;
@@ -47,8 +49,9 @@ export function NotificationItem({
   function handleClick() {
     if (!notification.read) onMarkAsRead(notification.id);
     if (notification.link) {
-      onClose();
-      router.push(notification.link);
+      const link = notification.link;
+      onClose(); // triggers animated close
+      setTimeout(() => router.push(link), DURATION_MS);
     }
   }
 
@@ -57,13 +60,23 @@ export function NotificationItem({
     onDismiss(notification.id);
   }
 
+  const itemCls = [
+    'group relative flex items-start gap-3 px-4 py-3 border-b border-subtle last:border-b-0',
+    'transition-[background-color,filter] transition-base',
+    notification.read ? '' : 'bg-accent-subtle',
+    notification.link
+      ? [
+          'cursor-pointer active:brightness-[0.96]',
+          notification.read
+            ? 'hover:bg-surface-sunken'
+            : 'hover:brightness-[0.97]',
+        ].join(' ')
+      : '',
+  ].filter(Boolean).join(' ');
+
   return (
     <div
-      className={[
-        'group relative flex items-start gap-3 px-4 py-3 border-b border-subtle last:border-b-0 transition-colors',
-        notification.read ? '' : 'bg-accent-subtle',
-        notification.link ? 'cursor-pointer hover:bg-surface-sunken' : '',
-      ].join(' ')}
+      className={itemCls}
       onClick={notification.link ? handleClick : undefined}
     >
       {/* Type icon */}
@@ -80,12 +93,12 @@ export function NotificationItem({
         <p className="text-xs text-tertiary mt-1">{relativeDate()}</p>
       </div>
 
-      {/* Dismiss button — visible on hover */}
+      {/* Dismiss button — revealed on item hover */}
       <button
         type="button"
         onClick={handleDismiss}
         aria-label={t('dismiss')}
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1 rounded-sm text-tertiary hover:text-primary hover:bg-surface-raised transition-opacity"
+        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1 rounded-sm text-tertiary hover:text-primary hover:bg-surface-raised transition-opacity transition-fast"
       >
         <X size={12} aria-hidden />
       </button>

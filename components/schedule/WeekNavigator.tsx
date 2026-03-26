@@ -88,10 +88,10 @@ export function WeekNavigator({ year, week, onWeekChange }: WeekNavigatorProps) 
           <button
             key={sem}
             onClick={() => handleSemesterChange(sem)}
-            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`px-3 py-1.5 text-sm font-medium transition-[background-color,color,filter] transition-base ${
               semester === sem
                 ? 'bg-accent-subtle text-accent'
-                : 'text-secondary hover:text-primary'
+                : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
             }`}
           >
             {t(sem === 1 ? 'semester1' : 'semester2')}
@@ -101,31 +101,35 @@ export function WeekNavigator({ year, week, onWeekChange }: WeekNavigatorProps) 
 
       {/* Week navigation */}
       <div className="flex items-center gap-1.5 sm:ml-auto">
-        {!isCurrentWeek && (
-          <button
-            onClick={goToToday}
-            className="px-2.5 py-1 text-xs font-medium border border-subtle rounded-sm text-secondary hover:text-primary transition-colors"
-          >
-            {t('today')}
-          </button>
-        )}
+        {/* Today button — always rendered, fades in/out */}
+        <button
+          onClick={goToToday}
+          className={[
+            'px-2.5 py-1 text-xs font-medium rounded-sm',
+            'text-accent hover:bg-accent-subtle',
+            'transition-[opacity,background-color,transform] transition-smooth active:scale-[0.95]',
+            isCurrentWeek ? 'opacity-0 pointer-events-none' : 'opacity-100',
+          ].join(' ')}
+        >
+          {t('today')}
+        </button>
 
         <button
           onClick={() => shiftWeek(-1)}
           aria-label="Previous week"
-          className="p-1 rounded-sm text-secondary hover:text-primary transition-colors"
+          className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
         >
           <ChevronLeft size={16} />
         </button>
 
-        <span className="text-sm font-medium text-primary min-w-[148px] text-center tabular-nums">
+        <span className="text-sm font-medium text-primary min-w-37 text-center tabular-nums">
           {rangeLabel}
         </span>
 
         <button
           onClick={() => shiftWeek(1)}
           aria-label="Next week"
-          className="p-1 rounded-sm text-secondary hover:text-primary transition-colors"
+          className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
         >
           <ChevronRight size={16} />
         </button>

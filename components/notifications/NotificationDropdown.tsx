@@ -1,8 +1,11 @@
 'use client';
 
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { NotificationItem } from './NotificationItem';
 import type { Notification } from '@/lib/types/notifications';
+
+const DURATION_MS = 250;
 
 interface NotificationDropdownProps {
   notifications: Notification[];
@@ -19,9 +22,35 @@ export function NotificationDropdown({
   onMarkAsRead, onMarkAllAsRead, onDismiss, onClose,
 }: NotificationDropdownProps) {
   const t = useTranslations('notifications');
+  const [shown, setShown] = useState(false);
+  const closingRef = useRef(false);
+
+  // Entrance animation
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  // Animated close — used by items that navigate (gives exit animation time to play)
+  const handleClose = useCallback(() => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    setShown(false);
+    setTimeout(() => {
+      closingRef.current = false;
+      onClose();
+    }, DURATION_MS);
+  }, [onClose]);
 
   return (
-    <div className="absolute right-0 top-full mt-2 z-50 w-80 bg-surface-raised rounded-md shadow-lg border border-subtle overflow-hidden">
+    <div
+      className="absolute right-0 top-full mt-2 z-50 w-80 bg-surface-raised rounded-md shadow-md border border-subtle overflow-hidden"
+      style={{
+        opacity:    shown ? 1 : 0,
+        transform:  shown ? 'translateY(0)' : 'translateY(-8px)',
+        transition: `opacity ${DURATION_MS}ms ease-in-out, transform ${DURATION_MS}ms ease-in-out`,
+      }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-subtle">
         <h2 className="text-sm font-medium text-primary">{t('title')}</h2>
@@ -29,7 +58,7 @@ export function NotificationDropdown({
           <button
             type="button"
             onClick={onMarkAllAsRead}
-            className="text-xs text-accent hover:text-accent-hover transition-colors"
+            className="text-xs text-accent hover:text-accent-hover transition-colors transition-fast"
           >
             {t('markAllRead')}
           </button>
@@ -59,7 +88,7 @@ export function NotificationDropdown({
               notification={n}
               onMarkAsRead={onMarkAsRead}
               onDismiss={onDismiss}
-              onClose={onClose}
+              onClose={handleClose}
             />
           ))
         )}
