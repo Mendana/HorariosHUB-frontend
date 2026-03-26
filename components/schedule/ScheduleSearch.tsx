@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 const DEGREES = [
   { key: 'mat',    labelKey: 'degreeMat'    },
@@ -31,7 +32,7 @@ interface ScheduleSearchProps {
 export function ScheduleSearch({ identifier, onIdentifierChange }: ScheduleSearchProps) {
   const t = useTranslations('schedule');
   const [uoInput, setUoInput] = useState('');
-  const [degree, setDegree] = useState<string>('inf');
+  const [degree, setDegree]   = useState<string>('inf');
 
   function handleUoSearch() {
     const val = uoInput.trim().toLowerCase();
@@ -50,8 +51,8 @@ export function ScheduleSearch({ identifier, onIdentifierChange }: ScheduleSearc
         <input
           type="text"
           value={uoInput}
-          onChange={(e) => setUoInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleUoSearch()}
+          onChange={e => setUoInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleUoSearch()}
           placeholder={t('searchPlaceholder')}
           className={`${INPUT_FIELD_CLS} h-9 w-28 px-3 text-sm`}
         />
@@ -65,22 +66,17 @@ export function ScheduleSearch({ identifier, onIdentifierChange }: ScheduleSearc
 
       {/* Row 2: degree selector + year chips */}
       <div className="flex items-center gap-2 flex-wrap">
-        <select
+        <Select
           value={degree}
-          onChange={(e) => setDegree(e.target.value)}
-          aria-label={t('degreeLabel')}
-          className={`${INPUT_FIELD_CLS} h-8 px-2 text-sm`}
-        >
-          {DEGREES.map((d) => (
-            <option key={d.key} value={d.key}>
-              {t(d.labelKey)}
-            </option>
-          ))}
-        </select>
+          onChange={setDegree}
+          options={DEGREES.map(d => ({ value: d.key, label: t(d.labelKey) }))}
+          ariaLabel={t('degreeLabel')}
+          size="sm"
+        />
 
         <div className="flex gap-1 flex-wrap">
-          {YEARS.map((y) => {
-            const id = `${degree}${y.suffix}`;
+          {YEARS.map(y => {
+            const id     = `${degree}${y.suffix}`;
             const active = identifier === id;
             return (
               <button

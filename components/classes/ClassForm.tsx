@@ -6,6 +6,7 @@ import type { Class, ClassInput, ClassType } from '@/lib/types/classes';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 // ── Subject list (hardcoded PCEO catalogue) ───────────────────────────────────
 
@@ -115,19 +116,26 @@ interface ClassFormProps {
 }
 
 const inputClass = `${INPUT_FIELD_CLS} h-10 w-full px-3 text-sm`;
-
 const labelClass = 'block text-sm font-medium text-primary mb-1';
 const errorClass = 'mt-1 text-xs text-error';
 
 export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
   const t = useTranslations('classes');
-  const [form, setForm] = useState<FormState>(() => initState(initial));
+  const [form, setForm]     = useState<FormState>(() => initState(initial));
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const set = (field: keyof FormState) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => setForm((prev) => ({ ...prev, [field]: field === 'durationMinutes' ? Number(e.target.value) : e.target.value }));
+  // For native <input> elements
+  const set = (field: 'date' | 'classroom') =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm(prev => ({ ...prev, [field]: e.target.value }));
+
+  // For Select components
+  const setVal = (field: keyof FormState) => (val: string) =>
+    setForm(prev => ({
+      ...prev,
+      [field]: field === 'durationMinutes' ? Number(val) : val,
+    }));
 
   const endTime = useMemo(
     () => (form.startTime ? calcEndTime(form.startTime, form.durationMinutes) : null),
@@ -136,10 +144,10 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
 
   function validate(): boolean {
     const errs: FormErrors = {};
-    if (!form.name) errs.name = t('errorRequired');
-    if (!form.type) errs.type = t('errorRequired');
-    if (!form.date) errs.date = t('errorRequired');
-    if (!form.startTime) errs.startTime = t('errorRequired');
+    if (!form.name)          errs.name          = t('errorRequired');
+    if (!form.type)          errs.type          = t('errorRequired');
+    if (!form.date)          errs.date          = t('errorRequired');
+    if (!form.startTime)     errs.startTime     = t('errorRequired');
     if (!form.durationMinutes) errs.durationMinutes = t('errorRequired');
     if (form.startTime && endTime === null) errs.durationMinutes = t('endTimeExceeds');
     setErrors(errs);
@@ -174,31 +182,33 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            {/* Subject */}
-            <div>
-              <label className={labelClass}>{t('fieldSubject')}</label>
-              <select value={form.name} onChange={set('name')} className={inputClass}>
-                <option value="">{t('selectSubject')}</option>
-                {PCEO_SUBJECTS.map((s) => (
-                  <option key={s.code} value={s.code}>{s.code} — {s.name}</option>
-                ))}
-              </select>
-              {errors.name && <p className={errorClass}>{errors.name}</p>}
-            </div>
+            {/* Subject — searchable (24 options) */}
+            <Select
+              label={t('fieldSubject')}
+              value={form.name}
+              onChange={setVal('name')}
+              placeholder={t('selectSubject')}
+              options={PCEO_SUBJECTS.map(s => ({
+                value: s.code,
+                label: `${s.code} — ${s.name}`,
+              }))}
+              searchable
+              error={errors.name}
+              size="lg"
+            />
 
             {/* Type */}
-            <div>
-              <label className={labelClass}>{t('fieldType')}</label>
-              <select value={form.type} onChange={set('type')} className={inputClass}>
-                <option value="">{t('selectType')}</option>
-                {CLASS_TYPES.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-              {errors.type && <p className={errorClass}>{errors.type}</p>}
-            </div>
+            <Select
+              label={t('fieldType')}
+              value={form.type}
+              onChange={setVal('type')}
+              placeholder={t('selectType')}
+              options={CLASS_TYPES.map(type => ({ value: type, label: type }))}
+              error={errors.type}
+              size="lg"
+            />
 
-            {/* Date */}
+            {/* Date — native date input, no custom Select */}
             <div>
               <label className={labelClass}>{t('fieldDate')}</label>
               <input
@@ -211,35 +221,31 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
             </div>
 
             {/* Start time */}
-            <div>
-              <label className={labelClass}>{t('fieldStartTime')}</label>
-              <select value={form.startTime} onChange={set('startTime')} className={inputClass}>
-                <option value="">{t('selectStartTime')}</option>
-                {TIME_SLOTS.map((slot) => (
-                  <option key={slot} value={slot}>{slot}</option>
-                ))}
-              </select>
-              {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
-            </div>
+            <Select
+              label={t('fieldStartTime')}
+              value={form.startTime}
+              onChange={setVal('startTime')}
+              placeholder={t('selectStartTime')}
+              options={TIME_SLOTS.map(slot => ({ value: slot, label: slot }))}
+              error={errors.startTime}
+              size="lg"
+            />
 
             {/* Duration */}
             <div>
-              <label className={labelClass}>{t('fieldDuration')}</label>
-              <select
-                value={form.durationMinutes}
-                onChange={set('durationMinutes')}
-                className={inputClass}
-              >
-                {DURATIONS.map((d) => (
-                  <option key={d.value} value={d.value}>{t(d.labelKey)}</option>
-                ))}
-              </select>
+              <Select
+                label={t('fieldDuration')}
+                value={String(form.durationMinutes)}
+                onChange={setVal('durationMinutes')}
+                options={DURATIONS.map(d => ({ value: String(d.value), label: t(d.labelKey) }))}
+                error={errors.durationMinutes}
+                size="lg"
+              />
               {endTime && !errors.durationMinutes && (
                 <p className="mt-1 text-xs text-secondary">
                   {t('endTimeLabel', { time: endTime })}
                 </p>
               )}
-              {errors.durationMinutes && <p className={errorClass}>{errors.durationMinutes}</p>}
             </div>
 
             {/* Classroom */}

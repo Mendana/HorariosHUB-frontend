@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Spinner } from '@/components/ui/Spinner';
+import { Select } from '@/components/ui/Select';
 import type { UserRole } from '@/lib/types/users';
 
 const ROLE_OPTIONS: UserRole[] = ['user', 'professor', 'admin'];
@@ -15,18 +16,17 @@ interface RoleSelectorProps {
 }
 
 export function RoleSelector({ email, currentRole, isSelf, onChangeRole }: RoleSelectorProps) {
-  const t = useTranslations('users');
+  const t      = useTranslations('users');
   const tRoles = useTranslations('roles');
   const [isChanging, setIsChanging] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]           = useState<string | null>(null);
 
-  async function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const newRole = e.target.value as UserRole;
+  async function handleChange(newRole: string) {
     if (newRole === currentRole) return;
     setIsChanging(true);
     setError(null);
     try {
-      await onChangeRole(email, newRole);
+      await onChangeRole(email, newRole as UserRole);
     } catch {
       setError(t('errorSelfRole'));
     } finally {
@@ -37,21 +37,14 @@ export function RoleSelector({ email, currentRole, isSelf, onChangeRole }: RoleS
   return (
     <div>
       <div className="flex items-center gap-2">
-        <select
+        <Select
           value={currentRole}
           onChange={handleChange}
+          options={ROLE_OPTIONS.map(r => ({ value: r, label: tRoles(r) }))}
           disabled={isSelf || isChanging}
-          title={isSelf ? t('changeRoleDisabledTip') : undefined}
-          className={
-            'h-8 px-2 rounded-sm bg-surface-sunken border border-subtle text-sm text-primary ' +
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ' +
-            'disabled:opacity-50 disabled:cursor-not-allowed'
-          }
-        >
-          {ROLE_OPTIONS.map((r) => (
-            <option key={r} value={r}>{tRoles(r)}</option>
-          ))}
-        </select>
+          size="sm"
+          ariaLabel={isSelf ? t('changeRoleDisabledTip') : undefined}
+        />
         {isChanging && <Spinner size={14} />}
       </div>
       {error && <p className="mt-1 text-xs text-error">{error}</p>}
