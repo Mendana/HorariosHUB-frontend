@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import type { Proposal, ProposalAction, ProposalStatus } from '@/lib/types/proposals';
 import { ProposalDiff } from './ProposalDiff';
 import { ProposalActions } from './ProposalActions';
+import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 
 interface ProposalCardProps {
   proposal: Proposal;
@@ -13,16 +14,16 @@ interface ProposalCardProps {
   onReject: (id: string, reason?: string) => Promise<void>;
 }
 
-const ACTION_CLASSES: Record<ProposalAction, string> = {
-  create: 'bg-success-subtle text-success border border-success',
-  update: 'bg-warning-subtle text-warning border border-warning',
-  delete: 'bg-error-subtle text-error border border-error',
+const ACTION_VARIANT: Record<ProposalAction, BadgeVariant> = {
+  create: 'success',
+  update: 'warning',
+  delete: 'error',
 };
 
-const STATUS_CLASSES: Record<ProposalStatus, string> = {
-  pending: 'bg-warning-subtle text-warning border border-warning',
-  approved: 'bg-success-subtle text-success border border-success',
-  rejected: 'bg-error-subtle text-error border border-error',
+const STATUS_VARIANT: Record<ProposalStatus, BadgeVariant> = {
+  pending:  'warning',
+  approved: 'success',
+  rejected: 'error',
 };
 
 function relativeDate(iso: string): string {
@@ -49,12 +50,8 @@ export function ProposalCard({ proposal, showActions, onApprove, onReject }: Pro
   return (
     <div className="rounded-sm border border-subtle bg-surface-raised p-3 flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <span className={`px-2 py-0.5 text-xs font-medium rounded-sm ${ACTION_CLASSES[proposal.action]}`}>
-          {t(actionLabelKey)}
-        </span>
-        <span className={`px-2 py-0.5 text-xs font-medium rounded-sm ${STATUS_CLASSES[proposal.status]}`}>
-          {t(statusLabelKey)}
-        </span>
+        <Badge variant={ACTION_VARIANT[proposal.action]} size="sm">{t(actionLabelKey)}</Badge>
+        <Badge variant={STATUS_VARIANT[proposal.status]} size="sm">{t(statusLabelKey)}</Badge>
       </div>
 
       <p className="text-sm font-medium text-primary">{subjectLabel(proposal)}</p>

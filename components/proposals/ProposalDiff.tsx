@@ -1,5 +1,6 @@
 'use client';
 
+import { Fragment } from 'react';
 import { useTranslations } from 'next-intl';
 import type { Proposal, ClassSnapshot } from '@/lib/types/proposals';
 
@@ -85,15 +86,15 @@ export function ProposalDiff({ proposal }: ProposalDiffProps) {
           <p className="text-xs font-medium text-tertiary pb-1">{t('diffOldLabel')}</p>
           <p className="text-xs font-medium text-tertiary pb-1">{t('diffNewLabel')}</p>
           {changedFields.map(({ key, labelKey }) => (
-            <>
-              <p key={`${key}-label`} className="text-xs text-tertiary py-1">{t(labelKey)}</p>
-              <p key={`${key}-old`} className="text-sm text-tertiary py-1 line-through">
+            <Fragment key={key}>
+              <p className="text-xs text-tertiary py-1">{t(labelKey)}</p>
+              <p className="text-sm text-tertiary py-1 line-through">
                 {formatValue(key, oldSnap[key])}
               </p>
-              <p key={`${key}-new`} className="text-sm text-primary py-1 font-medium">
+              <p className="text-sm text-primary py-1 font-medium">
                 {formatValue(key, newSnap[key])}
               </p>
-            </>
+            </Fragment>
           ))}
         </div>
       </div>

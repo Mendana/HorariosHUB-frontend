@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import type { Proposal, ProposalAction, ProposalStatus } from '@/lib/types/proposals';
 import { ProposalDiff } from './ProposalDiff';
 import { ProposalActions } from './ProposalActions';
+import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 
 interface ProposalRowProps {
   proposal: Proposal;
@@ -13,16 +14,16 @@ interface ProposalRowProps {
   onReject: (id: string, reason?: string) => Promise<void>;
 }
 
-const ACTION_CLASSES: Record<ProposalAction, string> = {
-  create: 'bg-success-subtle text-success border border-success',
-  update: 'bg-warning-subtle text-warning border border-warning',
-  delete: 'bg-error-subtle text-error border border-error',
+const ACTION_VARIANT: Record<ProposalAction, BadgeVariant> = {
+  create: 'success',
+  update: 'warning',
+  delete: 'error',
 };
 
-const STATUS_CLASSES: Record<ProposalStatus, string> = {
-  pending: 'bg-warning-subtle text-warning border border-warning',
-  approved: 'bg-success-subtle text-success border border-success',
-  rejected: 'bg-error-subtle text-error border border-error',
+const STATUS_VARIANT: Record<ProposalStatus, BadgeVariant> = {
+  pending:  'warning',
+  approved: 'success',
+  rejected: 'error',
 };
 
 function relativeDate(iso: string): string {
@@ -50,9 +51,7 @@ export function ProposalRow({ proposal, showActions, onApprove, onReject }: Prop
     <>
       <tr className="border-b border-subtle hover:bg-surface-raised transition-colors">
         <td className="py-3 px-3">
-          <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-sm ${ACTION_CLASSES[proposal.action]}`}>
-            {t(actionLabelKey)}
-          </span>
+          <Badge variant={ACTION_VARIANT[proposal.action]} size="sm">{t(actionLabelKey)}</Badge>
         </td>
         <td className="py-3 px-3 text-sm text-primary">{subjectLabel(proposal)}</td>
         <td className="py-3 px-3 text-sm text-secondary">{proposal.author}</td>
@@ -60,9 +59,7 @@ export function ProposalRow({ proposal, showActions, onApprove, onReject }: Prop
           {relativeDate(proposal.created_at)}
         </td>
         <td className="py-3 px-3">
-          <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-sm ${STATUS_CLASSES[proposal.status]}`}>
-            {t(statusLabelKey)}
-          </span>
+          <Badge variant={STATUS_VARIANT[proposal.status]} size="sm">{t(statusLabelKey)}</Badge>
         </td>
         <td className="py-3 px-3">
           <div className="flex items-center gap-3 flex-wrap">

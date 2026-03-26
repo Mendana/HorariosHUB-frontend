@@ -4,13 +4,13 @@ import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { AuthUser, Role } from '@/hooks/useAuth';
+import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 
-/** Color del badge por rol */
-const ROLE_BADGE: Record<Role, string> = {
-  visitor: 'bg-surface-sunken text-secondary',
-  user: 'bg-surface-sunken text-secondary',
-  professor: 'bg-accent-subtle text-accent',
-  admin: 'bg-warning-subtle text-warning',
+const ROLE_VARIANT: Record<Role, BadgeVariant> = {
+  visitor:   'default',
+  user:      'default',
+  professor: 'warning',
+  admin:     'accent',
 };
 
 interface UserMenuProps {
@@ -72,11 +72,9 @@ export function UserMenu({ user }: UserMenuProps) {
           {/* Cabecera: email + rol */}
           <div className="px-4 py-3 border-b border-subtle">
             <p className="text-sm font-medium text-primary truncate">{user.email}</p>
-            <span
-              className={`mt-1.5 inline-block text-xs font-medium px-2 py-0.5 rounded-sm ${ROLE_BADGE[user.role]}`}
-            >
+            <Badge variant={ROLE_VARIANT[user.role]} size="sm" className="mt-1.5">
               {t(`roles.${user.role}`)}
-            </span>
+            </Badge>
           </div>
 
           {/* Acciones */}

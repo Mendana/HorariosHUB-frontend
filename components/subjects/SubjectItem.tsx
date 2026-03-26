@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { CatalogSubject } from '@/lib/types/subjects';
 import { GroupItem } from './GroupItem';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Badge } from '@/components/ui/Badge';
 
 interface SubjectItemProps {
   subject: CatalogSubject;
@@ -65,9 +66,9 @@ export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemPr
           <span className="ml-2 text-xs text-tertiary">{subject.code}</span>
         </div>
 
-        <span className="text-xs text-secondary shrink-0">
+        <Badge variant={allSelected ? 'accent' : 'default'} size="sm">
           {t('groupsSelected', { selected: selectedCount, total })}
-        </span>
+        </Badge>
 
         <ChevronDown
           size={14}

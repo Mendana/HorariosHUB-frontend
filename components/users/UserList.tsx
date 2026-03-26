@@ -5,11 +5,12 @@ import { Trash2 } from 'lucide-react';
 import { RoleSelector } from '@/components/users/RoleSelector';
 import type { User, UserRole } from '@/lib/types/users';
 import { Table, type TableColumn } from '@/components/ui/Table';
+import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 
-const ROLE_BADGE: Record<UserRole, string> = {
-  admin:     'bg-accent-subtle text-accent border border-accent',
-  professor: 'bg-warning-subtle text-warning border border-warning',
-  user:      'bg-surface-raised text-secondary border border-subtle',
+const ROLE_VARIANT: Record<UserRole, BadgeVariant> = {
+  admin:     'accent',
+  professor: 'warning',
+  user:      'default',
 };
 
 interface UserListProps {
@@ -48,9 +49,7 @@ export function UserList({
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-primary truncate">{u.email}</span>
           {u.email === currentUserEmail && (
-            <span className="shrink-0 px-1.5 py-0.5 text-xs font-medium rounded-sm bg-accent-subtle text-accent">
-              {t('you')}
-            </span>
+            <Badge variant="outline" size="sm">{t('you')}</Badge>
           )}
         </div>
       ),
@@ -60,9 +59,7 @@ export function UserList({
       label: t('colRole'),
       width: '120px',
       render: (u) => (
-        <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-sm ${ROLE_BADGE[u.role]}`}>
-          {tRoles(u.role)}
-        </span>
+        <Badge variant={ROLE_VARIANT[u.role]} size="sm">{tRoles(u.role)}</Badge>
       ),
     },
     {
@@ -134,14 +131,10 @@ export function UserList({
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm text-primary truncate">{u.email}</span>
                     {isSelf && (
-                      <span className="shrink-0 px-1.5 py-0.5 text-xs font-medium rounded-sm bg-accent-subtle text-accent">
-                        {t('you')}
-                      </span>
+                      <Badge variant="outline" size="sm">{t('you')}</Badge>
                     )}
                   </div>
-                  <span className={`shrink-0 px-2 py-0.5 text-xs font-medium rounded-sm ${ROLE_BADGE[u.role]}`}>
-                    {tRoles(u.role)}
-                  </span>
+                  <Badge variant={ROLE_VARIANT[u.role]} size="sm">{tRoles(u.role)}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <RoleSelector
