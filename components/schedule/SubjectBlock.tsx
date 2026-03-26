@@ -1,11 +1,42 @@
 'use client';
 
-import { useTheme } from '@/hooks/useTheme';
-import { getSubjectColor } from '@/lib/config/subjectColors';
+import { useState, useRef } from 'react';
+import { MapPin } from 'lucide-react';
+import { getSubjectColorVars } from '@/lib/config/subjectColors';
 import { timeToMinutes, isCurrentlyOngoing } from '@/lib/utils/scheduleHelpers';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
+import type { Class, ClassType } from '@/lib/types/classes';
+import { useAuth } from '@/hooks/useAuth';
+import { SubjectPopover } from './SubjectPopover';
+import { ClassForm } from '@/components/classes/ClassForm';
+import { ClassDeleteConfirm } from '@/components/classes/ClassDeleteConfirm';
 
 const GRID_START_MINS = 8 * 60; // 08:00
+
+// Visual indicator per class type. 'Teoría' is the base — no badge.
+// Labels are single-letter abbreviations, language-neutral in ES/EN.
+const TYPE_BADGES: Partial<Record<string, { label: string; cls: string }>> = {
+  'Práctica': { label: 'P', cls: 'bg-warning-subtle text-warning' },
+  'Examen':   { label: 'E', cls: 'bg-error-subtle text-error' },
+  'Otros':    { label: '?', cls: 'bg-surface-sunken text-tertiary border border-subtle' },
+};
+
+type BlockState = null | 'popover' | 'editing' | 'deleting';
+
+function subjectToClass(s: SubjectWithLayout): Class {
+  const durationMinutes = timeToMinutes(s.endTime) - timeToMinutes(s.startTime);
+  return {
+    id:              s.id,
+    // Extract the subject code from "CODE - Full Name" format expected by ClassForm
+    name:            s.name.split(' - ')[0].trim(),
+    type:            s.type as ClassType,
+    classroom:       s.classroom || undefined,
+    date:            s.date,
+    startTime:       s.startTime,
+    endTime:         s.endTime,
+    durationMinutes,
+  };
+}
 
 interface SubjectBlockProps {
   subject: SubjectWithLayout;
@@ -13,52 +44,154 @@ interface SubjectBlockProps {
 }
 
 export function SubjectBlock({ subject, slotHeight }: SubjectBlockProps) {
-  const { theme } = useTheme();
-  const color = getSubjectColor(subject.name);
+  const [blockState, setBlockState] = useState<BlockState>(null);
+  const blockRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const canManage = user?.role === 'professor' || user?.role === 'admin';
 
-  const startMins = timeToMinutes(subject.startTime);
-  const endMins = timeToMinutes(subject.endTime);
+  const colorVars = getSubjectColorVars(subject.name);
+  const ongoing   = isCurrentlyOngoing(subject);
+
+  // Layout calculations
+  const startMins    = timeToMinutes(subject.startTime);
+  const endMins      = timeToMinutes(subject.endTime);
   const durationSlots = (endMins - startMins) / 30;
-
-  const top = ((startMins - GRID_START_MINS) / 30) * slotHeight;
+  const top    = ((startMins - GRID_START_MINS) / 30) * slotHeight;
   const height = durationSlots * slotHeight;
 
   const colFraction = 1 / subject.totalCols;
-  const leftPct = subject.col * colFraction * 100;
-  const widthCalc = `calc(${colFraction * 100}% - ${subject.totalCols > 1 ? '3px' : '1px'})`;
+  const leftPct     = subject.col * colFraction * 100;
+  const widthCalc   = `calc(${colFraction * 100}% - ${subject.totalCols > 1 ? '3px' : '1px'})`;
 
-  const isShort = height < 56;
-  const ongoing = isCurrentlyOngoing(subject);
+  const isVeryShort = height < 50; // only name fits
+  const isShort     = height < 80; // name + classroom fit, no time
+
+  const badge = TYPE_BADGES[subject.type];
+
+  // When the class is ongoing, swap in the more-intense background vars so that
+  // [background-color:var(--sb-bg)] automatically picks up the active value.
+  const effectiveVars: Record<string, string> = ongoing
+    ? { ...colorVars, '--sb-bg': colorVars['--sb-bg-active'], '--sb-bg-dark': colorVars['--sb-bg-dark-active'] }
+    : colorVars;
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setBlockState('popover');
+    }
+  }
 
   return (
-    <div
-      className="absolute overflow-hidden rounded-sm pl-2 pr-1 pt-0.5 cursor-default select-none z-[1] hover:brightness-95 transition-[filter] duration-100"
-      style={{
-        top,
-        height,
-        left: `${leftPct}%`,
-        width: widthCalc,
-        borderLeft: `3px solid ${color.border}`,
-        backgroundColor: theme === 'dark' ? color.bgDark : color.bgLight,
-      }}
-    >
-      {ongoing && (
-        <span
-          className="absolute top-1 right-1 size-1.5 rounded-full bg-accent animate-pulse"
-          aria-hidden
+    <>
+      {/* ── Block ─────────────────────────────────────────────────────────── */}
+      <div
+        ref={blockRef}
+        role="button"
+        tabIndex={0}
+        aria-label={`${subject.name}, ${subject.startTime}–${subject.endTime}`}
+        aria-expanded={blockState === 'popover'}
+        onClick={() => setBlockState('popover')}
+        onKeyDown={handleKeyDown}
+        style={{
+          ...effectiveVars,
+          top,
+          height,
+          left:            `${leftPct}%`,
+          width:           widthCalc,
+          // Border-left uses the saturated color directly — same hue in both themes
+          borderLeftColor: colorVars['--sb-border'],
+          // Ongoing: widen the accent stripe to 4px; default 3px comes from the class
+          ...(ongoing && { borderLeftWidth: '4px' }),
+        } as React.CSSProperties}
+        className={[
+          // Position & shape
+          'absolute z-1 select-none cursor-pointer overflow-hidden',
+          'rounded-r-sm', // left corners are square (flat against the color stripe)
+          // Padding — right side leaves room for corner indicators
+          'pl-2 pt-1 pb-0.5 pr-1',
+          // Outer border: 1px on top/right/bottom, 3px on left (overridden in style for 4px when ongoing)
+          'border-y border-r border-subtle [border-left-width:3px]',
+          // Background via CSS vars (dark: variant swaps to --sb-bg-dark)
+          'bg-(--sb-bg) dark:bg-(--sb-bg-dark)',
+          // Shadow: sm at rest, md when ongoing or hovering
+          ongoing ? 'shadow-md' : 'shadow-sm',
+          // Hover: darken + lift
+          'hover:shadow-md hover:brightness-[0.94]',
+          // Active/press: slight scale-down (spec: 0.98)
+          'active:scale-[0.98]',
+          // Transitions: box-shadow + filter (brightness) + scale
+          'transition-[box-shadow,filter,scale] transition-base',
+        ].join(' ')}
+      >
+        {/* ── Corner indicators (type badge + ongoing pulse) ──────────────── */}
+        {(badge || ongoing) && (
+          <div className="absolute top-1 right-1 flex flex-col items-end gap-0.5 pointer-events-none">
+            {badge && (
+              <span
+                aria-hidden
+                className={`text-[10px] font-medium leading-none px-1 py-0.5 rounded-[3px] ${badge.cls}`}
+              >
+                {badge.label}
+              </span>
+            )}
+            {ongoing && (
+              <span
+                className="size-1.5 rounded-full bg-accent animate-pulse"
+                aria-hidden
+              />
+            )}
+          </div>
+        )}
+
+        {/* ── Content ─────────────────────────────────────────────────────── */}
+        <p className="text-xs font-medium text-primary leading-tight truncate pr-4">
+          {subject.name}
+        </p>
+
+        {!isVeryShort && (
+          <div className="flex items-center gap-1 mt-0.5">
+            <MapPin size={10} className="text-tertiary shrink-0" aria-hidden />
+            <p className="text-xs text-secondary leading-tight truncate">
+              {subject.classroom || '—'}
+            </p>
+          </div>
+        )}
+
+        {!isShort && (
+          <p className="text-xs text-tertiary leading-tight mt-0.5 tabular-nums">
+            {subject.startTime}–{subject.endTime}
+          </p>
+        )}
+      </div>
+
+      {/* ── Popover ───────────────────────────────────────────────────────── */}
+      {blockState === 'popover' && (
+        <SubjectPopover
+          subject={subject}
+          anchorRef={blockRef}
+          onClose={() => setBlockState(null)}
+          onEdit={canManage  ? () => setBlockState('editing')  : undefined}
+          onDelete={canManage ? () => setBlockState('deleting') : undefined}
         />
       )}
 
-      <p className="text-xs font-medium text-primary leading-tight truncate">
-        {subject.name}
-      </p>
-
-      {!isShort && (
-        <p className="text-xs text-secondary leading-tight truncate">
-          {subject.type}
-          {subject.classroom ? ` · ${subject.classroom}` : ''}
-        </p>
+      {/* ── Edit modal (professor / admin only) ──────────────────────────── */}
+      {blockState === 'editing' && canManage && (
+        <ClassForm
+          initial={subjectToClass(subject)}
+          onSubmit={async () => setBlockState(null)}
+          onClose={() => setBlockState(null)}
+        />
       )}
-    </div>
+
+      {/* ── Delete confirm modal (professor / admin only) ─────────────────── */}
+      {blockState === 'deleting' && canManage && (
+        <ClassDeleteConfirm
+          cls={subjectToClass(subject)}
+          onConfirm={async () => setBlockState(null)}
+          onClose={() => setBlockState(null)}
+        />
+      )}
+    </>
   );
 }
