@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Wand2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Spinner } from '@/components/ui/Spinner';
+import { Button } from '@/components/ui/Button';
 import type { AutoSelectResult } from '@/lib/hooks/useSubjects';
 
 interface AutoSelectButtonProps {
@@ -35,14 +35,15 @@ export function AutoSelectButton({ onAutoSelect, onComplete }: AutoSelectButtonP
 
   return (
     <div className="flex flex-col items-end gap-1.5">
-      <button
+      <Button
+        variant="secondary"
+        size="sm"
         onClick={handleClick}
-        disabled={state === 'running'}
-        className="inline-flex items-center gap-2 px-3 py-1.5 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        loading={state === 'running'}
+        iconLeft={state !== 'running' ? Wand2 : undefined}
       >
-        {state === 'running' ? <Spinner size={14} /> : <Wand2 size={14} aria-hidden />}
         {t('autoSelect')}
-      </button>
+      </Button>
 
       {state === 'running' && (
         <p className="text-xs text-secondary text-right max-w-56">

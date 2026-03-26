@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 
 const DEGREES = [
   { key: 'mat',    labelKey: 'degreeMat'    },
@@ -51,15 +53,14 @@ export function ScheduleSearch({ identifier, onIdentifierChange }: ScheduleSearc
           onChange={(e) => setUoInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleUoSearch()}
           placeholder={t('searchPlaceholder')}
-          className="h-9 w-28 rounded-sm bg-surface-sunken border border-subtle px-3 text-sm text-primary placeholder:text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className={`${INPUT_FIELD_CLS} h-9 w-28 px-3 text-sm`}
         />
-        <button
+        <Button
+          variant="primary"
           onClick={handleUoSearch}
+          iconLeft={Search}
           aria-label={t('searchButton')}
-          className="h-9 px-3 flex items-center justify-center rounded-sm bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors"
-        >
-          <Search size={15} />
-        </button>
+        />
       </div>
 
       {/* Row 2: degree selector + year chips */}
@@ -68,7 +69,7 @@ export function ScheduleSearch({ identifier, onIdentifierChange }: ScheduleSearc
           value={degree}
           onChange={(e) => setDegree(e.target.value)}
           aria-label={t('degreeLabel')}
-          className="h-8 rounded-sm bg-surface-sunken border border-subtle px-2 text-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className={`${INPUT_FIELD_CLS} h-8 px-2 text-sm`}
         >
           {DEGREES.map((d) => (
             <option key={d.key} value={d.key}>

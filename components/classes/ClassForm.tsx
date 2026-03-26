@@ -4,7 +4,8 @@ import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import type { Class, ClassInput, ClassType } from '@/lib/types/classes';
 import { Modal } from '@/components/ui/Modal';
-import { Spinner } from '@/components/ui/Spinner';
+import { Button } from '@/components/ui/Button';
+import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 
 // ── Subject list (hardcoded PCEO catalogue) ───────────────────────────────────
 
@@ -113,10 +114,7 @@ interface ClassFormProps {
   onClose: () => void;
 }
 
-const inputClass =
-  'h-10 w-full px-3 rounded-sm bg-surface-sunken border border-subtle text-sm text-primary ' +
-  'placeholder:text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ' +
-  'disabled:opacity-50';
+const inputClass = `${INPUT_FIELD_CLS} h-10 w-full px-3 text-sm`;
 
 const labelClass = 'block text-sm font-medium text-primary mb-1';
 const errorClass = 'mt-1 text-xs text-error';
@@ -260,22 +258,12 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
 
           {/* Actions */}
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-subtle">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSaving}
-              className="px-4 py-2 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-50"
-            >
+            <Button variant="secondary" type="button" onClick={onClose} disabled={isSaving}>
               {t('cancel')}
-            </button>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-accent text-white rounded-sm hover:bg-accent-hover transition-colors disabled:opacity-50"
-            >
-              {isSaving && <Spinner size={14} />}
+            </Button>
+            <Button variant="primary" type="submit" loading={isSaving}>
               {t('save')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
+import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 
 interface UserFiltersProps {
   search: string;
@@ -41,11 +42,7 @@ export function UserFilters({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t('filterSearchPlaceholder')}
-            className={
-              'h-9 pl-8 pr-3 rounded-sm bg-surface-sunken border border-subtle text-sm text-primary ' +
-              'placeholder:text-tertiary focus-visible:outline-none focus-visible:ring-2 ' +
-              'focus-visible:ring-accent w-64'
-            }
+            className={`${INPUT_FIELD_CLS} h-9 pl-8 pr-3 text-sm w-64`}
           />
         </div>
 

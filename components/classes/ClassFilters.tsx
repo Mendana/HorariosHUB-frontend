@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 import type { ClassType } from '@/lib/types/classes';
+import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 
 const CLASS_TYPES: ClassType[] = ['Teoría', 'Práctica', 'Examen', 'Otros'];
 
@@ -17,9 +18,7 @@ interface ClassFiltersProps {
   onClear: () => void;
 }
 
-const inputClass =
-  'h-9 px-3 rounded-sm bg-surface-sunken border border-subtle text-sm text-primary ' +
-  'placeholder:text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+const inputClass = `${INPUT_FIELD_CLS} h-9 px-3 text-sm`;
 
 export function ClassFilters({
   search, type, week, hasActiveFilters,

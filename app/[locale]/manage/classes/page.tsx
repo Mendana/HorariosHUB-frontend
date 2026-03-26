@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { useClasses } from '@/lib/hooks/useClasses';
 import { ClassList, type SortCol, type SortDir } from '@/components/classes/ClassList';
@@ -172,13 +173,9 @@ export default function ManageClassesPage() {
       {/* Page header */}
       <div className="flex items-center justify-between gap-4 mb-4">
         <h1 className="text-xl font-semibold text-primary">{t('title')}</h1>
-        <button
-          onClick={() => setModal({ kind: 'create' })}
-          className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-accent text-white rounded-sm hover:bg-accent-hover transition-colors"
-        >
-          <Plus size={14} aria-hidden />
+        <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setModal({ kind: 'create' })}>
           {t('newClass')}
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}

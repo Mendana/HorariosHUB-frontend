@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Spinner } from '@/components/ui/Spinner';
+import { Button } from '@/components/ui/Button';
 
 interface SaveBarProps {
   isDirty: boolean;
@@ -27,22 +27,12 @@ export function SaveBar({ isDirty, changeCount, isSaving, onSave, onDiscard }: S
         <p className="text-sm text-secondary">{label}</p>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={onDiscard}
-            disabled={isSaving}
-            className="px-3 py-1.5 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-50"
-          >
+          <Button variant="secondary" size="sm" onClick={onDiscard} disabled={isSaving}>
             {t('discard')}
-          </button>
-
-          <button
-            onClick={onSave}
-            disabled={isSaving}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-accent text-white rounded-sm hover:bg-accent-hover transition-colors disabled:opacity-50"
-          >
-            {isSaving && <Spinner size={14} />}
+          </Button>
+          <Button variant="primary" size="sm" onClick={onSave} loading={isSaving}>
             {t('saveChanges')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

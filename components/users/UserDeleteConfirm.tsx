@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
-import { Spinner } from '@/components/ui/Spinner';
+import { Button } from '@/components/ui/Button';
 
 interface UserDeleteConfirmProps {
   email: string;
@@ -33,21 +33,12 @@ export function UserDeleteConfirm({ email, onConfirm, onClose }: UserDeleteConfi
         </p>
 
         <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            disabled={isDeleting}
-            className="px-4 py-2 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-50"
-          >
+          <Button variant="secondary" onClick={onClose} disabled={isDeleting}>
             {t('deleteCancel')}
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={isDeleting}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-error text-white rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
-            {isDeleting && <Spinner size={14} />}
+          </Button>
+          <Button variant="destructive" onClick={handleConfirm} loading={isDeleting}>
             {t('deleteConfirm')}
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Spinner } from '@/components/ui/Spinner';
+import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 
 interface ProposalActionsProps {
   proposalId: string;
@@ -47,7 +48,7 @@ export function ProposalActions({ proposalId, onApprove, onReject }: ProposalAct
           onChange={(e) => setReason(e.target.value)}
           placeholder={t('rejectReasonPlaceholder')}
           disabled={state === 'rejecting'}
-          className="h-8 w-full max-w-56 px-2 rounded-sm bg-surface-sunken border border-subtle text-sm text-primary placeholder:text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
+          className={`${INPUT_FIELD_CLS} h-8 w-full max-w-56 px-2 text-sm`}
         />
         <div className="flex items-center gap-2">
           <button

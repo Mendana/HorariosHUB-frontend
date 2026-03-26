@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 import type { CatalogSubject } from '@/lib/types/subjects';
 import { SubjectItem } from './SubjectItem';
 
@@ -80,7 +81,7 @@ export function SubjectCatalog({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('searchPlaceholder')}
-          className="h-9 w-full sm:w-64 pl-8 pr-3 rounded-sm bg-surface-sunken border border-subtle text-sm text-primary placeholder:text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className={`${INPUT_FIELD_CLS} h-9 w-full sm:w-64 pl-8 pr-3 text-sm`}
         />
       </div>
 
