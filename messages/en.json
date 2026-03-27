@@ -51,7 +51,13 @@
   },
   "schedule": {
     "empty": "Select a course or enter your UO to view the schedule",
+    "emptyTitle": "View your schedule",
+    "emptySubtitle": "Enter your UO or select a course to see your classes",
     "emptyWeek": "No classes this week",
+    "emptyWeekSubtitle": "Navigate to another week or check your group selection",
+    "emptyWeekMySubjects": "Review my subjects →",
+    "errorTitle": "Could not load the schedule",
+    "errorRetry": "Retry",
     "searchButton": "Search",
     "searchPlaceholder": "UO123456",
     "today": "Today",

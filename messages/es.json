@@ -51,7 +51,13 @@
   },
   "schedule": {
     "empty": "Selecciona un curso o introduce tu UO para ver el horario",
+    "emptyTitle": "Consulta tu horario",
+    "emptySubtitle": "Introduce tu UO o selecciona un curso para ver tus clases",
     "emptyWeek": "Sin clases esta semana",
+    "emptyWeekSubtitle": "Navega a otra semana o comprueba tu selección de grupos",
+    "emptyWeekMySubjects": "Revisar mis asignaturas →",
+    "errorTitle": "No se pudo cargar el horario",
+    "errorRetry": "Reintentar",
     "searchButton": "Buscar",
     "searchPlaceholder": "UO123456",
     "today": "Hoy",

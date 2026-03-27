@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useTranslations } from 'next-intl';
 import { SubjectBlock } from './SubjectBlock';
 import { ScheduleHeader } from './ScheduleHeader';
+import { ScheduleEmpty } from './ScheduleEmpty';
+import type { ScheduleEmptyVariant } from './ScheduleEmpty';
 import {
   getWeekDates,
   getSubjectsForWeek,
@@ -110,6 +111,8 @@ interface ScheduleGridProps {
   year: number;
   week: number;
   hasIdentifier: boolean;
+  error?: string | null;
+  onRetry?: () => void;
   onWeekChange?: (year: number, week: number) => void;
 }
 
@@ -119,9 +122,10 @@ export function ScheduleGrid({
   year,
   week,
   hasIdentifier,
+  error,
+  onRetry,
   onWeekChange,
 }: ScheduleGridProps) {
-  const t = useTranslations('schedule');
 
   // Mobile: which day tab is selected (1=Mon … 5=Fri)
   const [selectedDay, setSelectedDay] = useState<number>(() => {
@@ -194,7 +198,14 @@ export function ScheduleGrid({
   }, [subjects, year, week]);
 
   const weekSubs = useMemo(() => getSubjectsForWeek(subjects, year, week), [subjects, year, week]);
-  const isEmpty = !isLoading && weekSubs.length === 0;
+  const hasError = !!error && !isLoading;
+  const isEmpty = !isLoading && !hasError && weekSubs.length === 0;
+  const showEmpty = hasError || isEmpty;
+  const emptyVariant: ScheduleEmptyVariant = hasError
+    ? 'error'
+    : !hasIdentifier
+      ? 'no-identifier'
+      : 'empty-week';
 
   return (
     <div className="w-full" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
@@ -267,12 +278,18 @@ export function ScheduleGrid({
           />
         </div>
 
-        {/* Empty state overlay (grid lines remain visible per spec) */}
-        {isEmpty && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-sm text-secondary px-4 text-center">
-              {hasIdentifier ? t('emptyWeek') : t('empty')}
-            </p>
+        {/* Empty / error state overlay (grid lines remain visible per spec) */}
+        {showEmpty && (
+          <div
+            className={`absolute inset-0 flex items-center justify-center ${
+              emptyVariant === 'error' ? '' : 'pointer-events-none'
+            }`}
+          >
+            <ScheduleEmpty
+              variant={emptyVariant}
+              errorMessage={error}
+              onRetry={onRetry}
+            />
           </div>
         )}
       </div>
