@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { SubjectBlock } from './SubjectBlock';
 import { ScheduleHeader } from './ScheduleHeader';
@@ -110,6 +110,7 @@ interface ScheduleGridProps {
   year: number;
   week: number;
   hasIdentifier: boolean;
+  onWeekChange?: (year: number, week: number) => void;
 }
 
 export function ScheduleGrid({
@@ -118,6 +119,7 @@ export function ScheduleGrid({
   year,
   week,
   hasIdentifier,
+  onWeekChange,
 }: ScheduleGridProps) {
   const t = useTranslations('schedule');
 
@@ -126,6 +128,25 @@ export function ScheduleGrid({
     const d = new Date().getDay();
     return d >= 1 && d <= 5 ? d : 1;
   });
+
+  // Swipe to change week (mobile)
+  const touchStartXRef = useRef<number | null>(null);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartXRef.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartXRef.current === null || !onWeekChange) return;
+    const delta = e.changedTouches[0].clientX - touchStartXRef.current;
+    if (Math.abs(delta) > 50) {
+      const monday = getWeekDates(year, week)[0];
+      monday.setUTCDate(monday.getUTCDate() + (delta < 0 ? 7 : -7));
+      const result = getISOWeekFromDate(monday);
+      onWeekChange(result.year, result.week);
+    }
+    touchStartXRef.current = null;
+  }
 
   // Current time in px from top of grid
   const [currentTimePx, setCurrentTimePx] = useState<number | null>(null);
@@ -176,7 +197,7 @@ export function ScheduleGrid({
   const isEmpty = !isLoading && weekSubs.length === 0;
 
   return (
-    <div className="w-full">
+    <div className="w-full" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Mobile day tabs */}
       <div className="flex sm:hidden border-b border-subtle">
         {DAY_LABELS_SHORT.map((label, i) => {

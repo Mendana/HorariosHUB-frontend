@@ -73,7 +73,14 @@
     "yearSecond": "Segundo",
     "yearThird": "Tercero",
     "yearFourth": "Cuarto",
-    "yearFifth": "Quinto"
+    "yearFifth": "Quinto",
+    "daySat": "Sáb",
+    "daySun": "Dom",
+    "viewWeek": "Semanal",
+    "viewMonth": "Mensual",
+    "emptyMonth": "Sin clases este mes",
+    "moreEvents": "+{count} más",
+    "closeDrawer": "Cerrar"
   },
   "topbar": {
     "toggleTheme": "Cambiar tema",

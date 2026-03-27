@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays, CalendarRange } from 'lucide-react';
 import {
   getCurrentWeek,
   getCurrentSemester,
@@ -16,6 +16,8 @@ interface WeekNavigatorProps {
   year: number;
   week: number;
   onWeekChange: (year: number, week: number) => void;
+  view: 'week' | 'month';
+  onViewChange: (view: 'week' | 'month') => void;
 }
 
 function readStorage<T>(key: string, fallback: T): T {
@@ -28,7 +30,7 @@ function readStorage<T>(key: string, fallback: T): T {
   }
 }
 
-export function WeekNavigator({ year, week, onWeekChange }: WeekNavigatorProps) {
+export function WeekNavigator({ year, week, onWeekChange, view, onViewChange }: WeekNavigatorProps) {
   const t = useTranslations('schedule');
   const locale = useLocale();
 
@@ -82,58 +84,93 @@ export function WeekNavigator({ year, week, onWeekChange }: WeekNavigatorProps) 
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 py-3 px-1">
-      {/* Semester tabs */}
-      <div className="flex rounded-sm overflow-hidden border border-subtle">
-        {([1, 2] as const).map((sem) => (
+      {/* Left side: view toggle + semester tabs (week view only) */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* View toggle */}
+        <div className="flex rounded-sm overflow-hidden border border-subtle">
           <button
-            key={sem}
-            onClick={() => handleSemesterChange(sem)}
-            className={`px-3 py-1.5 text-sm font-medium transition-[background-color,color,filter] transition-base ${
-              semester === sem
+            onClick={() => onViewChange('week')}
+            aria-label={t('viewWeek')}
+            title={t('viewWeek')}
+            className={`px-2.5 py-1.5 flex items-center justify-center transition-[background-color,color,filter] transition-base ${
+              view === 'week'
                 ? 'bg-accent-subtle text-accent'
                 : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
             }`}
           >
-            {t(sem === 1 ? 'semester1' : 'semester2')}
+            <CalendarDays size={15} />
           </button>
-        ))}
+          <button
+            onClick={() => onViewChange('month')}
+            aria-label={t('viewMonth')}
+            title={t('viewMonth')}
+            className={`px-2.5 py-1.5 flex items-center justify-center transition-[background-color,color,filter] transition-base ${
+              view === 'month'
+                ? 'bg-accent-subtle text-accent'
+                : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
+            }`}
+          >
+            <CalendarRange size={15} />
+          </button>
+        </div>
+
+        {/* Semester tabs — only in week view */}
+        {view === 'week' && (
+          <div className="flex rounded-sm overflow-hidden border border-subtle">
+            {([1, 2] as const).map((sem) => (
+              <button
+                key={sem}
+                onClick={() => handleSemesterChange(sem)}
+                className={`px-3 py-1.5 text-sm font-medium transition-[background-color,color,filter] transition-base ${
+                  semester === sem
+                    ? 'bg-accent-subtle text-accent'
+                    : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
+                }`}
+              >
+                {t(sem === 1 ? 'semester1' : 'semester2')}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Week navigation */}
-      <div className="flex items-center gap-1.5 sm:ml-auto">
-        {/* Today button — always rendered, fades in/out */}
-        <button
-          onClick={goToToday}
-          className={[
-            'px-2.5 py-1 text-xs font-medium rounded-sm',
-            'text-accent hover:bg-accent-subtle',
-            'transition-[opacity,background-color,transform] transition-smooth active:scale-[0.95]',
-            isCurrentWeek ? 'opacity-0 pointer-events-none' : 'opacity-100',
-          ].join(' ')}
-        >
-          {t('today')}
-        </button>
+      {/* Week navigation — only in week view */}
+      {view === 'week' && (
+        <div className="flex items-center gap-1.5 sm:ml-auto">
+          {/* Today button — always rendered, fades in/out */}
+          <button
+            onClick={goToToday}
+            className={[
+              'px-2.5 py-1 text-xs font-medium rounded-sm',
+              'text-accent hover:bg-accent-subtle',
+              'transition-[opacity,background-color,transform] transition-smooth active:scale-[0.95]',
+              isCurrentWeek ? 'opacity-0 pointer-events-none' : 'opacity-100',
+            ].join(' ')}
+          >
+            {t('today')}
+          </button>
 
-        <button
-          onClick={() => shiftWeek(-1)}
-          aria-label="Previous week"
-          className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
-        >
-          <ChevronLeft size={16} />
-        </button>
+          <button
+            onClick={() => shiftWeek(-1)}
+            aria-label="Previous week"
+            className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
+          >
+            <ChevronLeft size={16} />
+          </button>
 
-        <span className="text-sm font-medium text-primary min-w-37 text-center tabular-nums">
-          {rangeLabel}
-        </span>
+          <span className="text-sm font-medium text-primary min-w-37 text-center tabular-nums">
+            {rangeLabel}
+          </span>
 
-        <button
-          onClick={() => shiftWeek(1)}
-          aria-label="Next week"
-          className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
+          <button
+            onClick={() => shiftWeek(1)}
+            aria-label="Next week"
+            className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

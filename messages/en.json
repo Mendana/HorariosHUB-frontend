@@ -73,7 +73,14 @@
     "yearSecond": "Second",
     "yearThird": "Third",
     "yearFourth": "Fourth",
-    "yearFifth": "Fifth"
+    "yearFifth": "Fifth",
+    "daySat": "Sat",
+    "daySun": "Sun",
+    "viewWeek": "Weekly",
+    "viewMonth": "Monthly",
+    "emptyMonth": "No classes this month",
+    "moreEvents": "+{count} more",
+    "closeDrawer": "Close"
   },
   "topbar": {
     "toggleTheme": "Toggle theme",
