@@ -16,57 +16,81 @@ export function Topbar() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [themeAnimating, setThemeAnimating] = useState(false);
+
+  function handleToggleTheme() {
+    setThemeAnimating(true);
+    toggleTheme();
+  }
 
   return (
     <>
       {/*
-       * Topbar fija, 64px (h-16), fondo surface-base, borde inferior border-subtle.
-       * Opaca — sin blur ni transparencia (regla 1 CLAUDE.md).
+       * Topbar fija, 52px. Tres zonas: [Logo | Nav central | Acciones].
+       * Fondo opaco con micro-gradiente — sin blur ni glassmorphism (regla 1).
        */}
-      <header className="fixed top-0 inset-x-0 z-40 h-16 bg-surface-base border-b border-subtle">
-        <div className="flex items-center h-full px-4 md:px-6 gap-4">
+      <header className="fixed top-0 inset-x-0 z-40 h-[52px] topbar-gradient border-b border-subtle">
+        <div className="flex items-center h-full px-4 md:px-6">
 
-          {/* ── Logo ─────────────────────────────────────────── */}
+          {/* ── Zona izquierda: Logo ──────────────────────────── */}
           <Link
             href="/"
-            className="text-sm font-medium text-primary shrink-0"
+            aria-label="PCEO Hub"
+            className="shrink-0 transition-opacity transition-fast hover:opacity-80"
           >
-            {t('common.appName')}
+            <span className="text-[15px] font-semibold text-primary">PCEO</span>
+            <span className="text-[15px] font-normal text-accent">Hub</span>
           </Link>
 
-          {/* ── Navegación (solo ≥ 640px) ─────────────────────── */}
+          {/* Separador logo / nav */}
+          <div aria-hidden className="hidden sm:block mx-3 w-px h-4 bg-subtle shrink-0" />
+
+          {/* ── Zona central: Navegación (≥ 640px) ───────────── */}
           <div className="hidden sm:flex flex-1 items-center">
             <NavLinks role={user?.role ?? null} />
           </div>
 
-          {/* ── Acciones derecha ──────────────────────────────── */}
-          <div className="ml-auto flex items-center gap-0.5">
+          {/* Separador nav / acciones */}
+          <div aria-hidden className="hidden sm:block mx-3 w-px h-4 bg-subtle shrink-0" />
 
-            {/* Toggle tema — visible en ≥ 640px (en mobile va dentro del drawer) */}
+          {/* ── Zona derecha: Acciones ───────────────────────── */}
+          <div className="ml-auto sm:ml-0 flex items-center gap-0.5">
+
+            {/* Toggle tema — visible en ≥ 640px (en mobile va en el drawer) */}
             <button
               type="button"
-              onClick={toggleTheme}
+              onClick={handleToggleTheme}
               aria-label={t('topbar.toggleTheme')}
-              className="hidden sm:flex size-9 items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
+              className="hidden sm:flex size-8 items-center justify-center rounded-sm text-tertiary hover:text-primary hover:bg-surface-raised transition-[background-color,color] transition-fast"
             >
-              {theme === 'dark' ? (
-                <Sun size={18} aria-hidden />
-              ) : (
-                <Moon size={18} aria-hidden />
-              )}
+              <span
+                className={themeAnimating ? 'theme-toggle-spin' : ''}
+                onAnimationEnd={() => setThemeAnimating(false)}
+                style={{ display: 'flex' }}
+              >
+                {theme === 'dark'
+                  ? <Sun  size={16} aria-hidden />
+                  : <Moon size={16} aria-hidden />
+                }
+              </span>
             </button>
 
-            {/* Campana — autenticado, visible en todos los breakpoints */}
+            {/* Campana — autenticado, todos los breakpoints */}
             {user && <NotificationBell />}
 
-            {/* Menú de perfil o botón login — solo ≥ 640px */}
+            {/* Separador campana / perfil */}
+            {user && (
+              <div aria-hidden className="hidden sm:block mx-1.5 w-px h-4 bg-subtle shrink-0" />
+            )}
+
+            {/* Perfil o login — solo ≥ 640px */}
             <div className="hidden sm:block">
               {user ? (
                 <UserMenu user={user} />
               ) : (
                 <Link
                   href="/auth/login"
-                  className="ml-1 inline-flex items-center px-3 py-1.5 rounded-sm bg-accent text-white text-sm font-medium hover:bg-accent-hover"
+                  className="inline-flex items-center px-3 py-1.5 rounded-sm border border-subtle text-secondary text-xs font-medium hover:border-strong hover:bg-surface-raised hover:text-primary transition-[border-color,background-color,color] transition-base"
                 >
                   {t('auth.login')}
                 </Link>
@@ -78,15 +102,15 @@ export function Topbar() {
               type="button"
               onClick={() => setMobileOpen(true)}
               aria-label={t('topbar.openMenu')}
-              className="sm:hidden size-9 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
+              className="sm:hidden size-8 flex items-center justify-center rounded-sm text-tertiary hover:text-primary hover:bg-surface-raised transition-[background-color,color] transition-fast"
             >
-              <Menu size={20} aria-hidden />
+              <Menu size={18} aria-hidden />
             </button>
           </div>
+
         </div>
       </header>
 
-      {/* Menú móvil (portal implícito al final del body vía fixed) */}
       <MobileMenu
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}

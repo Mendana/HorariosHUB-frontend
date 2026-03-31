@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { AuthUser, Role } from '@/hooks/useAuth';
@@ -12,6 +12,12 @@ const ROLE_VARIANT: Record<Role, BadgeVariant> = {
   professor: 'warning',
   admin:     'accent',
 };
+
+/** Toma las dos primeras letras del username del email, en mayúsculas. */
+function getInitials(email: string): string {
+  const username = email.split('@')[0] ?? email;
+  return username.slice(0, 2).toUpperCase();
+}
 
 interface UserMenuProps {
   user: AuthUser;
@@ -46,33 +52,40 @@ export function UserMenu({ user }: UserMenuProps) {
 
   return (
     <div ref={ref} className="relative">
+      {/* Trigger: avatar con iniciales */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-sm font-medium text-secondary hover:text-primary hover:bg-surface-raised"
+        className="size-8 flex items-center justify-center group"
       >
-        <span className="max-w-40 truncate">
-          {user.email || t('topbar.profile')}
+        <span
+          className={[
+            'size-7 flex items-center justify-center rounded-full',
+            'text-[11px] font-semibold',
+            'transition-[background-color,color] transition-base',
+            open
+              ? 'bg-accent text-white'
+              : 'bg-accent-subtle text-accent group-hover:bg-accent group-hover:text-white',
+          ].join(' ')}
+        >
+          {getInitials(user.email)}
         </span>
-        <ChevronDown
-          size={14}
-          aria-hidden
-          className={open ? 'rotate-180' : ''}
-          style={{ transition: 'transform 150ms' }}
-        />
       </button>
 
+      {/* Dropdown */}
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full mt-1.5 w-56 bg-surface-raised border border-subtle rounded-md shadow-sm z-50"
+          className="animate-dropdown absolute right-0 top-full mt-1.5 w-[200px] bg-surface-raised border border-subtle rounded-md shadow-md z-50"
         >
           {/* Cabecera: email + rol */}
-          <div className="px-4 py-3 border-b border-subtle">
-            <p className="text-sm font-medium text-primary truncate">{user.email}</p>
-            <Badge variant={ROLE_VARIANT[user.role]} size="sm" className="mt-1.5">
+          <div className="px-3 py-3 border-b border-subtle">
+            <p className="text-[12px] text-secondary truncate leading-none mb-1.5">
+              {user.email}
+            </p>
+            <Badge variant={ROLE_VARIANT[user.role]} size="sm">
               {t(`roles.${user.role}`)}
             </Badge>
           </div>
@@ -86,8 +99,9 @@ export function UserMenu({ user }: UserMenuProps) {
                 setOpen(false);
                 // TODO: llamar a POST /api/auth/logout
               }}
-              className="w-full text-left px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-surface-sunken"
+              className="w-full flex items-center gap-2.5 text-left px-3 py-2 text-[13px] text-secondary hover:text-error hover:bg-surface-sunken transition-[background-color,color] transition-base"
             >
+              <LogOut size={14} aria-hidden className="shrink-0" />
               {t('auth.logout')}
             </button>
           </div>

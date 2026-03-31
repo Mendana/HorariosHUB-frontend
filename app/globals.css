@@ -315,3 +315,44 @@
     transition: scale var(--transition-fast);
   }
 }
+
+/* ─────────────────────────────────────────────────────────
+   Topbar — micro-gradiente y animaciones
+   ───────────────────────────────────────────────────────── */
+
+/* Gradiente descendente sutil: surface-base → surface-raised al 30%.
+   Da profundidad sin ser decorativo. */
+.topbar-gradient {
+  background: linear-gradient(
+    to bottom,
+    var(--surface-base),
+    color-mix(in oklch, var(--surface-raised) 30%, var(--surface-base))
+  );
+}
+/* Dark: 40% para compensar que las superficies oscuras se separan menos. */
+.dark .topbar-gradient {
+  background: linear-gradient(
+    to bottom,
+    var(--surface-base),
+    color-mix(in oklch, var(--surface-raised) 40%, var(--surface-base))
+  );
+}
+
+/* Animación del icono del toggle de tema: sale con giro+shrink, vuelve centrado. */
+@keyframes theme-spin {
+  0%   { transform: rotate(0deg)  scale(1);   }
+  40%  { transform: rotate(20deg) scale(0.8); }
+  100% { transform: rotate(0deg)  scale(1);   }
+}
+.theme-toggle-spin {
+  animation: theme-spin 250ms ease-in-out;
+}
+
+/* Dropdown: aparece con fade + deslizamiento hacia abajo desde -4px. */
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+.animate-dropdown {
+  animation: dropdown-in 250ms ease-in-out;
+}

@@ -68,8 +68,8 @@ export function MobileMenu({
         className="absolute top-0 right-0 bottom-0 w-72 bg-surface-base border-l border-subtle flex flex-col shadow-lg"
         style={transStyle({ transform: shown ? 'translateX(0)' : 'translateX(100%)' })}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 h-16 border-b border-subtle shrink-0">
+        {/* Header — 48px para alinear con la topbar móvil */}
+        <div className="flex items-center justify-between px-4 h-12 border-b border-subtle shrink-0">
           <span className="text-sm font-medium text-primary">
             {t('common.appName')}
           </span>

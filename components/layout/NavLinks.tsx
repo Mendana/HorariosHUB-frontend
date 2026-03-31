@@ -56,10 +56,10 @@ export function NavLinks({ role, onNavigate, vertical = false }: NavLinksProps) 
   const pathname = usePathname();
 
   const labels: Record<NavLabelKey, string> = {
-    schedule: t('schedule'),
-    mySubjects: t('mySubjects'),
-    proposals: t('proposals'),
-    manage: t('manage'),
+    schedule:    t('schedule'),
+    mySubjects:  t('mySubjects'),
+    proposals:   t('proposals'),
+    manage:      t('manage'),
     manageUsers: t('manageUsers'),
   };
 
@@ -67,25 +67,24 @@ export function NavLinks({ role, onNavigate, vertical = false }: NavLinksProps) 
 
   const wrapperClass = vertical
     ? 'flex flex-col gap-1'
-    : 'flex items-center gap-1';
+    : 'flex items-center gap-0.5';
 
   function linkCls(isActive: boolean) {
-    const shared = 'transition-[background-color,color,transform] transition-base';
     if (vertical) {
       return [
         'block w-full px-3 py-2.5 rounded-sm text-sm',
-        'active:scale-[0.98]',
-        shared,
+        'transition-[background-color,color] transition-base active:scale-[0.98]',
         isActive
           ? 'font-medium text-primary bg-accent-subtle'
           : 'text-secondary hover:text-primary hover:bg-surface-raised',
       ].join(' ');
     }
+    // Horizontal (topbar): small-strong (13px/500) + indicador inferior activo
     return [
-      'px-3 py-1.5 rounded-sm text-sm',
-      shared,
+      'px-3 py-2 rounded-sm text-[13px] font-medium',
+      'transition-[background-color,color,box-shadow] transition-base',
       isActive
-        ? 'font-medium text-primary bg-accent-subtle [border-bottom:2px_solid_var(--accent)]'
+        ? 'text-primary bg-accent-subtle [box-shadow:inset_0_-2px_0_var(--accent)]'
         : 'text-secondary hover:text-primary hover:bg-surface-raised',
     ].join(' ');
   }
