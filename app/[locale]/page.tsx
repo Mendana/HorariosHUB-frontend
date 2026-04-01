@@ -8,9 +8,13 @@ import { ScheduleSearch } from '@/components/schedule/ScheduleSearch';
 import { WeekNavigator } from '@/components/schedule/WeekNavigator';
 import { ScheduleGrid } from '@/components/schedule/ScheduleGrid';
 import { MonthGrid } from '@/components/schedule/MonthGrid';
+import { ImportBanner } from '@/components/schedule/ImportBanner';
+import { ShareModal } from '@/components/schedule/ShareModal';
 
 export default function SchedulePage() {
   const [identifier, setIdentifier] = useState<string | null>(null);
+  const [importUo, setImportUo]     = useState<string | null>(null);
+  const [shareOpen, setShareOpen]   = useState(false);
 
   const initial = getCurrentWeek();
   const [selectedYear, setSelectedYear] = useState(initial.year);
@@ -23,6 +27,18 @@ export default function SchedulePage() {
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);
 
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
+  // Read URL params on mount: ?uo=… and ?import=true
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const uo = params.get('uo');
+    const shouldImport = params.get('import') === 'true';
+    if (uo) {
+      const uoLower = uo.toLowerCase();
+      setIdentifier(uoLower);
+      if (shouldImport) setImportUo(uoLower);
+    }
+  }, []);
 
   // Rehydrate view preference from localStorage after mount
   useEffect(() => {
@@ -97,8 +113,17 @@ export default function SchedulePage() {
 
   return (
     <ScheduleRefreshContext.Provider value={refreshSchedule}>
+      {/* Import banner — full-width, between topbar and search */}
+      {importUo && (
+        <ImportBanner uo={importUo} onDismiss={() => setImportUo(null)} />
+      )}
+
       <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <ScheduleSearch identifier={identifier} onIdentifierChange={setIdentifier} />
+        <ScheduleSearch
+          identifier={identifier}
+          onIdentifierChange={setIdentifier}
+          onShareClick={() => setShareOpen(true)}
+        />
         <WeekNavigator
           year={selectedYear}
           week={selectedWeek}
@@ -127,6 +152,11 @@ export default function SchedulePage() {
           />
         )}
       </div>
+
+      {/* Share modal */}
+      {shareOpen && identifier && (
+        <ShareModal identifier={identifier} onClose={() => setShareOpen(false)} />
+      )}
     </ScheduleRefreshContext.Provider>
   );
 }

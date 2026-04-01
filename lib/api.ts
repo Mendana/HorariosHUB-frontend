@@ -62,3 +62,12 @@ export function authResetPassword(token: string, password: string): Promise<void
 export function authLogout(): Promise<void> {
   return fetcher('/api/auth/logout', { method: 'POST' });
 }
+
+// ── Schedule ──────────────────────────────────────────────────
+
+export function scheduleCopy(from: string, to: string): Promise<void> {
+  return fetcher('/api/schedule/copy', {
+    method: 'POST',
+    body: JSON.stringify({ from, to }),
+  });
+}

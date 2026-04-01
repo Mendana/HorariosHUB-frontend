@@ -41,7 +41,17 @@ function LoginForm() {
     setLoading(true);
     try {
       await authLogin(email, password);
-      router.push('/');
+      let redirectTo = '/';
+      try {
+        const returnUrl = localStorage.getItem('returnUrl');
+        if (returnUrl) {
+          localStorage.removeItem('returnUrl');
+          redirectTo = returnUrl;
+        }
+      } catch {
+        // localStorage not available
+      }
+      router.push(redirectTo);
     } catch (err) {
       setApiError(err instanceof Error ? err.message : t('errorGeneric'));
     } finally {

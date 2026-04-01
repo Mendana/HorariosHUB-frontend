@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search } from 'lucide-react';
+import { Search, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { useAuth } from '@/hooks/useAuth';
 
 const DEGREES = [
   { key: 'mat',    labelKey: 'degreeMat'    },
@@ -27,10 +28,12 @@ const YEARS = [
 interface ScheduleSearchProps {
   identifier: string | null;
   onIdentifierChange: (id: string) => void;
+  onShareClick?: () => void;
 }
 
-export function ScheduleSearch({ identifier, onIdentifierChange }: ScheduleSearchProps) {
+export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick }: ScheduleSearchProps) {
   const t = useTranslations('schedule');
+  const { user } = useAuth();
   const [uoInput, setUoInput] = useState('');
   const [degree, setDegree]   = useState<string>('inf');
 
@@ -64,7 +67,7 @@ export function ScheduleSearch({ identifier, onIdentifierChange }: ScheduleSearc
         />
       </div>
 
-      {/* Row 2: degree selector + year chips */}
+      {/* Row 2: degree selector + year chips + share button */}
       <div className="flex items-center gap-2 flex-wrap">
         <Select
           value={degree}
@@ -93,6 +96,30 @@ export function ScheduleSearch({ identifier, onIdentifierChange }: ScheduleSearc
             );
           })}
         </div>
+
+        {/* Share button — only when a schedule is loaded */}
+        {identifier && (
+          user ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              iconLeft={Share2}
+              onClick={onShareClick}
+            >
+              {t('shareButton')}
+            </Button>
+          ) : (
+            <button
+              type="button"
+              onClick={onShareClick}
+              aria-label={t('shareButton')}
+              title={t('shareButton')}
+              className="size-7 flex items-center justify-center rounded-sm text-tertiary hover:text-primary hover:bg-surface-raised transition-[background-color,color] transition-fast"
+            >
+              <Share2 size={14} aria-hidden />
+            </button>
+          )
+        )}
       </div>
     </div>
   );

@@ -86,7 +86,22 @@
     "viewMonth": "Monthly",
     "emptyMonth": "No classes this month",
     "moreEvents": "+{count} more",
-    "closeDrawer": "Close"
+    "closeDrawer": "Close",
+    "shareButton": "Share",
+    "shareTitle": "Share schedule",
+    "shareSubtitle": "Any authenticated user will be able to copy your schedule",
+    "shareCopyLink": "Copy link",
+    "shareCopied": "Link copied",
+    "shareQrCaption": "Scan to open on another device",
+    "shareClose": "Close",
+    "importLoginText": "Sign in to copy this schedule",
+    "importLoginButton": "Sign in",
+    "importCopyQuestion": "Copy {uo}'s schedule?",
+    "importCopyButton": "Copy schedule",
+    "importIgnore": "Dismiss",
+    "importSuccess": "Schedule copied successfully",
+    "importError": "Failed to copy schedule",
+    "importRetry": "Retry"
   },
   "topbar": {
     "toggleTheme": "Toggle theme",

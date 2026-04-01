@@ -86,7 +86,22 @@
     "viewMonth": "Mensual",
     "emptyMonth": "Sin clases este mes",
     "moreEvents": "+{count} más",
-    "closeDrawer": "Cerrar"
+    "closeDrawer": "Cerrar",
+    "shareButton": "Compartir",
+    "shareTitle": "Compartir horario",
+    "shareSubtitle": "Cualquier usuario autenticado podrá copiar tu horario",
+    "shareCopyLink": "Copiar enlace",
+    "shareCopied": "Enlace copiado",
+    "shareQrCaption": "Escanea para abrir en otro dispositivo",
+    "shareClose": "Cerrar",
+    "importLoginText": "Inicia sesión para copiar este horario",
+    "importLoginButton": "Iniciar sesión",
+    "importCopyQuestion": "¿Copiar el horario de {uo}?",
+    "importCopyButton": "Copiar horario",
+    "importIgnore": "Ignorar",
+    "importSuccess": "Horario copiado correctamente",
+    "importError": "Error al copiar el horario",
+    "importRetry": "Reintentar"
   },
   "topbar": {
     "toggleTheme": "Cambiar tema",
