@@ -6,6 +6,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
+import { DatePicker } from '@/components/ui/DatePicker';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
 import { timeToMinutes } from '@/lib/utils/scheduleHelpers';
 
@@ -134,15 +135,11 @@ export function ProposalForm({ subject, onClose, onSuccess }: ProposalFormProps)
                 />
               </div>
 
-              <div>
-                <label className={labelCls}>{t('diffFieldDate')}</label>
-                <input
-                  type="date"
-                  value={fields.date}
-                  onChange={e => setFields(prev => ({ ...prev, date: e.target.value }))}
-                  className={inputCls}
-                />
-              </div>
+              <DatePicker
+                label={t('diffFieldDate')}
+                value={fields.date}
+                onChange={val => setFields(prev => ({ ...prev, date: val }))}
+              />
 
               <Select
                 label={t('diffFieldStartTime')}

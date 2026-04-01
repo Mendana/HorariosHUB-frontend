@@ -7,6 +7,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { DatePicker } from '@/components/ui/DatePicker';
 
 // ── Subject list (hardcoded PCEO catalogue) ───────────────────────────────────
 
@@ -126,7 +127,7 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
   const [isSaving, setIsSaving] = useState(false);
 
   // For native <input> elements
-  const set = (field: 'date' | 'classroom') =>
+  const set = (field: 'classroom') =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm(prev => ({ ...prev, [field]: e.target.value }));
 
@@ -208,17 +209,13 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
               size="lg"
             />
 
-            {/* Date — native date input, no custom Select */}
-            <div>
-              <label className={labelClass}>{t('fieldDate')}</label>
-              <input
-                type="date"
-                value={form.date}
-                onChange={set('date')}
-                className={inputClass}
-              />
-              {errors.date && <p className={errorClass}>{errors.date}</p>}
-            </div>
+            {/* Date */}
+            <DatePicker
+              label={t('fieldDate')}
+              value={form.date}
+              onChange={val => setForm(prev => ({ ...prev, date: val }))}
+              error={errors.date}
+            />
 
             {/* Start time */}
             <Select
