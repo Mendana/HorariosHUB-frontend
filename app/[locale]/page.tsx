@@ -4,12 +4,16 @@ import { useState, useCallback, useEffect } from 'react';
 import { getCurrentWeek, getWeekDates, getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
 import { useSchedule, ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
 import { setSearchSubjects, registerSearchNavigate } from '@/lib/hooks/useSearch';
+import { useEvents } from '@/lib/hooks/useEvents';
+import { useAuth } from '@/hooks/useAuth';
 import { ScheduleSearch } from '@/components/schedule/ScheduleSearch';
 import { WeekNavigator } from '@/components/schedule/WeekNavigator';
 import { ScheduleGrid } from '@/components/schedule/ScheduleGrid';
 import { MonthGrid } from '@/components/schedule/MonthGrid';
 import { ImportBanner } from '@/components/schedule/ImportBanner';
 import { ShareModal } from '@/components/schedule/ShareModal';
+import { EventForm } from '@/components/events/EventForm';
+import type { UserEvent, NewEventData } from '@/lib/types/events';
 
 export default function SchedulePage() {
   const [identifier, setIdentifier] = useState<string | null>(null);
@@ -27,6 +31,45 @@ export default function SchedulePage() {
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);
 
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
+  // ── Auth ─────────────────────────────────────────────────────────────────────
+  const { user } = useAuth();
+
+  // ── Events ───────────────────────────────────────────────────────────────────
+  const {
+    events,
+    eventsVisible,
+    toggleVisibility: toggleEventsVisibility,
+    createEvent,
+    updateEvent,
+    deleteEvent,
+  } = useEvents();
+
+  // EventForm state: null = closed, undefined initial = create, defined = edit
+  const [eventFormOpen, setEventFormOpen] = useState(false);
+  const [eventToEdit, setEventToEdit]     = useState<UserEvent | undefined>(undefined);
+
+  function openCreateEvent() {
+    setEventToEdit(undefined);
+    setEventFormOpen(true);
+  }
+
+  function openEditEvent(event: UserEvent) {
+    setEventToEdit(event);
+    setEventFormOpen(true);
+  }
+
+  async function handleEventSubmit(data: NewEventData) {
+    if (eventToEdit) {
+      await updateEvent(eventToEdit.id, data);
+    } else {
+      await createEvent(data);
+    }
+  }
+
+  async function handleDeleteEvent(id: string) {
+    await deleteEvent(id);
+  }
 
   // Read URL params on mount: ?uo=… and ?import=true
   useEffect(() => {
@@ -111,6 +154,9 @@ export default function SchedulePage() {
     localStorage.setItem('scheduleView', 'week');
   }, []);
 
+  // Only load events for authenticated users
+  const effectiveEvents = user ? events : [];
+
   return (
     <ScheduleRefreshContext.Provider value={refreshSchedule}>
       {/* Import banner — full-width, between topbar and search */}
@@ -123,6 +169,7 @@ export default function SchedulePage() {
           identifier={identifier}
           onIdentifierChange={setIdentifier}
           onShareClick={() => setShareOpen(true)}
+          onCreateEvent={openCreateEvent}
         />
         <WeekNavigator
           year={selectedYear}
@@ -130,6 +177,8 @@ export default function SchedulePage() {
           onWeekChange={handleWeekChange}
           view={scheduleView}
           onViewChange={handleViewChange}
+          eventsVisible={eventsVisible}
+          onToggleEvents={toggleEventsVisibility}
         />
         {scheduleView === 'week' ? (
           <ScheduleGrid
@@ -140,6 +189,10 @@ export default function SchedulePage() {
             hasIdentifier={identifier !== null}
             onWeekChange={handleWeekChange}
             highlightedId={highlightedId}
+            events={effectiveEvents}
+            eventsVisible={eventsVisible}
+            onEditEvent={openEditEvent}
+            onDeleteEvent={handleDeleteEvent}
           />
         ) : (
           <MonthGrid
@@ -149,6 +202,8 @@ export default function SchedulePage() {
             month={viewMonth}
             onMonthChange={handleMonthChange}
             onGoToWeek={handleGoToWeek}
+            events={effectiveEvents}
+            eventsVisible={eventsVisible}
           />
         )}
       </div>
@@ -156,6 +211,15 @@ export default function SchedulePage() {
       {/* Share modal */}
       {shareOpen && identifier && (
         <ShareModal identifier={identifier} onClose={() => setShareOpen(false)} />
+      )}
+
+      {/* Event create/edit modal */}
+      {eventFormOpen && (
+        <EventForm
+          initial={eventToEdit}
+          onSubmit={handleEventSubmit}
+          onClose={() => setEventFormOpen(false)}
+        />
       )}
     </ScheduleRefreshContext.Provider>
   );

@@ -11,10 +11,11 @@ import {
   getDayOfWeek,
   getISOWeekFromDate,
   layoutDay,
-  timeToMinutes,
 } from '@/lib/utils/scheduleHelpers';
 import type { Subject } from '@/lib/types/schedule';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
+import type { UserEvent } from '@/lib/types/events';
+import { EventLine } from '@/components/events/EventLine';
 
 // ─── Grid constants ────────────────────────────────────────────────────────────
 const SLOT_HEIGHT = 48;    // px per 30-min slot
@@ -43,6 +44,25 @@ const SKELETON_BLOCKS: { day: number; startSlot: number; span: number }[] = [
   { day: 5, startSlot: 10, span: 4 },
 ];
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Get events for a specific date (YYYY-MM-DD), stacked by time */
+function getEventsForDate(events: UserEvent[], dateISO: string): UserEvent[] {
+  return events.filter((e) => e.date === dateISO);
+}
+
+/** Build stacking index map: events at the same time get consecutive indices */
+function buildStackMap(events: UserEvent[]): Map<string, number> {
+  const timeCount = new Map<string, number>();
+  const result    = new Map<string, number>();
+  for (const ev of events) {
+    const idx = timeCount.get(ev.time) ?? 0;
+    result.set(ev.id, idx);
+    timeCount.set(ev.time, idx + 1);
+  }
+  return result;
+}
+
 // ─── DayColumn ─────────────────────────────────────────────────────────────────
 
 interface DayColumnProps {
@@ -52,9 +72,26 @@ interface DayColumnProps {
   isToday: boolean;
   currentTimePx: number | null;
   highlightedId?: string | null;
+  events: UserEvent[];
+  eventsVisible: boolean;
+  onEditEvent: (event: UserEvent) => void;
+  onDeleteEvent: (id: string) => void;
 }
 
-function DayColumn({ day, subjects, isLoading, isToday, currentTimePx, highlightedId }: DayColumnProps) {
+function DayColumn({
+  day,
+  subjects,
+  isLoading,
+  isToday,
+  currentTimePx,
+  highlightedId,
+  events,
+  eventsVisible,
+  onEditEvent,
+  onDeleteEvent,
+}: DayColumnProps) {
+  const stackMap = useMemo(() => buildStackMap(events), [events]);
+
   return (
     <div className="relative border-l border-subtle" style={{ height: TOTAL_HEIGHT, minWidth: 0 }}>
       {/* Horizontal grid lines */}
@@ -94,6 +131,18 @@ function DayColumn({ day, subjects, isLoading, isToday, currentTimePx, highlight
           />
         ))}
 
+      {/* Event lines — rendered above subjects, below popovers */}
+      {!isLoading && eventsVisible &&
+        events.map((ev) => (
+          <EventLine
+            key={ev.id}
+            event={ev}
+            stackIndex={stackMap.get(ev.id) ?? 0}
+            onEdit={onEditEvent}
+            onDelete={onDeleteEvent}
+          />
+        ))}
+
       {/* Current-time line */}
       {isToday && currentTimePx !== null && (
         <div
@@ -121,6 +170,10 @@ interface ScheduleGridProps {
   onRetry?: () => void;
   onWeekChange?: (year: number, week: number) => void;
   highlightedId?: string | null;
+  events: UserEvent[];
+  eventsVisible: boolean;
+  onEditEvent: (event: UserEvent) => void;
+  onDeleteEvent: (id: string) => void;
 }
 
 export function ScheduleGrid({
@@ -133,6 +186,10 @@ export function ScheduleGrid({
   onRetry,
   onWeekChange,
   highlightedId,
+  events,
+  eventsVisible,
+  onEditEvent,
+  onDeleteEvent,
 }: ScheduleGridProps) {
 
   // Mobile: which day tab is selected (1=Mon … 5=Fri)
@@ -205,6 +262,32 @@ export function ScheduleGrid({
     return map;
   }, [subjects, year, week]);
 
+  // Build day → ISO date string map for the displayed week
+  const dayDateMap = useMemo(() => {
+    const map = new Map<number, string>();
+    for (let i = 0; i < 5; i++) {
+      const date = weekDates[i];
+      if (!date) continue;
+      const iso = [
+        date.getUTCFullYear(),
+        String(date.getUTCMonth() + 1).padStart(2, '0'),
+        String(date.getUTCDate()).padStart(2, '0'),
+      ].join('-');
+      map.set(i + 1, iso); // 1=Mon … 5=Fri
+    }
+    return map;
+  }, [weekDates]);
+
+  // Build day → events map
+  const dayEventsMap = useMemo(() => {
+    const map = new Map<number, UserEvent[]>();
+    for (const day of DAYS_MON_FRI) {
+      const iso = dayDateMap.get(day) ?? '';
+      map.set(day, iso ? getEventsForDate(events, iso) : []);
+    }
+    return map;
+  }, [events, dayDateMap]);
+
   const weekSubs = useMemo(() => getSubjectsForWeek(subjects, year, week), [subjects, year, week]);
   const hasError = !!error && !isLoading;
   const isEmpty = !isLoading && !hasError && weekSubs.length === 0;
@@ -272,6 +355,10 @@ export function ScheduleGrid({
               isToday={isCurrentWeek && todayDayOfWeek === day}
               currentTimePx={currentTimePx}
               highlightedId={highlightedId}
+              events={dayEventsMap.get(day) ?? []}
+              eventsVisible={eventsVisible}
+              onEditEvent={onEditEvent}
+              onDeleteEvent={onDeleteEvent}
             />
           ))}
         </div>
@@ -285,6 +372,10 @@ export function ScheduleGrid({
             isToday={isCurrentWeek && todayDayOfWeek === selectedDay}
             currentTimePx={currentTimePx}
             highlightedId={highlightedId}
+            events={dayEventsMap.get(selectedDay) ?? []}
+            eventsVisible={eventsVisible}
+            onEditEvent={onEditEvent}
+            onDeleteEvent={onDeleteEvent}
           />
         </div>
 

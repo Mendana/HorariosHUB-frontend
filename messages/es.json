@@ -101,7 +101,30 @@
     "importIgnore": "Ignorar",
     "importSuccess": "Horario copiado correctamente",
     "importError": "Error al copiar el horario",
-    "importRetry": "Reintentar"
+    "importRetry": "Reintentar",
+    "eventsToggleLabel": "Eventos",
+    "eventsToggleTooltip": "Mostrar/ocultar eventos personales",
+    "addEvent": "Evento"
+  },
+  "events": {
+    "newEvent": "Nuevo evento",
+    "editEvent": "Editar evento",
+    "typeDelivery": "Entrega",
+    "typeDeadline": "Fecha límite",
+    "typeReminder": "Recordatorio",
+    "typeOther": "Otro",
+    "fieldTitle": "Título",
+    "fieldType": "Tipo",
+    "fieldDate": "Fecha",
+    "fieldTime": "Hora",
+    "fieldDescription": "Descripción (opcional)",
+    "titlePlaceholder": "Nombre del evento",
+    "datePlaceholder": "Selecciona una fecha",
+    "descriptionPlaceholder": "Detalles adicionales...",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "save": "Guardar"
   },
   "topbar": {
     "toggleTheme": "Cambiar tema",

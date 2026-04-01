@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, Share2 } from 'lucide-react';
+import { Search, Share2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -29,9 +29,10 @@ interface ScheduleSearchProps {
   identifier: string | null;
   onIdentifierChange: (id: string) => void;
   onShareClick?: () => void;
+  onCreateEvent?: () => void;
 }
 
-export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick }: ScheduleSearchProps) {
+export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, onCreateEvent }: ScheduleSearchProps) {
   const t = useTranslations('schedule');
   const { user } = useAuth();
   const [uoInput, setUoInput] = useState('');
@@ -119,6 +120,18 @@ export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick }:
               <Share2 size={14} aria-hidden />
             </button>
           )
+        )}
+
+        {/* Create event — only for authenticated users */}
+        {user && (
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft={Plus}
+            onClick={onCreateEvent}
+          >
+            {t('addEvent')}
+          </Button>
         )}
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { ChevronLeft, ChevronRight, CalendarDays, CalendarRange } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays, CalendarRange, Flag } from 'lucide-react';
 import {
   getCurrentWeek,
   getCurrentSemester,
@@ -18,6 +18,8 @@ interface WeekNavigatorProps {
   onWeekChange: (year: number, week: number) => void;
   view: 'week' | 'month';
   onViewChange: (view: 'week' | 'month') => void;
+  eventsVisible: boolean;
+  onToggleEvents: () => void;
 }
 
 function readStorage<T>(key: string, fallback: T): T {
@@ -30,7 +32,7 @@ function readStorage<T>(key: string, fallback: T): T {
   }
 }
 
-export function WeekNavigator({ year, week, onWeekChange, view, onViewChange }: WeekNavigatorProps) {
+export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, eventsVisible, onToggleEvents }: WeekNavigatorProps) {
   const t = useTranslations('schedule');
   const locale = useLocale();
 
@@ -113,6 +115,23 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange }: 
             <CalendarRange size={15} />
           </button>
         </div>
+
+        {/* Events toggle */}
+        <button
+          onClick={onToggleEvents}
+          title={t('eventsToggleTooltip')}
+          aria-pressed={eventsVisible}
+          className={[
+            'flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border text-xs font-medium',
+            'transition-[background-color,color,border-color] transition-base',
+            eventsVisible
+              ? 'bg-accent-subtle border-accent text-accent'
+              : 'bg-surface-raised border-subtle text-tertiary hover:text-primary hover:border-strong',
+          ].join(' ')}
+        >
+          <Flag size={13} aria-hidden />
+          <span>{t('eventsToggleLabel')}</span>
+        </button>
 
         {/* Semester tabs — only in week view */}
         {view === 'week' && (

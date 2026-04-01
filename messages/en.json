@@ -101,7 +101,30 @@
     "importIgnore": "Dismiss",
     "importSuccess": "Schedule copied successfully",
     "importError": "Failed to copy schedule",
-    "importRetry": "Retry"
+    "importRetry": "Retry",
+    "eventsToggleLabel": "Events",
+    "eventsToggleTooltip": "Show/hide personal events",
+    "addEvent": "Event"
+  },
+  "events": {
+    "newEvent": "New event",
+    "editEvent": "Edit event",
+    "typeDelivery": "Delivery",
+    "typeDeadline": "Deadline",
+    "typeReminder": "Reminder",
+    "typeOther": "Other",
+    "fieldTitle": "Title",
+    "fieldType": "Type",
+    "fieldDate": "Date",
+    "fieldTime": "Time",
+    "fieldDescription": "Description (optional)",
+    "titlePlaceholder": "Event name",
+    "datePlaceholder": "Select a date",
+    "descriptionPlaceholder": "Additional details...",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save"
   },
   "topbar": {
     "toggleTheme": "Toggle theme",

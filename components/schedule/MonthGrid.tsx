@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
 import type { Subject } from '@/lib/types/schedule';
+import type { UserEvent } from '@/lib/types/events';
 import { MonthCell } from './MonthCell';
 import { MonthDayDrawer } from './MonthDayDrawer';
 
@@ -38,6 +39,14 @@ function getSubjectsForDate(subjects: Subject[], date: Date): Subject[] {
   return subjects.filter((s) => s.date.year === y && s.date.month === m && s.date.day === d);
 }
 
+function getEventsForDate(events: UserEvent[], date: Date): UserEvent[] {
+  const y = String(date.getUTCFullYear());
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(date.getUTCDate()).padStart(2, '0');
+  const iso = `${y}-${m}-${d}`;
+  return events.filter((e) => e.date === iso);
+}
+
 function checkIsToday(date: Date): boolean {
   const now = new Date();
   return (
@@ -62,6 +71,8 @@ interface MonthGridProps {
   month: number; // 1-12
   onMonthChange: (year: number, month: number) => void;
   onGoToWeek: (isoYear: number, isoWeek: number) => void;
+  events: UserEvent[];
+  eventsVisible: boolean;
 }
 
 export function MonthGrid({
@@ -71,6 +82,8 @@ export function MonthGrid({
   month,
   onMonthChange,
   onGoToWeek,
+  events,
+  eventsVisible,
 }: MonthGridProps) {
   const t = useTranslations('schedule');
   const locale = useLocale();
@@ -211,11 +224,14 @@ export function MonthGrid({
                 drawerDate.getUTCMonth() + 1 === cellMonth &&
                 drawerDate.getUTCDate() === date.getUTCDate();
 
+              const dayEvents = getEventsForDate(events, date);
               return (
                 <MonthCell
                   key={i}
                   date={date}
                   subjects={daySubs}
+                  events={dayEvents}
+                  eventsVisible={eventsVisible}
                   isCurrentMonth={isCurrentMonthDay}
                   isToday={checkIsToday(date)}
                   isSelected={isSelected}
