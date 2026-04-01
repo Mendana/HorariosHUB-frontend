@@ -51,9 +51,10 @@ interface DayColumnProps {
   isLoading: boolean;
   isToday: boolean;
   currentTimePx: number | null;
+  highlightedId?: string | null;
 }
 
-function DayColumn({ day, subjects, isLoading, isToday, currentTimePx }: DayColumnProps) {
+function DayColumn({ day, subjects, isLoading, isToday, currentTimePx, highlightedId }: DayColumnProps) {
   return (
     <div className="relative border-l border-subtle" style={{ height: TOTAL_HEIGHT, minWidth: 0 }}>
       {/* Horizontal grid lines */}
@@ -85,7 +86,12 @@ function DayColumn({ day, subjects, isLoading, isToday, currentTimePx }: DayColu
       {/* Subject blocks */}
       {!isLoading &&
         subjects.map((s) => (
-          <SubjectBlock key={s.id} subject={s} slotHeight={SLOT_HEIGHT} />
+          <SubjectBlock
+            key={s.id}
+            subject={s}
+            slotHeight={SLOT_HEIGHT}
+            highlighted={s.id === highlightedId}
+          />
         ))}
 
       {/* Current-time line */}
@@ -114,6 +120,7 @@ interface ScheduleGridProps {
   error?: string | null;
   onRetry?: () => void;
   onWeekChange?: (year: number, week: number) => void;
+  highlightedId?: string | null;
 }
 
 export function ScheduleGrid({
@@ -125,6 +132,7 @@ export function ScheduleGrid({
   error,
   onRetry,
   onWeekChange,
+  highlightedId,
 }: ScheduleGridProps) {
 
   // Mobile: which day tab is selected (1=Mon … 5=Fri)
@@ -263,6 +271,7 @@ export function ScheduleGrid({
               isLoading={isLoading}
               isToday={isCurrentWeek && todayDayOfWeek === day}
               currentTimePx={currentTimePx}
+              highlightedId={highlightedId}
             />
           ))}
         </div>
@@ -275,6 +284,7 @@ export function ScheduleGrid({
             isLoading={isLoading}
             isToday={isCurrentWeek && todayDayOfWeek === selectedDay}
             currentTimePx={currentTimePx}
+            highlightedId={highlightedId}
           />
         </div>
 

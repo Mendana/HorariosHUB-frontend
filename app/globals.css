@@ -356,3 +356,16 @@
 .animate-dropdown {
   animation: dropdown-in 250ms ease-in-out;
 }
+
+/* Resaltado de bloque al navegar desde búsqueda: 3 pulsos brightness. */
+@keyframes subject-highlight {
+  0%,  100% { filter: brightness(1);    }
+  16%        { filter: brightness(1.35); }
+  33%        { filter: brightness(1);    }
+  49%        { filter: brightness(1.35); }
+  66%        { filter: brightness(1);    }
+  82%        { filter: brightness(1.35); }
+}
+.subject-highlight {
+  animation: subject-highlight 1.2s ease-in-out;
+}

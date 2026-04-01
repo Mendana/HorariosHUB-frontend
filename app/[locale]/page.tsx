@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getCurrentWeek, getWeekDates, getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
 import { useSchedule, ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
+import { setSearchSubjects, registerSearchNavigate } from '@/lib/hooks/useSearch';
 import { ScheduleSearch } from '@/components/schedule/ScheduleSearch';
 import { WeekNavigator } from '@/components/schedule/WeekNavigator';
 import { ScheduleGrid } from '@/components/schedule/ScheduleGrid';
@@ -21,6 +22,8 @@ export default function SchedulePage() {
   const [viewMonthYear, setViewMonthYear] = useState(now.getFullYear());
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);
 
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
   // Rehydrate view preference from localStorage after mount
   useEffect(() => {
     const stored = localStorage.getItem('scheduleView');
@@ -30,6 +33,28 @@ export default function SchedulePage() {
   }, []);
 
   const { subjects, isLoading, refreshSchedule } = useSchedule(identifier);
+
+  // Keep the global search store in sync with loaded subjects
+  useEffect(() => {
+    setSearchSubjects(subjects);
+  }, [subjects]);
+
+  // Register the navigate-to-result callback for the global search bar
+  useEffect(() => {
+    return registerSearchNavigate(({ subject, isoYear, isoWeek }) => {
+      // Switch to week view
+      setScheduleView('week');
+      localStorage.setItem('scheduleView', 'week');
+      // Navigate to the result's week
+      setSelectedYear(isoYear);
+      setSelectedWeek(isoWeek);
+      localStorage.setItem('selectedWeekYear', JSON.stringify(isoYear));
+      localStorage.setItem('selectedWeek',     JSON.stringify(isoWeek));
+      // Highlight the block, then clear after the animation (3×400ms + margin)
+      setHighlightedId(subject.id);
+      setTimeout(() => setHighlightedId(null), 1500);
+    });
+  }, []);
 
   const handleWeekChange = useCallback((year: number, week: number) => {
     setSelectedYear(year);
@@ -89,6 +114,7 @@ export default function SchedulePage() {
             week={selectedWeek}
             hasIdentifier={identifier !== null}
             onWeekChange={handleWeekChange}
+            highlightedId={highlightedId}
           />
         ) : (
           <MonthGrid

@@ -95,6 +95,15 @@
     "closeMenu": "Cerrar menú",
     "profile": "Perfil"
   },
+  "search": {
+    "placeholder": "Buscar clase, asignatura...",
+    "clear": "Limpiar búsqueda",
+    "hint": "Buscar (⌘K)",
+    "noResults": "Sin resultados para \"{query}\"",
+    "groupThisWeek": "Esta semana",
+    "groupNextWeek": "Próxima semana",
+    "groupWeekOf": "Semana del {date}"
+  },
   "roles": {
     "visitor": "Visitante",
     "user": "Estudiante",
