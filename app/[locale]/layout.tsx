@@ -1,5 +1,6 @@
 import { setRequestLocale } from 'next-intl/server';
 import { Topbar } from '@/components/layout/Topbar';
+import { Footer } from '@/components/layout/Footer';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -12,7 +13,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   setRequestLocale(locale);
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Topbar />
       {/*
        * pt-16: compensa la topbar fija (h-16 = 64px).
@@ -21,6 +22,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <main className="flex-1 pt-16">
         {children}
       </main>
-    </>
+      <Footer />
+    </div>
   );
 }

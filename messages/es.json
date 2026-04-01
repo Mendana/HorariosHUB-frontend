@@ -317,5 +317,70 @@
     "relativeHours": "hace {h} h",
     "relativeYesterday": "ayer",
     "relativeDays": "hace {d} días"
+  },
+  "about": {
+    "title": "Sobre PCEO Hub",
+    "subtitle": "Una herramienta open source creada por estudiantes del PCEO de la Universidad de Oviedo para gestionar y consultar horarios académicos de forma sencilla y moderna.",
+    "whatIs": {
+      "title": "¿Qué es PCEO Hub?"
+    },
+    "features": {
+      "0": {
+        "title": "Consulta tu horario",
+        "description": "Accede a tu horario personal o al de cualquier curso del PCEO sin necesidad de cuenta."
+      },
+      "1": {
+        "title": "Gestión colaborativa",
+        "description": "Profesores y alumnos pueden proponer y aprobar cambios de horario de forma coordinada."
+      },
+      "2": {
+        "title": "Open source",
+        "description": "El código es público. Puedes contribuir, reportar bugs o sugerir mejoras directamente en GitHub."
+      }
+    },
+    "team": {
+      "title": "El equipo",
+      "pablo": {
+        "role": "Desarrollador Full-Stack & DevOps",
+        "description": "Estudiante del Doble Grado en Ingeniería del Software y Matemáticas en la Universidad de Oviedo."
+      },
+      "diego": {
+        "role": "Desarrollador Full-Stack & IA",
+        "description": "Estudiante del Doble Grado en Ingeniería del Software y Matemáticas en la Universidad de Oviedo."
+      }
+    },
+    "contribute": {
+      "title": "Contribuir",
+      "description": "PCEO Hub es un proyecto open source. Si encuentras un bug, tienes una idea o quieres contribuir con código, el repositorio está abierto en GitHub.",
+      "viewRepo": "Ver repositorio",
+      "reportIssue": "Reportar un problema"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 PCEO Hub · Universidad de Oviedo",
+    "about": "Sobre nosotros"
+  },
+  "contact": {
+    "title": "Contacto",
+    "description": "¿Tienes una pregunta o sugerencia? Nos encantaría escucharte.",
+    "fieldName": "Nombre",
+    "fieldEmail": "Correo electrónico",
+    "fieldSubject": "Asunto",
+    "fieldMessage": "Mensaje",
+    "placeholder_name": "Tu nombre",
+    "placeholder_email": "tu@email.com",
+    "placeholder_message": "Cuéntanos qué piensas...",
+    "subjectBug": "Reportar un bug",
+    "subjectSuggestion": "Sugerencia de mejora",
+    "subjectScheduleIssue": "Problema con mi horario",
+    "subjectOther": "Otro",
+    "charCount": "{current} / 500",
+    "minCharError": "El mensaje debe tener al menos 20 caracteres",
+    "emailError": "Por favor, introduce un email válido",
+    "submitButton": "Enviar mensaje",
+    "successTitle": "Mensaje enviado",
+    "successMessage": "Gracias por contactarnos. Te responderemos en el email proporcionado en menos de 48 horas.",
+    "retryButton": "Enviar otro mensaje",
+    "errorBanner": "No se pudo enviar el mensaje. Inténtalo de nuevo."
   }
 }
