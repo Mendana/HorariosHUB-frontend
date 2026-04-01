@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { Plus } from 'lucide-react';
 import { SubjectBlock } from './SubjectBlock';
 import { ScheduleHeader } from './ScheduleHeader';
 import { ScheduleEmpty } from './ScheduleEmpty';
@@ -11,6 +12,7 @@ import {
   getDayOfWeek,
   getISOWeekFromDate,
   layoutDay,
+  timeToMinutes,
 } from '@/lib/utils/scheduleHelpers';
 import type { Subject } from '@/lib/types/schedule';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
@@ -76,6 +78,10 @@ interface DayColumnProps {
   eventsVisible: boolean;
   onEditEvent: (event: UserEvent) => void;
   onDeleteEvent: (id: string) => void;
+  dateISO: string;
+  canCreate: boolean;
+  onCellClick?: (date: string, time: string) => void;
+  ghostTime?: string | null;
 }
 
 function DayColumn({
@@ -89,8 +95,17 @@ function DayColumn({
   eventsVisible,
   onEditEvent,
   onDeleteEvent,
+  dateISO,
+  canCreate,
+  onCellClick,
+  ghostTime,
 }: DayColumnProps) {
   const stackMap = useMemo(() => buildStackMap(events), [events]);
+
+  // Ghost block position (1 hour = 2 slots tall)
+  const ghostTop = ghostTime !== null && ghostTime !== undefined
+    ? ((timeToMinutes(ghostTime) - DAY_START_MINS) / 30) * SLOT_HEIGHT
+    : null;
 
   return (
     <div className="relative border-l border-subtle" style={{ height: TOTAL_HEIGHT, minWidth: 0 }}>
@@ -104,6 +119,26 @@ function DayColumn({
           style={{ top: i * SLOT_HEIGHT }}
         />
       ))}
+
+      {/* Cell create overlays — professor/admin only, hidden during loading */}
+      {canCreate && !isLoading && Array.from({ length: SLOTS }, (_, i) => {
+        const mins = DAY_START_MINS + i * 30;
+        const time = `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+        return (
+          <div
+            key={`cell-${i}`}
+            className="absolute w-full cursor-crosshair group/cell transition-colors transition-fast hover:bg-accent/5"
+            style={{ top: i * SLOT_HEIGHT, height: SLOT_HEIGHT, zIndex: 0 }}
+            onClick={() => onCellClick?.(dateISO, time)}
+          >
+            <Plus
+              size={14}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-accent opacity-0 group-hover/cell:opacity-40 transition-opacity transition-fast pointer-events-none"
+              aria-hidden
+            />
+          </div>
+        );
+      })}
 
       {/* Skeleton */}
       {isLoading &&
@@ -119,6 +154,15 @@ function DayColumn({
             }}
           />
         ))}
+
+      {/* Ghost block — shown between cell click and modal close */}
+      {ghostTop !== null && (
+        <div
+          className="absolute rounded-sm border border-dashed border-accent bg-accent-subtle pointer-events-none"
+          style={{ top: ghostTop + 1, height: SLOT_HEIGHT * 2 - 2, left: 3, right: 3, zIndex: 2 }}
+          aria-hidden
+        />
+      )}
 
       {/* Subject blocks */}
       {!isLoading &&
@@ -174,6 +218,9 @@ interface ScheduleGridProps {
   eventsVisible: boolean;
   onEditEvent: (event: UserEvent) => void;
   onDeleteEvent: (id: string) => void;
+  canCreate?: boolean;
+  onCellClick?: (date: string, time: string) => void;
+  ghostCell?: { date: string; time: string } | null;
 }
 
 export function ScheduleGrid({
@@ -190,6 +237,9 @@ export function ScheduleGrid({
   eventsVisible,
   onEditEvent,
   onDeleteEvent,
+  canCreate = false,
+  onCellClick,
+  ghostCell,
 }: ScheduleGridProps) {
 
   // Mobile: which day tab is selected (1=Mon … 5=Fri)
@@ -346,37 +396,53 @@ export function ScheduleGrid({
 
         {/* Desktop: 5 day columns */}
         <div className="hidden sm:grid flex-1" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
-          {DAYS_MON_FRI.map((day) => (
-            <DayColumn
-              key={day}
-              day={day}
-              subjects={dayMap.get(day) ?? []}
-              isLoading={isLoading}
-              isToday={isCurrentWeek && todayDayOfWeek === day}
-              currentTimePx={currentTimePx}
-              highlightedId={highlightedId}
-              events={dayEventsMap.get(day) ?? []}
-              eventsVisible={eventsVisible}
-              onEditEvent={onEditEvent}
-              onDeleteEvent={onDeleteEvent}
-            />
-          ))}
+          {DAYS_MON_FRI.map((day) => {
+            const dateISO = dayDateMap.get(day) ?? '';
+            return (
+              <DayColumn
+                key={day}
+                day={day}
+                subjects={dayMap.get(day) ?? []}
+                isLoading={isLoading}
+                isToday={isCurrentWeek && todayDayOfWeek === day}
+                currentTimePx={currentTimePx}
+                highlightedId={highlightedId}
+                events={dayEventsMap.get(day) ?? []}
+                eventsVisible={eventsVisible}
+                onEditEvent={onEditEvent}
+                onDeleteEvent={onDeleteEvent}
+                dateISO={dateISO}
+                canCreate={canCreate}
+                onCellClick={onCellClick}
+                ghostTime={ghostCell?.date === dateISO ? ghostCell.time : null}
+              />
+            );
+          })}
         </div>
 
         {/* Mobile: single day column */}
         <div className="sm:hidden flex-1">
-          <DayColumn
-            day={selectedDay}
-            subjects={dayMap.get(selectedDay) ?? []}
-            isLoading={isLoading}
-            isToday={isCurrentWeek && todayDayOfWeek === selectedDay}
-            currentTimePx={currentTimePx}
-            highlightedId={highlightedId}
-            events={dayEventsMap.get(selectedDay) ?? []}
-            eventsVisible={eventsVisible}
-            onEditEvent={onEditEvent}
-            onDeleteEvent={onDeleteEvent}
-          />
+          {(() => {
+            const dateISO = dayDateMap.get(selectedDay) ?? '';
+            return (
+              <DayColumn
+                day={selectedDay}
+                subjects={dayMap.get(selectedDay) ?? []}
+                isLoading={isLoading}
+                isToday={isCurrentWeek && todayDayOfWeek === selectedDay}
+                currentTimePx={currentTimePx}
+                highlightedId={highlightedId}
+                events={dayEventsMap.get(selectedDay) ?? []}
+                eventsVisible={eventsVisible}
+                onEditEvent={onEditEvent}
+                onDeleteEvent={onDeleteEvent}
+                dateISO={dateISO}
+                canCreate={canCreate}
+                onCellClick={onCellClick}
+                ghostTime={ghostCell?.date === dateISO ? ghostCell.time : null}
+              />
+            );
+          })()}
         </div>
 
         {/* Empty / error state overlay (grid lines remain visible per spec) */}

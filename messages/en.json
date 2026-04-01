@@ -104,7 +104,8 @@
     "importRetry": "Retry",
     "eventsToggleLabel": "Events",
     "eventsToggleTooltip": "Show/hide personal events",
-    "addEvent": "Event"
+    "addEvent": "Event",
+    "createClassHint": "Click on the schedule to add a class"
   },
   "events": {
     "newEvent": "New event",

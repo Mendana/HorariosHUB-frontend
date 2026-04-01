@@ -30,9 +30,10 @@ interface ScheduleSearchProps {
   onIdentifierChange: (id: string) => void;
   onShareClick?: () => void;
   onCreateEvent?: () => void;
+  showCreationHint?: boolean;
 }
 
-export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, onCreateEvent }: ScheduleSearchProps) {
+export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, onCreateEvent, showCreationHint }: ScheduleSearchProps) {
   const t = useTranslations('schedule');
   const { user } = useAuth();
   const [uoInput, setUoInput] = useState('');
@@ -132,6 +133,13 @@ export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, o
           >
             {t('addEvent')}
           </Button>
+        )}
+
+        {/* Creation hint — professor/admin, desktop only, dismisses after first use */}
+        {showCreationHint && (
+          <span className="hidden lg:block text-xs text-tertiary ml-1">
+            {t('createClassHint')}
+          </span>
         )}
       </div>
     </div>

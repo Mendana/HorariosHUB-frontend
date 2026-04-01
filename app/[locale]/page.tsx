@@ -13,7 +13,9 @@ import { MonthGrid } from '@/components/schedule/MonthGrid';
 import { ImportBanner } from '@/components/schedule/ImportBanner';
 import { ShareModal } from '@/components/schedule/ShareModal';
 import { EventForm } from '@/components/events/EventForm';
+import { ClassForm } from '@/components/classes/ClassForm';
 import type { UserEvent, NewEventData } from '@/lib/types/events';
+import type { Class, ClassInput } from '@/lib/types/classes';
 
 export default function SchedulePage() {
   const [identifier, setIdentifier] = useState<string | null>(null);
@@ -34,6 +36,37 @@ export default function SchedulePage() {
 
   // ── Auth ─────────────────────────────────────────────────────────────────────
   const { user } = useAuth();
+  const canCreate = user?.role === 'professor' || user?.role === 'admin';
+
+  // ── Class creation via cell click ─────────────────────────────────────────────
+  const [ghostCell, setGhostCell]       = useState<{ date: string; time: string } | null>(null);
+  const [classFormCell, setClassFormCell] = useState<{ date: string; time: string } | null>(null);
+  const [creationHintVisible, setCreationHintVisible] = useState(true);
+
+  useEffect(() => {
+    if (localStorage.getItem('hasCreatedByClick') === 'true') {
+      setCreationHintVisible(false);
+    }
+  }, []);
+
+  const handleCellClick = useCallback((date: string, time: string) => {
+    setGhostCell({ date, time });
+    setTimeout(() => setClassFormCell({ date, time }), 150);
+  }, []);
+
+  function handleClassFormClose() {
+    setClassFormCell(null);
+    setGhostCell(null);
+  }
+
+  async function handleClassCreate(_input: ClassInput) {
+    // In production: await apiFetch('/api/classes', { method: 'POST', body: _input })
+    setClassFormCell(null);
+    setGhostCell(null);
+    refreshSchedule();
+    localStorage.setItem('hasCreatedByClick', 'true');
+    setCreationHintVisible(false);
+  }
 
   // ── Events ───────────────────────────────────────────────────────────────────
   const {
@@ -170,6 +203,7 @@ export default function SchedulePage() {
           onIdentifierChange={setIdentifier}
           onShareClick={() => setShareOpen(true)}
           onCreateEvent={openCreateEvent}
+          showCreationHint={canCreate && creationHintVisible && scheduleView === 'week'}
         />
         <WeekNavigator
           year={selectedYear}
@@ -193,6 +227,9 @@ export default function SchedulePage() {
             eventsVisible={eventsVisible}
             onEditEvent={openEditEvent}
             onDeleteEvent={handleDeleteEvent}
+            canCreate={canCreate}
+            onCellClick={handleCellClick}
+            ghostCell={ghostCell}
           />
         ) : (
           <MonthGrid
@@ -221,6 +258,27 @@ export default function SchedulePage() {
           onClose={() => setEventFormOpen(false)}
         />
       )}
+
+      {/* Class create modal — opened via cell click (professor/admin) */}
+      {classFormCell && (() => {
+        const [y, m, d] = classFormCell.date.split('-').map(Number);
+        const prefill: Class = {
+          id: '',
+          name: '',
+          type: 'Teoría',
+          date: { year: y, month: m, day: d },
+          startTime: classFormCell.time,
+          endTime: classFormCell.time,
+          durationMinutes: 60,
+        };
+        return (
+          <ClassForm
+            initial={prefill}
+            onSubmit={handleClassCreate}
+            onClose={handleClassFormClose}
+          />
+        );
+      })()}
     </ScheduleRefreshContext.Provider>
   );
 }
