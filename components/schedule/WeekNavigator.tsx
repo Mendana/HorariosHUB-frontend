@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { ChevronLeft, ChevronRight, CalendarDays, CalendarRange, Flag } from 'lucide-react';
 import {
@@ -79,6 +79,25 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
     onWeekChange(current.year, current.week);
   }, [onWeekChange]);
 
+  // Keyboard shortcuts: Alt+← / Alt+→ for week, Alt+1 / Alt+2 for semester
+  // Store latest callbacks in refs so the effect closure is always fresh
+  const shiftWeekRef = useRef(shiftWeek);
+  const handleSemesterChangeRef = useRef(handleSemesterChange);
+  useEffect(() => { shiftWeekRef.current = shiftWeek; }, [shiftWeek]);
+  useEffect(() => { handleSemesterChangeRef.current = handleSemesterChange; }, [handleSemesterChange]);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (!e.altKey) return;
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); shiftWeekRef.current(-1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); shiftWeekRef.current(1); }
+      else if (e.key === '1')     { e.preventDefault(); handleSemesterChangeRef.current(1); }
+      else if (e.key === '2')     { e.preventDefault(); handleSemesterChangeRef.current(2); }
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const current = getCurrentWeek();
   const isCurrentWeek = year === current.year && week === current.week;
   const weekDates = getWeekDates(year, week);
@@ -100,7 +119,7 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
                 : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
             }`}
           >
-            <CalendarDays size={15} />
+            <CalendarDays size={15} aria-hidden />
           </button>
           <button
             onClick={() => onViewChange('month')}
@@ -112,7 +131,7 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
                 : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
             }`}
           >
-            <CalendarRange size={15} />
+            <CalendarRange size={15} aria-hidden />
           </button>
         </div>
 
@@ -135,11 +154,14 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
 
         {/* Semester tabs — only in week view */}
         {view === 'week' && (
-          <div className="flex rounded-sm overflow-hidden border border-subtle">
+          <div className="flex rounded-sm overflow-hidden border border-subtle" role="group">
             {([1, 2] as const).map((sem) => (
               <button
                 key={sem}
                 onClick={() => handleSemesterChange(sem)}
+                aria-label={t(sem === 1 ? 'semester1' : 'semester2')}
+                aria-pressed={semester === sem}
+                title={t(sem === 1 ? 'shortcutSem1' : 'shortcutSem2')}
                 className={`px-3 py-1.5 text-sm font-medium transition-[background-color,color,filter] transition-base ${
                   semester === sem
                     ? 'bg-accent-subtle text-accent'
@@ -171,22 +193,24 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
 
           <button
             onClick={() => shiftWeek(-1)}
-            aria-label="Previous week"
+            aria-label={t('prevWeek')}
+            title={t('shortcutPrevWeek')}
             className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={16} aria-hidden />
           </button>
 
-          <span className="text-sm font-medium text-primary min-w-37 text-center tabular-nums">
+          <span className="text-sm font-medium text-primary min-w-37 text-center tabular-nums" aria-live="polite" aria-atomic="true">
             {rangeLabel}
           </span>
 
           <button
             onClick={() => shiftWeek(1)}
-            aria-label="Next week"
+            aria-label={t('nextWeek')}
+            title={t('shortcutNextWeek')}
             className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={16} aria-hidden />
           </button>
         </div>
       )}

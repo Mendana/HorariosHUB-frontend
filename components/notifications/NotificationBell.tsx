@@ -13,7 +13,7 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
+  // Close on outside click or Escape
   useEffect(() => {
     if (!open) return;
     function handleMouseDown(e: MouseEvent) {
@@ -21,8 +21,15 @@ export function NotificationBell() {
         setOpen(false);
       }
     }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
     document.addEventListener('mousedown', handleMouseDown);
-    return () => document.removeEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [open]);
 
   return (
@@ -36,7 +43,7 @@ export function NotificationBell() {
       >
         <Bell size={18} aria-hidden />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 min-w-[1rem] h-4 flex items-center justify-center rounded-full bg-error text-white text-[10px] font-medium leading-none px-0.5 pointer-events-none">
+          <span className="absolute top-1 right-1 min-w-4 h-4 flex items-center justify-center rounded-full bg-error text-white text-[10px] font-medium leading-none px-0.5 pointer-events-none">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

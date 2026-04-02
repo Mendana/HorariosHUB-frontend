@@ -125,8 +125,9 @@ export function ProposalForm({ subject, onClose, onSuccess }: ProposalFormProps)
           {action === 'update' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
               <div>
-                <label className={labelCls}>{t('diffFieldClassroom')}</label>
+                <label htmlFor="proposal-classroom" className={labelCls}>{t('diffFieldClassroom')}</label>
                 <input
+                  id="proposal-classroom"
                   type="text"
                   value={fields.classroom}
                   onChange={e => setFields(prev => ({ ...prev, classroom: e.target.value }))}
@@ -162,8 +163,9 @@ export function ProposalForm({ subject, onClose, onSuccess }: ProposalFormProps)
           {/* Delete confirmation */}
           {action === 'delete' && (
             <div className="mb-5">
-              <label className={labelCls}>{t('proposeReasonLabel')}</label>
+              <label htmlFor="proposal-reason" className={labelCls}>{t('proposeReasonLabel')}</label>
               <textarea
+                id="proposal-reason"
                 value={deleteReason}
                 onChange={e => setDeleteReason(e.target.value)}
                 placeholder={t('rejectReasonPlaceholder')}
@@ -175,7 +177,7 @@ export function ProposalForm({ subject, onClose, onSuccess }: ProposalFormProps)
 
           {/* API error */}
           {apiError && (
-            <div className="mb-4 px-3 py-2 rounded-sm bg-error-subtle border border-error text-sm text-error">
+            <div role="alert" className="mb-4 px-3 py-2 rounded-sm bg-error-subtle border border-error text-sm text-error">
               {apiError}
             </div>
           )}

@@ -76,8 +76,14 @@ export function NotificationItem({
 
   return (
     <div
+      role={notification.link ? 'button' : undefined}
+      tabIndex={notification.link ? 0 : undefined}
+      aria-label={notification.link ? notification.title : undefined}
       className={itemCls}
       onClick={notification.link ? handleClick : undefined}
+      onKeyDown={notification.link ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); }
+      } : undefined}
     >
       {/* Type icon */}
       <div className="shrink-0 mt-0.5">

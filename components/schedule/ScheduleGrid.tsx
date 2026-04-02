@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Plus } from 'lucide-react';
 import { SubjectBlock } from './SubjectBlock';
 import { ScheduleHeader } from './ScheduleHeader';
@@ -100,6 +101,7 @@ function DayColumn({
   onCellClick,
   ghostTime,
 }: DayColumnProps) {
+  const t = useTranslations('schedule');
   const stackMap = useMemo(() => buildStackMap(events), [events]);
 
   // Ghost block position (1 hour = 2 slots tall)
@@ -127,13 +129,22 @@ function DayColumn({
         return (
           <div
             key={`cell-${i}`}
-            className="absolute w-full cursor-crosshair group/cell transition-colors transition-fast hover:bg-accent/5"
+            role="button"
+            tabIndex={0}
+            aria-label={t('createClassAt', { time })}
+            className="absolute w-full cursor-crosshair group/cell transition-colors transition-fast hover:bg-accent/5 focus-visible:bg-accent/5"
             style={{ top: i * SLOT_HEIGHT, height: SLOT_HEIGHT, zIndex: 0 }}
             onClick={() => onCellClick?.(dateISO, time)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onCellClick?.(dateISO, time);
+              }
+            }}
           >
             <Plus
               size={14}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-accent opacity-0 group-hover/cell:opacity-40 transition-opacity transition-fast pointer-events-none"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-accent opacity-0 group-hover/cell:opacity-40 group-focus-visible/cell:opacity-40 transition-opacity transition-fast pointer-events-none"
               aria-hidden
             />
           </div>

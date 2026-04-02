@@ -74,22 +74,27 @@ function FormBody({ initial, isSaving, onSubmit }: FormBodyProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
       {/* Title */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-primary">
+        <label htmlFor="event-form-title" className="text-sm font-medium text-primary">
           {t('fieldTitle')}
         </label>
         <input
+          id="event-form-title"
           type="text"
           value={title}
           onChange={(e) => { setTitle(e.target.value); if (errors.title) setErrors((p) => ({ ...p, title: undefined })); }}
           placeholder={t('titlePlaceholder')}
+          required
+          aria-required="true"
+          aria-invalid={!!errors.title}
+          aria-describedby={errors.title ? 'event-form-title-error' : undefined}
           className={[INPUT_FIELD_CLS, 'h-9 px-3 text-sm', errors.title ? 'border-error [box-shadow:var(--shadow-focus-error)]' : ''].join(' ')}
         />
-        {errors.title && <p className="text-xs text-error">{errors.title}</p>}
+        {errors.title && <p id="event-form-title-error" role="alert" className="text-xs text-error">{errors.title}</p>}
       </div>
 
       {/* Type */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-primary">
+        <label className="text-sm font-medium text-primary" id="event-form-type-label">
           {t('fieldType')}
         </label>
         <Select
@@ -109,8 +114,8 @@ function FormBody({ initial, isSaving, onSubmit }: FormBodyProps) {
           value={date}
           onChange={(v) => { setDate(v); if (errors.date) setErrors((p) => ({ ...p, date: undefined })); }}
           placeholder={t('datePlaceholder')}
+          error={errors.date}
         />
-        {errors.date && <p className="text-xs text-error">{errors.date}</p>}
       </div>
 
       {/* Time */}
@@ -128,10 +133,11 @@ function FormBody({ initial, isSaving, onSubmit }: FormBodyProps) {
 
       {/* Description */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-primary">
+        <label htmlFor="event-form-desc" className="text-sm font-medium text-primary">
           {t('fieldDescription')}
         </label>
         <textarea
+          id="event-form-desc"
           value={desc}
           onChange={(e) => setDesc(e.target.value.slice(0, DESC_MAX))}
           placeholder={t('descriptionPlaceholder')}

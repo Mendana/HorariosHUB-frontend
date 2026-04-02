@@ -9,9 +9,12 @@ interface SearchBarProps {
   onQueryChange: (q: string) => void;
   onClose: () => void;
   onClear: () => void;
+  /** Called when ArrowUp/ArrowDown/Enter are pressed in the input */
+  onNavigate?: (delta: -1 | 1) => void;
+  onEnter?: () => void;
 }
 
-export function SearchBar({ query, onQueryChange, onClose, onClear }: SearchBarProps) {
+export function SearchBar({ query, onQueryChange, onClose, onClear, onNavigate, onEnter }: SearchBarProps) {
   const t = useTranslations('search');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +42,12 @@ export function SearchBar({ query, onQueryChange, onClose, onClear }: SearchBarP
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder={t('placeholder')}
         aria-label={t('placeholder')}
+        aria-autocomplete="list"
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') { e.preventDefault(); onNavigate?.(1); }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); onNavigate?.(-1); }
+          else if (e.key === 'Enter')  { e.preventDefault(); onEnter?.(); }
+        }}
         className="flex-1 bg-transparent text-[13px] text-primary placeholder:text-tertiary outline-none min-w-0"
       />
       {query && (

@@ -104,10 +104,14 @@ export function Button({
     fullWidth ? 'w-full' : '',
   ].filter(Boolean).join(' ');
 
+  const isDisabled = disabled || loading;
+
   return (
     <button
       {...props}
-      disabled={disabled || loading}
+      disabled={isDisabled}
+      aria-disabled={isDisabled || undefined}
+      aria-busy={loading || undefined}
       className={`${base} ${sizeCls} ${variantMap[variant]} ${className}`.trim()}
     >
       {/* Content layer — invisible when loading but still occupies space, preserving button width */}

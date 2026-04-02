@@ -87,6 +87,7 @@ export function TableHead({
           return (
             <th
               key={col.key}
+              scope="col"
               className={`py-2.5 px-3 text-xs font-medium text-secondary uppercase tracking-[0.05em] whitespace-nowrap ${ALIGN_CLS[colAlign]}`}
               style={col.width ? { width: col.width } : undefined}
               aria-sort={

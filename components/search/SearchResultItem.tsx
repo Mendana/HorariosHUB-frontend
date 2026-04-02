@@ -26,9 +26,10 @@ function formatResultDate(d: { year: number; month: number; day: number }): stri
 interface SearchResultItemProps {
   result: SearchResult;
   onSelect: (r: SearchResult) => void;
+  highlighted?: boolean;
 }
 
-export function SearchResultItem({ result, onSelect }: SearchResultItemProps) {
+export function SearchResultItem({ result, onSelect, highlighted = false }: SearchResultItemProps) {
   const { subject } = result;
   const colorVars = getSubjectColorVars(subject.name);
   const dotColor = colorVars['--sb-border'];
@@ -36,13 +37,16 @@ export function SearchResultItem({ result, onSelect }: SearchResultItemProps) {
   return (
     <button
       type="button"
+      role="option"
+      aria-selected={highlighted}
+      id={`search-result-${result.subject.id}`}
       onClick={() => onSelect(result)}
-      className="w-full flex items-start gap-2.5 px-3 py-2 text-left hover:bg-accent-subtle transition-[background-color] transition-fast"
+      className={`w-full flex items-start gap-2.5 px-3 py-2 text-left transition-[background-color] transition-fast ${highlighted ? 'bg-accent-subtle' : 'hover:bg-accent-subtle'}`}
     >
       {/* Color dot */}
       <span
         aria-hidden
-        className="mt-[3px] size-2 rounded-full shrink-0"
+        className="mt-0.75 size-2 rounded-full shrink-0"
         style={{ backgroundColor: dotColor }}
       />
 

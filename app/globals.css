@@ -20,7 +20,7 @@
   /* Texto */
   --text-primary:   oklch(20% 0.006 75);  /* Gris muy oscuro cálido, no negro puro */
   --text-secondary: oklch(50% 0.006 75);  /* Gris medio */
-  --text-tertiary:  oklch(68% 0.005 75);  /* Gris claro */
+  --text-tertiary:  oklch(56% 0.005 75);  /* Gris medio (ajustado para contraste AA 4.5:1) */
 
   /* Acento — índigo vivo (misma saturación en ambos temas) */
   --accent:       oklch(52% 0.23 278);
@@ -108,7 +108,7 @@
   /* Texto */
   --text-primary:   oklch(92% 0.006 250);  /* Blanco rebajado, frío — no #fff */
   --text-secondary: oklch(65% 0.008 250);
-  --text-tertiary:  oklch(45% 0.010 250);
+  --text-tertiary:  oklch(60% 0.010 250);  /* Ajustado para contraste AA 4.5:1 sobre fondo oscuro */
 
   /* Acento — MISMA saturación que light (regla 7) */
   --accent:        oklch(52% 0.23 278);
@@ -368,4 +368,44 @@
 }
 .subject-highlight {
   animation: subject-highlight 1.2s ease-in-out;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Respeta prefers-reduced-motion: desactiva animaciones
+   decorativas para usuarios con sensibilidad al movimiento.
+   ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .subject-highlight {
+    animation: none;
+  }
+  .animate-dropdown {
+    animation: none;
+  }
+  .theme-toggle-spin {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Skip link — visible solo al recibir foco (navegación teclado)
+   ───────────────────────────────────────────────────────── */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: var(--space-1, 4px);
+  z-index: 9999;
+  padding: var(--space-2, 8px) var(--space-4, 16px);
+  background-color: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius-sm, 4px);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: top 100ms ease-out;
+}
+.skip-link:focus-visible {
+  top: var(--space-1, 4px);
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }

@@ -267,6 +267,8 @@ export function Select({
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
+              aria-label={label ?? ariaLabel}
+              aria-controls={`${uid}-lb`}
               className={`${INPUT_FIELD_CLS} h-8 w-full pl-7 pr-2 text-sm`}
             />
           </div>
@@ -308,7 +310,6 @@ export function Select({
   const desktopPanel = (
     <div
       ref={dropRef}
-      role="dialog"
       className="fixed z-50 rounded-md border border-subtle bg-surface-raised shadow-md overflow-hidden"
       style={{
         ...dropStyle,
@@ -335,7 +336,6 @@ export function Select({
       />
       <div
         ref={dropRef}
-        role="dialog"
         className="fixed bottom-0 left-0 right-0 z-50 rounded-t-md bg-surface-raised border-t border-subtle shadow-md flex flex-col max-h-[70vh]"
         style={{
           opacity:    shown ? 1 : 0,

@@ -187,10 +187,11 @@ export default function AboutPage() {
 
       {/* ── Hero ── */}
       <section
+        aria-labelledby="about-hero-title"
         className="px-6 sm:px-12 py-12 text-center"
         style={{ animation: 'fadeInUp 250ms ease-in-out both' }}
       >
-        <h1 className="text-2xl font-semibold text-primary mb-4">
+        <h1 id="about-hero-title" className="text-2xl font-semibold text-primary mb-4">
           {t('about.title')}
         </h1>
         <p className="mx-auto text-sm text-secondary" style={{ maxWidth: '600px' }}>
@@ -202,8 +203,8 @@ export default function AboutPage() {
       <div className="mx-auto px-6 sm:px-12" style={{ maxWidth: '800px' }}>
 
         {/* What is */}
-        <section className="mb-16">
-          <h2 className="text-lg font-medium text-primary mb-6">
+        <section className="mb-16" aria-labelledby="about-whatis-title">
+          <h2 id="about-whatis-title" className="text-lg font-medium text-primary mb-6">
             {t('about.whatIs.title')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -232,8 +233,8 @@ export default function AboutPage() {
         </section>
 
         {/* Team */}
-        <section className="mb-16">
-          <h2 className="text-lg font-medium text-primary mb-6">
+        <section className="mb-16" aria-labelledby="about-team-title">
+          <h2 id="about-team-title" className="text-lg font-medium text-primary mb-6">
             {t('about.team.title')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -272,27 +273,30 @@ export default function AboutPage() {
                     href={member.links.web}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`Web de ${member.name} (${t('about.openInNewTab')})`}
                     className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-sm text-xs text-secondary hover:text-primary hover:bg-accent-subtle transition-colors transition-base"
                   >
-                    <Globe className="w-3.5 h-3.5" />
+                    <Globe className="w-3.5 h-3.5" aria-hidden />
                     Web
                   </a>
                   <a
                     href={member.links.github}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`GitHub de ${member.name} (${t('about.openInNewTab')})`}
                     className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-sm text-xs text-secondary hover:text-primary hover:bg-accent-subtle transition-colors transition-base"
                   >
-                    <Code className="w-3.5 h-3.5" />
+                    <Code className="w-3.5 h-3.5" aria-hidden />
                     GitHub
                   </a>
                   <a
                     href={member.links.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`LinkedIn de ${member.name} (${t('about.openInNewTab')})`}
                     className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-sm text-xs text-secondary hover:text-primary hover:bg-accent-subtle transition-colors transition-base"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-3.5 h-3.5" aria-hidden />
                     LinkedIn
                   </a>
                 </div>
@@ -302,8 +306,8 @@ export default function AboutPage() {
         </section>
 
         {/* Contribute */}
-        <section className="mb-16 text-center">
-          <h2 className="text-lg font-medium text-primary mb-6">
+        <section className="mb-16 text-center" aria-labelledby="about-contribute-title">
+          <h2 id="about-contribute-title" className="text-lg font-medium text-primary mb-6">
             {t('about.contribute.title')}
           </h2>
           <p className="text-sm text-secondary mx-auto mb-8" style={{ maxWidth: '600px' }}>
@@ -314,86 +318,99 @@ export default function AboutPage() {
               href="https://github.com/PabloGarPe"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`${t('about.contribute.viewRepo')} (${t('about.openInNewTab')})`}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2 bg-accent text-white rounded-sm text-sm font-medium btn-transition hover:brightness-[1.08] active:scale-[0.97]"
             >
-              <Code className="w-4 h-4" />
+              <Code className="w-4 h-4" aria-hidden />
               {t('about.contribute.viewRepo')}
             </a>
             <a
               href="https://github.com/PabloGarPe/issues"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`${t('about.contribute.reportIssue')} (${t('about.openInNewTab')})`}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2 border border-subtle text-secondary hover:text-primary hover:border-strong hover:bg-surface-raised rounded-sm text-sm btn-transition active:scale-[0.97]"
             >
-              <Bug className="w-4 h-4" />
+              <Bug className="w-4 h-4" aria-hidden />
               {t('about.contribute.reportIssue')}
             </a>
           </div>
         </section>
 
         {/* Contact */}
-        <section className="mb-16">
+        <section className="mb-16" aria-labelledby="about-contact-title">
           <div className="mx-auto" style={{ maxWidth: '560px' }}>
             {!submitted ? (
               <>
-                <h2 className="text-lg font-medium text-primary mb-2 text-center">
+                <h2 id="about-contact-title" className="text-lg font-medium text-primary mb-2 text-center">
                   {t('contact.title')}
                 </h2>
                 <p className="text-sm text-secondary text-center mb-6">
                   {t('contact.description')}
                 </p>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                   {error && (
-                    <div className="p-4 bg-error-subtle border border-error rounded-md">
+                    <div role="alert" className="p-4 bg-error-subtle border border-error rounded-md">
                       <p className="text-sm text-error">{error}</p>
                     </div>
                   )}
 
                   {/* Name */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-primary">
-                      {t('contact.fieldName')} <span className="text-error">*</span>
+                    <label htmlFor="contact-name" className="text-sm font-medium text-primary">
+                      {t('contact.fieldName')} <span className="text-error" aria-hidden>*</span>
                     </label>
                     <input
+                      id="contact-name"
                       type="text"
                       name="name"
                       placeholder={t('contact.placeholder_name')}
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={loading}
+                      required
+                      aria-required="true"
+                      aria-invalid={!!errors.name}
+                      aria-describedby={errors.name ? 'contact-name-error' : undefined}
                       className={fieldCls(!!errors.name, 'h-10 px-4 text-sm')}
                     />
                     {errors.name && (
-                      <p className="text-xs text-error">{errors.name}</p>
+                      <p id="contact-name-error" role="alert" className="text-xs text-error">{errors.name}</p>
                     )}
                   </div>
 
                   {/* Email */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-primary">
-                      {t('contact.fieldEmail')} <span className="text-error">*</span>
+                    <label htmlFor="contact-email" className="text-sm font-medium text-primary">
+                      {t('contact.fieldEmail')} <span className="text-error" aria-hidden>*</span>
                     </label>
                     <input
+                      id="contact-email"
                       type="email"
                       name="email"
                       placeholder={t('contact.placeholder_email')}
                       value={formData.email}
                       onChange={handleInputChange}
                       disabled={loading}
+                      required
+                      aria-required="true"
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? 'contact-email-error' : undefined}
                       className={fieldCls(!!errors.email, 'h-10 px-4 text-sm')}
                     />
                     {errors.email && (
-                      <p className="text-xs text-error">{errors.email}</p>
+                      <p id="contact-email-error" role="alert" className="text-xs text-error">{errors.email}</p>
                     )}
                   </div>
 
                   {/* Subject */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-primary">
-                      {t('contact.fieldSubject')} <span className="text-error">*</span>
+                    <label htmlFor="contact-subject" className="text-sm font-medium text-primary">
+                      {t('contact.fieldSubject')} <span className="text-error" aria-hidden>*</span>
                     </label>
                     <select
+                      id="contact-subject"
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
@@ -409,10 +426,11 @@ export default function AboutPage() {
 
                   {/* Message */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-primary">
-                      {t('contact.fieldMessage')} <span className="text-error">*</span>
+                    <label htmlFor="contact-message" className="text-sm font-medium text-primary">
+                      {t('contact.fieldMessage')} <span className="text-error" aria-hidden>*</span>
                     </label>
                     <textarea
+                      id="contact-message"
                       name="message"
                       placeholder={t('contact.placeholder_message')}
                       value={formData.message}
@@ -420,16 +438,20 @@ export default function AboutPage() {
                       disabled={loading}
                       minLength={20}
                       maxLength={500}
+                      required
+                      aria-required="true"
+                      aria-invalid={!!errors.message}
+                      aria-describedby={errors.message ? 'contact-message-error' : 'contact-message-count'}
                       style={{ minHeight: '120px' }}
                       className={fieldCls(!!errors.message, 'resize-none px-4 py-2.5 text-sm')}
                     />
                     <div className="flex justify-between items-center min-h-5">
                       {errors.message ? (
-                        <p className="text-xs text-error">{errors.message}</p>
+                        <p id="contact-message-error" role="alert" className="text-xs text-error">{errors.message}</p>
                       ) : (
                         <span />
                       )}
-                      <p className={`text-xs ${charCountCls} ml-auto`}>
+                      <p id="contact-message-count" className={`text-xs ${charCountCls} ml-auto`} aria-live="polite">
                         {t('contact.charCount', { current: msgLen })}
                       </p>
                     </div>
@@ -440,16 +462,18 @@ export default function AboutPage() {
                     <button
                       type="submit"
                       disabled={loading}
+                      aria-disabled={loading}
+                      aria-busy={loading}
                       className="inline-flex items-center gap-2 px-6 py-2 bg-accent text-white rounded-sm text-sm font-medium btn-transition hover:brightness-[1.08] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden />
                           {t('contact.submitButton')}
                         </>
                       ) : (
                         <>
-                          <Send className="w-4 h-4" />
+                          <Send className="w-4 h-4" aria-hidden />
                           {t('contact.submitButton')}
                         </>
                       )}

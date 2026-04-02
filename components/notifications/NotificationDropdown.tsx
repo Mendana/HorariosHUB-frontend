@@ -44,6 +44,9 @@ export function NotificationDropdown({
 
   return (
     <div
+      role="dialog"
+      aria-label={t('title')}
+      aria-modal="false"
       className="absolute right-0 top-full mt-2 z-50 w-80 bg-surface-raised rounded-md shadow-md border border-subtle overflow-hidden"
       style={{
         opacity:    shown ? 1 : 0,
@@ -53,7 +56,7 @@ export function NotificationDropdown({
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-subtle">
-        <h2 className="text-sm font-medium text-primary">{t('title')}</h2>
+        <h2 id="notif-dropdown-title" className="text-sm font-medium text-primary">{t('title')}</h2>
         {unreadCount > 0 && (
           <button
             type="button"
@@ -65,8 +68,8 @@ export function NotificationDropdown({
         )}
       </div>
 
-      {/* Body */}
-      <div className="max-h-96 overflow-y-auto">
+      {/* Body — aria-live so screen readers announce new notifications */}
+      <div className="max-h-96 overflow-y-auto" aria-live="polite" aria-relevant="additions">
         {isLoading ? (
           // Skeleton — 3 items
           Array.from({ length: 3 }, (_, i) => (

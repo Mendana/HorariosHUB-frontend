@@ -73,18 +73,23 @@ export function Modal({
   const panelRef = useRef<HTMLDivElement>(null);
   // Prevents double-close when multiple exit paths fire close to each other.
   const closingRef = useRef(false);
+  // Remember which element had focus before modal opened, restore it on close.
+  const triggerRef = useRef<Element | null>(null);
 
   // ── Entrance animation ──────────────────────────────────────────────────────
   // Wait one frame before setting shown=true so the browser paints the initial
   // (invisible) state first — this is what makes the CSS transition actually run.
+  // Also capture the currently focused element so we can restore it on close.
   useEffect(() => {
     if (isOpen === false) return; // don't animate in if starts closed
+    triggerRef.current = document.activeElement;
     const id = requestAnimationFrame(() => setShown(true));
     return () => cancelAnimationFrame(id);
   }, []); // intentionally empty — only runs on mount
 
   // ── Animated close (X button / overlay / Escape) ────────────────────────────
   // Sets shown=false (CSS exit transition), then calls onClose after DURATION_MS.
+  // Restores focus to the element that had it before the modal opened.
   const handleClose = useCallback(() => {
     if (closingRef.current) return;
     closingRef.current = true;
@@ -92,6 +97,10 @@ export function Modal({
     setTimeout(() => {
       closingRef.current = false;
       onClose();
+      // Restore focus to the trigger element after the modal unmounts
+      if (triggerRef.current && typeof (triggerRef.current as HTMLElement).focus === 'function') {
+        (triggerRef.current as HTMLElement).focus();
+      }
     }, DURATION_MS);
   }, [onClose]);
 

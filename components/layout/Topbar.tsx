@@ -25,17 +25,20 @@ export function Topbar() {
 
   // Search state lives here so SearchResults can be rendered outside overflow-hidden
   const { query, setQuery, results, clearSearch } = useSearch();
+  const [highlightedIdx, setHighlightedIdx] = useState(-1);
 
   // Ref for click-outside on the whole search area (input + dropdown)
   const searchAreaRef = useRef<HTMLDivElement>(null);
 
   function openSearch() {
+    setHighlightedIdx(-1);
     setSearchOpen(true);
     requestAnimationFrame(() => setSearchVisible(true));
   }
 
   function closeSearch() {
     clearSearch();
+    setHighlightedIdx(-1);
     setSearchVisible(false);
     setTimeout(() => setSearchOpen(false), 250);
   }
@@ -48,6 +51,22 @@ export function Topbar() {
   function handleSelect(result: SearchResult) {
     triggerSearchNavigate(result);
     closeSearch();
+  }
+
+  function handleSearchNavigate(delta: -1 | 1) {
+    if (results.length === 0) return;
+    setHighlightedIdx((prev) => {
+      const next = prev + delta;
+      if (next < 0) return results.length - 1;
+      if (next >= results.length) return 0;
+      return next;
+    });
+  }
+
+  function handleSearchEnter() {
+    if (highlightedIdx >= 0 && highlightedIdx < results.length) {
+      handleSelect(results[highlightedIdx]);
+    }
   }
 
   // Click outside the search area → close
@@ -131,9 +150,11 @@ export function Topbar() {
                   <div className="w-55 py-1">
                     <SearchBar
                       query={query}
-                      onQueryChange={setQuery}
+                      onQueryChange={(q) => { setQuery(q); setHighlightedIdx(-1); }}
                       onClose={closeSearch}
                       onClear={clearSearch}
+                      onNavigate={handleSearchNavigate}
+                      onEnter={handleSearchEnter}
                     />
                   </div>
                 )}
@@ -143,7 +164,7 @@ export function Topbar() {
                   Es absolute dentro del header (fixed = containing block). */}
               {showResults && (
                 <div className="absolute right-0 top-13 z-50">
-                  <SearchResults query={query} results={results} onSelect={handleSelect} />
+                  <SearchResults query={query} results={results} onSelect={handleSelect} highlightedIdx={highlightedIdx} />
                 </div>
               )}
             </div>
@@ -219,9 +240,11 @@ export function Topbar() {
           >
             <SearchBar
               query={query}
-              onQueryChange={setQuery}
+              onQueryChange={(q) => { setQuery(q); setHighlightedIdx(-1); }}
               onClose={closeSearch}
               onClear={clearSearch}
+              onNavigate={handleSearchNavigate}
+              onEnter={handleSearchEnter}
             />
           </div>
         )}
@@ -229,7 +252,7 @@ export function Topbar() {
         {/* Dropdown mobile — fuera del inset-0 para no quedar recortado */}
         {showResults && (
           <div className="sm:hidden absolute left-0 right-0 top-13 z-50 px-3">
-            <SearchResults query={query} results={results} onSelect={handleSelect} />
+            <SearchResults query={query} results={results} onSelect={handleSelect} highlightedIdx={highlightedIdx} />
           </div>
         )}
       </header>

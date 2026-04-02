@@ -105,7 +105,14 @@
     "eventsToggleLabel": "Eventos",
     "eventsToggleTooltip": "Mostrar/ocultar eventos personales",
     "addEvent": "Evento",
-    "createClassHint": "Click en el horario para añadir clase"
+    "createClassHint": "Click en el horario para añadir clase",
+    "prevWeek": "Semana anterior",
+    "nextWeek": "Semana siguiente",
+    "shortcutPrevWeek": "Semana anterior (Alt + ←)",
+    "shortcutNextWeek": "Semana siguiente (Alt + →)",
+    "shortcutSem1": "1.er semestre (Alt + 1)",
+    "shortcutSem2": "2.º semestre (Alt + 2)",
+    "createClassAt": "Añadir clase a las {time}"
   },
   "events": {
     "newEvent": "Nuevo evento",
@@ -349,12 +356,17 @@
         "description": "Estudiante del Doble Grado en Ingeniería del Software y Matemáticas en la Universidad de Oviedo."
       }
     },
+    "openInNewTab": "abre en nueva pestaña",
     "contribute": {
       "title": "Contribuir",
       "description": "PCEO Hub es un proyecto open source. Si encuentras un bug, tienes una idea o quieres contribuir con código, el repositorio está abierto en GitHub.",
       "viewRepo": "Ver repositorio",
       "reportIssue": "Reportar un problema"
     }
+  },
+  "a11y": {
+    "skipToContent": "Saltar al contenido principal",
+    "mainContent": "Contenido principal"
   },
   "footer": {
     "copyright": "© 2025 PCEO Hub · Universidad de Oviedo",

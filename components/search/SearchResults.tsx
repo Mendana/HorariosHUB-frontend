@@ -33,9 +33,10 @@ interface SearchResultsProps {
   query: string;
   results: SearchResult[];
   onSelect: (r: SearchResult) => void;
+  highlightedIdx?: number;
 }
 
-export function SearchResults({ query, results, onSelect }: SearchResultsProps) {
+export function SearchResults({ query, results, onSelect, highlightedIdx = -1 }: SearchResultsProps) {
   const t = useTranslations('search');
 
   const baseDropdownCls =
@@ -68,19 +69,34 @@ export function SearchResults({ query, results, onSelect }: SearchResultsProps) 
     return t('groupWeekOf', { date: weekGroupDate(key) });
   }
 
+  // Flatten all results across groups to compute global index for highlighting
+  const flatResults: SearchResult[] = [];
+  for (const items of groups.values()) {
+    for (const r of items) flatResults.push(r);
+  }
+
+  let globalIdx = 0;
   return (
-    <div className={baseDropdownCls}>
+    <div className={baseDropdownCls} role="listbox" aria-label={t('placeholder')}>
       {Array.from(groups.entries()).map(([key, items], gi) => (
         <div key={key}>
           {gi > 0 && <div className="border-t border-subtle" />}
-          <div className="px-3 pt-2 pb-1">
+          <div className="px-3 pt-2 pb-1" role="presentation">
             <span className="text-[11px] font-medium text-tertiary uppercase tracking-wide">
               {groupHeader(key)}
             </span>
           </div>
-          {items.map((r) => (
-            <SearchResultItem key={r.subject.id} result={r} onSelect={onSelect} />
-          ))}
+          {items.map((r) => {
+            const idx = globalIdx++;
+            return (
+              <SearchResultItem
+                key={r.subject.id}
+                result={r}
+                onSelect={onSelect}
+                highlighted={idx === highlightedIdx}
+              />
+            );
+          })}
         </div>
       ))}
     </div>

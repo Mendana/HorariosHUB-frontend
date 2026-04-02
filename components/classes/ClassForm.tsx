@@ -247,8 +247,9 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
 
             {/* Classroom */}
             <div>
-              <label className={labelClass}>{t('classroomOptional')}</label>
+              <label htmlFor="class-form-classroom" className={labelClass}>{t('classroomOptional')}</label>
               <input
+                id="class-form-classroom"
                 type="text"
                 value={form.classroom}
                 onChange={set('classroom')}
