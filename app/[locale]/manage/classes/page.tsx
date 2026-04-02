@@ -19,7 +19,7 @@ type Modal =
   | { kind: 'edit'; cls: Class }
   | { kind: 'delete'; cls: Class };
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
 
 // ── Week filter helpers ────────────────────────────────────────────────────────
 
@@ -85,6 +85,15 @@ export default function ManageClassesPage() {
 
   // ── Pagination ────────────────────────────────────────────────────────────
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(() =>
+    typeof window !== 'undefined' ? Number(localStorage.getItem('classesPageSize')) || DEFAULT_PAGE_SIZE : DEFAULT_PAGE_SIZE,
+  );
+
+  function handlePageSizeChange(size: number) {
+    setPageSize(size);
+    setPage(1);
+    localStorage.setItem('classesPageSize', String(size));
+  }
 
   const hasActiveFilters = search !== '' || typeFilter !== '' || weekFilter !== '';
 
@@ -137,8 +146,8 @@ export default function ManageClassesPage() {
     });
   }, [filtered, sortCol, sortDir]);
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((page - 1) * pageSize, page * pageSize);
 
   // ── CRUD handlers ─────────────────────────────────────────────────────────
   const handleCreate = useCallback(
@@ -209,42 +218,12 @@ export default function ManageClassesPage() {
         onEdit={(cls) => setModal({ kind: 'edit', cls })}
         onDelete={(cls) => setModal({ kind: 'delete', cls })}
         onRetry={() => setRetryTick((n) => n + 1)}
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={handlePageSizeChange}
       />
-
-      {/* Pagination */}
-      {!isLoading && !error && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1 mt-4">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-2.5 py-1.5 text-sm text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            {t('paginationPrev')}
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={`w-8 h-8 text-sm rounded-sm transition-colors ${
-                p === page
-                  ? 'bg-accent-subtle text-accent font-medium'
-                  : 'text-secondary border border-subtle hover:text-primary hover:border-strong'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="px-2.5 py-1.5 text-sm text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            {t('paginationNext')}
-          </button>
-        </div>
-      )}
 
       {/* Modals */}
       {modal.kind === 'create' && (

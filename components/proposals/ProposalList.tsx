@@ -3,20 +3,21 @@
 import { useTranslations } from 'next-intl';
 import type { Proposal } from '@/lib/types/proposals';
 import { TableRoot, TableHead, TableBody, TableSkeletonRows, type TableColumnDef } from '@/components/ui/Table';
+import { PageSizeSelector } from '@/components/ui/PageSizeSelector';
 import { ProposalRow } from './ProposalRow';
 import { ProposalCard } from './ProposalCard';
-
-const PAGE_SIZE = 10;
 
 interface ProposalListProps {
   proposals: Proposal[];
   total: number;
   page: number;
+  pageSize: number;
   isLoading: boolean;
   error: string | null;
   emptyContext: 'pending' | 'mine' | 'filtered';
   showActions: boolean;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
   onRetry: () => void;
   onApprove: (id: string) => Promise<void>;
   onReject: (id: string, reason?: string) => Promise<void>;
@@ -26,18 +27,20 @@ export function ProposalList({
   proposals,
   total,
   page,
+  pageSize,
   isLoading,
   error,
   emptyContext,
   showActions,
   onPageChange,
+  onPageSizeChange,
   onRetry,
   onApprove,
   onReject,
 }: ProposalListProps) {
   const t = useTranslations('proposals');
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const emptyKey =
     emptyContext === 'pending'
@@ -123,38 +126,47 @@ export function ProposalList({
         }
       </div>
 
-      {/* Pagination */}
-      {!isLoading && totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-2">
-          <button
-            onClick={() => onPageChange(page - 1)}
-            disabled={page === 1}
-            className="px-3 py-1.5 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-40"
-          >
-            {t('paginationPrev')}
-          </button>
+      {/* Pagination row */}
+      {!isLoading && (
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <PageSizeSelector
+            value={pageSize}
+            options={[10, 20, 50]}
+            onChange={onPageSizeChange}
+          />
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => onPageChange(page - 1)}
+                disabled={page === 1}
+                className="px-3 py-1.5 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-40"
+              >
+                {t('paginationPrev')}
+              </button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => onPageChange(p)}
-              className={`px-3 py-1.5 text-sm rounded-sm border transition-colors ${
-                p === page
-                  ? 'bg-accent-subtle border-accent text-accent'
-                  : 'border-subtle text-secondary hover:text-primary hover:border-strong'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => onPageChange(p)}
+                  className={`px-3 py-1.5 text-sm rounded-sm border transition-colors ${
+                    p === page
+                      ? 'bg-accent-subtle border-accent text-accent'
+                      : 'border-subtle text-secondary hover:text-primary hover:border-strong'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
 
-          <button
-            onClick={() => onPageChange(page + 1)}
-            disabled={page === totalPages}
-            className="px-3 py-1.5 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-40"
-          >
-            {t('paginationNext')}
-          </button>
+              <button
+                onClick={() => onPageChange(page + 1)}
+                disabled={page === totalPages}
+                className="px-3 py-1.5 text-sm border border-subtle rounded-sm text-secondary hover:text-primary hover:border-strong transition-colors disabled:opacity-40"
+              >
+                {t('paginationNext')}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

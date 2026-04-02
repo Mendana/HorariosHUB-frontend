@@ -10,7 +10,7 @@ import { UserFilters } from '@/components/users/UserFilters';
 import { UserDeleteConfirm } from '@/components/users/UserDeleteConfirm';
 import type { User, UserRole } from '@/lib/types/users';
 
-const PAGE_SIZE = 20;
+const DEFAULT_PAGE_SIZE = 20;
 
 export default function ManageUsersPage() {
   const t = useTranslations('users');
@@ -32,6 +32,15 @@ export default function ManageUsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(() =>
+    typeof window !== 'undefined' ? Number(localStorage.getItem('usersPageSize')) || DEFAULT_PAGE_SIZE : DEFAULT_PAGE_SIZE,
+  );
+
+  function handlePageSizeChange(size: number) {
+    setPageSize(size);
+    setPage(1);
+    localStorage.setItem('usersPageSize', String(size));
+  }
 
   // Delete modal
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
@@ -55,8 +64,8 @@ export default function ManageUsersPage() {
     return result;
   }, [users, search, roleFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   async function handleDeleteConfirm() {
     if (!deleteTarget) return;
@@ -89,42 +98,12 @@ export default function ManageUsersPage() {
         onChangeRole={(email: string, role: UserRole) => changeRole(email, role)}
         onDelete={(u) => setDeleteTarget(u)}
         onRetry={() => {}}
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={handlePageSizeChange}
       />
-
-      {/* Pagination */}
-      {!isLoading && !error && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1 mt-4">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-2.5 py-1.5 text-sm text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            {t('paginationPrev')}
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={`w-8 h-8 text-sm rounded-sm transition-colors ${
-                p === page
-                  ? 'bg-accent-subtle text-accent font-medium'
-                  : 'text-secondary border border-subtle hover:text-primary hover:border-strong'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="px-2.5 py-1.5 text-sm text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            {t('paginationNext')}
-          </button>
-        </div>
-      )}
 
       {/* Delete modal */}
       {deleteTarget && (

@@ -1,6 +1,9 @@
 {
   "common": {
-    "appName": "PCEO Hub"
+    "appName": "PCEO Hub",
+    "pageSizeShow": "Mostrar",
+    "pageSizePerPage": "por página",
+    "pageSizeAriaLabel": "Elementos por página"
   },
   "nav": {
     "ariaLabel": "Navegación principal",

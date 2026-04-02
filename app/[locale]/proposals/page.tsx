@@ -27,12 +27,21 @@ function ReviewTab() {
   const t = useTranslations('proposals');
   const [filter, setFilter] = useState<Filter>('pending');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(() =>
+    typeof window !== 'undefined' ? Number(localStorage.getItem('proposalsPageSize')) || 10 : 10,
+  );
   const [counts, setCounts] = useState(computeCounts());
 
   const { proposals, total, isLoading, error, approve, reject } = useProposals('all', filter, page);
 
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [filter]);
+
+  function handlePageSizeChange(size: number) {
+    setPageSize(size);
+    setPage(1);
+    localStorage.setItem('proposalsPageSize', String(size));
+  }
 
   const handleApprove = useCallback(
     async (id: string) => {
@@ -57,11 +66,13 @@ function ReviewTab() {
         proposals={proposals}
         total={total}
         page={page}
+        pageSize={pageSize}
         isLoading={isLoading}
         error={error}
         emptyContext={filter === 'pending' ? 'pending' : 'filtered'}
         showActions={true}
         onPageChange={setPage}
+        onPageSizeChange={handlePageSizeChange}
         onRetry={() => setPage((p) => p)}
         onApprove={handleApprove}
         onReject={handleReject}
@@ -74,18 +85,29 @@ function ReviewTab() {
 
 function MyProposalsView() {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(() =>
+    typeof window !== 'undefined' ? Number(localStorage.getItem('proposalsPageSize')) || 10 : 10,
+  );
   const { proposals, total, isLoading, error, approve, reject } = useProposals('mine', 'all', page);
+
+  function handlePageSizeChange(size: number) {
+    setPageSize(size);
+    setPage(1);
+    localStorage.setItem('proposalsPageSize', String(size));
+  }
 
   return (
     <ProposalList
       proposals={proposals}
       total={total}
       page={page}
+      pageSize={pageSize}
       isLoading={isLoading}
       error={error}
       emptyContext="mine"
       showActions={false}
       onPageChange={setPage}
+      onPageSizeChange={handlePageSizeChange}
       onRetry={() => setPage((p) => p)}
       onApprove={approve}
       onReject={reject}

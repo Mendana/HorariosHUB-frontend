@@ -6,6 +6,7 @@ import { RoleSelector } from '@/components/users/RoleSelector';
 import type { User, UserRole } from '@/lib/types/users';
 import { Table, type TableColumn } from '@/components/ui/Table';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
+import { PageSizeSelector } from '@/components/ui/PageSizeSelector';
 
 const ROLE_VARIANT: Record<UserRole, BadgeVariant> = {
   admin:     'accent',
@@ -21,11 +22,17 @@ interface UserListProps {
   onChangeRole: (email: string, role: UserRole) => Promise<void>;
   onDelete: (user: User) => void;
   onRetry: () => void;
+  page: number;
+  totalPages: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
 }
 
 export function UserList({
   users, isLoading, error, currentUserEmail,
   onChangeRole, onDelete, onRetry,
+  page, totalPages, pageSize, onPageChange, onPageSizeChange,
 }: UserListProps) {
   const t      = useTranslations('users');
   const tRoles = useTranslations('roles');
@@ -158,6 +165,48 @@ export function UserList({
           })
         )}
       </div>
+
+      {/* Pagination row */}
+      {!isLoading && !error && (
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <PageSizeSelector
+            value={pageSize}
+            options={[20, 50, 100]}
+            onChange={onPageSizeChange}
+          />
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              <button
+                onClick={() => onPageChange(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="px-2.5 py-1.5 text-sm text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {t('paginationPrev')}
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => onPageChange(p)}
+                  className={`w-8 h-8 text-sm rounded-sm transition-colors ${
+                    p === page
+                      ? 'bg-accent-subtle text-accent font-medium'
+                      : 'text-secondary border border-subtle hover:text-primary hover:border-strong'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                className="px-2.5 py-1.5 text-sm text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {t('paginationNext')}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
