@@ -367,6 +367,18 @@
       "reportIssue": "Report an issue"
     }
   },
+  "errors": {
+    "title": "Something went wrong",
+    "subtitle": "An unexpected error occurred. You can try reloading the page.",
+    "retry": "Try again",
+    "home": "Go to home",
+    "details": "View error details"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "subtitle": "The page you're looking for doesn't exist or has been moved.",
+    "home": "Go to home"
+  },
   "a11y": {
     "skipToContent": "Skip to main content",
     "mainContent": "Main content"

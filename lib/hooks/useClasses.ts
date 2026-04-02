@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Class, ClassInput } from '@/lib/types/classes';
 import { MOCK_CLASSES } from '@/lib/mock/classes';
+import { getErrorMessage } from '@/lib/errors';
+import { useToast } from '@/lib/hooks/useToast';
 
 // ── Real implementation (TanStack Query) ──────────────────────────────────────
 // import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -18,21 +20,24 @@ import { MOCK_CLASSES } from '@/lib/mock/classes';
 //     mutationFn: (input: ClassInput) =>
 //       apiFetch<Class>('/api/classes', { method: 'POST', body: input }),
 //     onSuccess: () => qc.invalidateQueries({ queryKey: ['classes'] }),
+//     onError: (err) => toast.error(getErrorMessage(err)),
 //   });
 //   const updateMutation = useMutation({
 //     mutationFn: ({ id, ...data }: { id: string } & Partial<ClassInput>) =>
 //       apiFetch<Class>(`/api/classes/${id}`, { method: 'PATCH', body: data }),
 //     onSuccess: () => qc.invalidateQueries({ queryKey: ['classes'] }),
+//     onError: (err) => toast.error(getErrorMessage(err)),
 //   });
 //   const deleteMutation = useMutation({
 //     mutationFn: (id: string) =>
 //       apiFetch(`/api/classes/${id}`, { method: 'DELETE' }),
 //     onSuccess: () => qc.invalidateQueries({ queryKey: ['classes'] }),
+//     onError: (err) => toast.error(getErrorMessage(err)),
 //   });
 //   return {
 //     classes: data ?? [],
 //     isLoading,
-//     error: error?.message ?? null,
+//     error: error ? getErrorMessage(error) : null,
 //     createClass: (input: ClassInput) => createMutation.mutateAsync(input),
 //     updateClass: (id: string, data: Partial<ClassInput>) => updateMutation.mutateAsync({ id, ...data }),
 //     deleteClass: (id: string) => deleteMutation.mutateAsync(id),
@@ -58,6 +63,7 @@ export interface UseClassesResult {
 }
 
 export function useClasses(): UseClassesResult {
+  const { toast } = useToast();
   const [classes, setClasses] = useState<Class[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error] = useState<string | null>(null);
@@ -72,43 +78,58 @@ export function useClasses(): UseClassesResult {
   }, []);
 
   const createClass = useCallback(async (input: ClassInput): Promise<Class> => {
-    await new Promise((res) => setTimeout(res, 600));
-    const newClass: Class = {
-      ...input,
-      id: `cls-new-${idCounter++}`,
-      endTime: calcEndTime(input.startTime, input.durationMinutes),
-    };
-    setClasses((prev) => [...prev, newClass]);
-    return newClass;
-  }, []);
+    try {
+      await new Promise((res) => setTimeout(res, 600));
+      const newClass: Class = {
+        ...input,
+        id: `cls-new-${idCounter++}`,
+        endTime: calcEndTime(input.startTime, input.durationMinutes),
+      };
+      setClasses((prev) => [...prev, newClass]);
+      return newClass;
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      throw err;
+    }
+  }, [toast]);
 
   const updateClass = useCallback(
     async (id: string, input: Partial<ClassInput>): Promise<Class> => {
-      await new Promise((res) => setTimeout(res, 600));
-      let updated!: Class;
-      setClasses((prev) =>
-        prev.map((c) => {
-          if (c.id !== id) return c;
-          const merged: Class = { ...c, ...input };
-          if (input.startTime || input.durationMinutes) {
-            merged.endTime = calcEndTime(
-              input.startTime ?? c.startTime,
-              input.durationMinutes ?? c.durationMinutes,
-            );
-          }
-          updated = merged;
-          return merged;
-        }),
-      );
-      return updated;
+      try {
+        await new Promise((res) => setTimeout(res, 600));
+        let updated!: Class;
+        setClasses((prev) =>
+          prev.map((c) => {
+            if (c.id !== id) return c;
+            const merged: Class = { ...c, ...input };
+            if (input.startTime || input.durationMinutes) {
+              merged.endTime = calcEndTime(
+                input.startTime ?? c.startTime,
+                input.durationMinutes ?? c.durationMinutes,
+              );
+            }
+            updated = merged;
+            return merged;
+          }),
+        );
+        return updated;
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+        throw err;
+      }
     },
-    [],
+    [toast],
   );
 
   const deleteClass = useCallback(async (id: string): Promise<void> => {
-    await new Promise((res) => setTimeout(res, 400));
-    setClasses((prev) => prev.filter((c) => c.id !== id));
-  }, []);
+    try {
+      await new Promise((res) => setTimeout(res, 400));
+      setClasses((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      throw err;
+    }
+  }, [toast]);
 
   // Sort by date then startTime
   const sorted = [...classes].sort((a, b) => {

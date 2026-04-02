@@ -3,6 +3,7 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import type { Subject } from '../types/schedule';
 import { MOCK_SUBJECTS } from '../mock/schedule';
+import { getErrorMessage } from '../errors';
 
 // Context so deep components (e.g. SubjectPopover) can trigger a schedule refresh
 // without prop-drilling through ScheduleGrid → SubjectBlock.
@@ -37,8 +38,13 @@ export function useSchedule(identifier: string | null): UseScheduleResult {
 
     // Simulate network delay so the skeleton is visible
     const timer = setTimeout(() => {
-      setSubjects(MOCK_SUBJECTS);
-      setIsLoading(false);
+      try {
+        setSubjects(MOCK_SUBJECTS);
+        setIsLoading(false);
+      } catch (err) {
+        setError(getErrorMessage(err));
+        setIsLoading(false);
+      }
     }, 400);
 
     return () => clearTimeout(timer);
@@ -52,7 +58,8 @@ export function useSchedule(identifier: string | null): UseScheduleResult {
     // });
     // To refresh after an edit or delete:
     //   queryClient.invalidateQueries({ queryKey: ['schedule'] });
-    // return { subjects: data?.subjects ?? [], isLoading, error: error?.message ?? null, refreshSchedule };
+    // error: error ? getErrorMessage(error) : null
+    // return { subjects: data?.subjects ?? [], isLoading, error: ..., refreshSchedule };
   }, [identifier, version]); // `version` re-triggers the fetch on demand (rule 15 compatible)
 
   return { subjects, isLoading, error, refreshSchedule };

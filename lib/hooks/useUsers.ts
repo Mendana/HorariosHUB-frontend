@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { MOCK_USERS } from '@/lib/mock/users';
 import type { User, UserRole } from '@/lib/types/users';
+import { getErrorMessage } from '@/lib/errors';
+import { useToast } from '@/lib/hooks/useToast';
 
 export function useUsers(): {
   users: User[];
@@ -13,6 +15,7 @@ export function useUsers(): {
   deleteUser: (email: string) => Promise<void>;
 } {
   const { user: currentUser } = useAuth();
+  const { toast } = useToast();
 
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +32,8 @@ export function useUsers(): {
   }, []);
 
   // Simulate PATCH /api/users/{email}/role
+  // SELF_ROLE is thrown before the try/catch so the caller receives it without a toast
+  // (the component handles it with its own inline error message).
   const changeRole = useCallback(
     async (email: string, role: UserRole) => {
       if (email === currentUser?.email) {
@@ -36,12 +41,20 @@ export function useUsers(): {
       }
       // Optimistic update
       setUsers((prev) => prev.map((u) => (u.email === email ? { ...u, role } : u)));
-      await new Promise<void>((resolve) => setTimeout(resolve, 600));
+      try {
+        await new Promise<void>((resolve) => setTimeout(resolve, 600));
+      } catch (err) {
+        // Roll back optimistic update on failure
+        setUsers((prev) => prev.map((u) => (u.email === email ? { ...u } : u)));
+        toast.error(getErrorMessage(err));
+        throw err;
+      }
     },
-    [currentUser?.email],
+    [currentUser?.email, toast],
   );
 
   // Simulate DELETE /api/users/{email}
+  // SELF_DELETE is thrown before the try/catch for the same reason as SELF_ROLE.
   const deleteUser = useCallback(
     async (email: string) => {
       if (email === currentUser?.email) {
@@ -49,9 +62,14 @@ export function useUsers(): {
       }
       // Optimistic update
       setUsers((prev) => prev.filter((u) => u.email !== email));
-      await new Promise<void>((resolve) => setTimeout(resolve, 400));
+      try {
+        await new Promise<void>((resolve) => setTimeout(resolve, 400));
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+        throw err;
+      }
     },
-    [currentUser?.email],
+    [currentUser?.email, toast],
   );
 
   return { users, isLoading, error, changeRole, deleteUser };
@@ -81,6 +99,7 @@ export function useUsers(): {
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(['users'], context.previous);
+      toast.error(getErrorMessage(_err));
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
   });
@@ -98,6 +117,7 @@ export function useUsers(): {
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(['users'], context.previous);
+      toast.error(getErrorMessage(_err));
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
   });
@@ -105,7 +125,7 @@ export function useUsers(): {
   return {
     users: data ?? [],
     isLoading,
-    error: queryError ? 'Failed to load users' : null,
+    error: queryError ? getErrorMessage(queryError) : null,
     changeRole: (email, role) => changeRoleMutation.mutateAsync({ email, role }),
     deleteUser: (email) => deleteMutation.mutateAsync(email),
   };

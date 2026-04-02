@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Proposal, ProposalStatus } from '@/lib/types/proposals';
 import { MOCK_PROPOSALS } from '@/lib/mock/proposals';
+import { getErrorMessage } from '@/lib/errors';
+import { useToast } from '@/lib/hooks/useToast';
 
 // ── Real implementation (TanStack Query) ──────────────────────────────────────
 // import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -22,13 +24,15 @@ import { MOCK_PROPOSALS } from '@/lib/mock/proposals';
 //   const approveMutation = useMutation({
 //     mutationFn: (id: string) => apiFetch(`/api/proposals/${id}/approve`, { method: 'PATCH' }),
 //     onSuccess: () => qc.invalidateQueries({ queryKey: ['proposals'] }),
+//     onError: (err) => toast.error(getErrorMessage(err)),
 //   });
 //   const rejectMutation = useMutation({
 //     mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
 //       apiFetch(`/api/proposals/${id}/reject`, { method: 'PATCH', body: reason ? { reason } : undefined }),
 //     onSuccess: () => qc.invalidateQueries({ queryKey: ['proposals'] }),
+//     onError: (err) => toast.error(getErrorMessage(err)),
 //   });
-//   return { proposals: data?.data ?? [], total: data?.total ?? 0, isLoading, error: error?.message ?? null,
+//   return { proposals: data?.data ?? [], total: data?.total ?? 0, isLoading, error: error ? getErrorMessage(error) : null,
 //     approve: approveMutation.mutate, reject: rejectMutation.mutate };
 // }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -49,6 +53,7 @@ export function useProposals(
   status: ProposalStatus | 'all',
   page: number,
 ): UseProposalsResult {
+  const { toast } = useToast();
   const [allProposals, setAllProposals] = useState<Proposal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error] = useState<string | null>(null);
@@ -81,9 +86,18 @@ export function useProposals(
     setAllProposals((prev) =>
       prev.map((p) => (p.id === id ? { ...p, status: 'approved' } : p)),
     );
-    await new Promise((res) => setTimeout(res, 600));
-    // In real impl: PATCH /api/proposals/{id}/approve
-  }, []);
+    try {
+      await new Promise((res) => setTimeout(res, 600));
+      // In real impl: PATCH /api/proposals/{id}/approve
+    } catch (err) {
+      // Roll back optimistic update on failure
+      setAllProposals((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, status: 'pending' } : p)),
+      );
+      toast.error(getErrorMessage(err));
+      throw err;
+    }
+  }, [toast]);
 
   const reject = useCallback(async (id: string, reason?: string) => {
     // Optimistic update
@@ -92,9 +106,18 @@ export function useProposals(
         p.id === id ? { ...p, status: 'rejected', reject_reason: reason } : p,
       ),
     );
-    await new Promise((res) => setTimeout(res, 600));
-    // In real impl: PATCH /api/proposals/{id}/reject  body: { reason }
-  }, []);
+    try {
+      await new Promise((res) => setTimeout(res, 600));
+      // In real impl: PATCH /api/proposals/{id}/reject  body: { reason }
+    } catch (err) {
+      // Roll back optimistic update on failure
+      setAllProposals((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, status: 'pending', reject_reason: undefined } : p)),
+      );
+      toast.error(getErrorMessage(err));
+      throw err;
+    }
+  }, [toast]);
 
   void setLoadTrigger; // used only to allow future forced reload
 

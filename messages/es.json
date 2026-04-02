@@ -367,6 +367,18 @@
       "reportIssue": "Reportar un problema"
     }
   },
+  "errors": {
+    "title": "Algo salió mal",
+    "subtitle": "Ha ocurrido un error inesperado. Puedes intentar recargar la página.",
+    "retry": "Reintentar",
+    "home": "Volver al inicio",
+    "details": "Ver detalles del error"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "subtitle": "La página que buscas no existe o ha sido movida.",
+    "home": "Volver al inicio"
+  },
   "a11y": {
     "skipToContent": "Saltar al contenido principal",
     "mainContent": "Contenido principal"

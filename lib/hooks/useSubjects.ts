@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { CatalogSubject } from '../types/subjects';
 import { MOCK_CATALOG, MOCK_ALL_GROUP_IDS } from '../mock/subjects';
+import { getErrorMessage } from '../errors';
+import { useToast } from './useToast';
 
 export interface AutoSelectResult {
   groups_selected: number;
@@ -19,6 +21,7 @@ export interface UseSubjectsResult {
 }
 
 export function useSubjects(): UseSubjectsResult {
+  const { toast } = useToast();
   const [subjects, setSubjects] = useState<CatalogSubject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +32,13 @@ export function useSubjects(): UseSubjectsResult {
     setError(null);
 
     const timer = setTimeout(() => {
-      setSubjects(MOCK_CATALOG);
-      setIsLoading(false);
+      try {
+        setSubjects(MOCK_CATALOG);
+        setIsLoading(false);
+      } catch (err) {
+        setError(getErrorMessage(err));
+        setIsLoading(false);
+      }
     }, 400);
 
     return () => clearTimeout(timer);
@@ -44,7 +52,7 @@ export function useSubjects(): UseSubjectsResult {
     // return {
     //   subjects: data?.subjects ?? [],
     //   isLoading,
-    //   error: error?.message ?? null,
+    //   error: error ? getErrorMessage(error) : null,
     //   reload: refetch,
     //   saveSelection, autoSelect,
     // };
@@ -54,29 +62,35 @@ export function useSubjects(): UseSubjectsResult {
 
   // Simulates POST /api/subjects/selection
   // Real: fetcher('/api/subjects/selection', { method: 'POST', body: JSON.stringify({ groups }) })
-  const saveSelection = useCallback((groups: string[]): Promise<void> => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        void groups; // used in real implementation
-        resolve();
-      }, 600);
-    });
-  }, []);
+  const saveSelection = useCallback(async (groups: string[]): Promise<void> => {
+    try {
+      await new Promise<void>((resolve) => setTimeout(resolve, 600));
+      void groups; // used in real implementation
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      throw err;
+    }
+  }, [toast]);
 
   // Simulates POST /api/subjects/auto-select + polling GET /api/subjects/auto-select/status.
   // Real polling interval: 5 s. Mock interval: 1 500 ms per cycle (3 cycles ≈ 4.5 s total).
   const autoSelect = useCallback((): Promise<AutoSelectResult> => {
-    return new Promise<AutoSelectResult>((resolve) => {
+    return new Promise<AutoSelectResult>((resolve, reject) => {
       // Cycle 1: job starts → still processing
       setTimeout(() => {
         // Cycle 2: poll → still processing
         setTimeout(() => {
           // Cycle 3: poll → completed
           setTimeout(() => {
-            resolve({
-              groups_selected: MOCK_ALL_GROUP_IDS.length,
-              selected_group_ids: MOCK_ALL_GROUP_IDS,
-            });
+            try {
+              resolve({
+                groups_selected: MOCK_ALL_GROUP_IDS.length,
+                selected_group_ids: MOCK_ALL_GROUP_IDS,
+              });
+            } catch (err) {
+              toast.error(getErrorMessage(err));
+              reject(err);
+            }
           }, 1500);
         }, 1500);
       }, 1500);
@@ -86,21 +100,27 @@ export function useSubjects(): UseSubjectsResult {
       //   await fetcher('/api/subjects/auto-select', { method: 'POST' });
       //   return new Promise<AutoSelectResult>((res, rej) => {
       //     const id = setInterval(async () => {
-      //       const status = await fetcher<AutoSelectStatus>('/api/subjects/auto-select/status');
-      //       if (status.status === 'completed') {
+      //       try {
+      //         const status = await fetcher<AutoSelectStatus>('/api/subjects/auto-select/status');
+      //         if (status.status === 'completed') {
+      //           clearInterval(id);
+      //           reload();
+      //           res({ groups_selected: status.groups_selected ?? 0, selected_group_ids: [] });
+      //         } else if (status.status === 'failed') {
+      //           clearInterval(id);
+      //           rej(new Error(status.error ?? 'Auto-select failed'));
+      //         }
+      //       } catch (err) {
       //         clearInterval(id);
-      //         reload(); // refresh catalog with new selections
-      //         res({ groups_selected: status.groups_selected ?? 0, selected_group_ids: [] });
-      //       } else if (status.status === 'failed') {
-      //         clearInterval(id);
-      //         rej(new Error(status.error ?? 'Auto-select failed'));
+      //         toast.error(getErrorMessage(err));
+      //         rej(err);
       //       }
       //     }, 5000);
       //   });
       // }
       // run().then(resolve).catch(reject);
     });
-  }, []);
+  }, [toast]);
 
   return { subjects, isLoading, error, reload, saveSelection, autoSelect };
 }
