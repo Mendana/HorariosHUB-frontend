@@ -79,27 +79,38 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
     onWeekChange(current.year, current.week);
   }, [onWeekChange]);
 
-  // Keyboard shortcuts: Alt+← / Alt+→ for week, Alt+1 / Alt+2 for semester
-  // Store latest callbacks in refs so the effect closure is always fresh
+  // Keyboard shortcuts — store latest callbacks in refs so the effect closure is always fresh
   const shiftWeekRef = useRef(shiftWeek);
   const handleSemesterChangeRef = useRef(handleSemesterChange);
+  const goToTodayRef = useRef(goToToday);
+  const isCurrentWeekRef = useRef(false);
   useEffect(() => { shiftWeekRef.current = shiftWeek; }, [shiftWeek]);
   useEffect(() => { handleSemesterChangeRef.current = handleSemesterChange; }, [handleSemesterChange]);
+  useEffect(() => { goToTodayRef.current = goToToday; }, [goToToday]);
+
+  const current = getCurrentWeek();
+  const isCurrentWeek = year === current.year && week === current.week;
+  useEffect(() => { isCurrentWeekRef.current = isCurrentWeek; }, [isCurrentWeek]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (!e.altKey) return;
+      // Ignore when focus is inside a text control
+      const tag = (document.activeElement as HTMLElement | null)?.tagName ?? '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
       if (e.key === 'ArrowLeft')  { e.preventDefault(); shiftWeekRef.current(-1); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); shiftWeekRef.current(1); }
-      else if (e.key === '1')     { e.preventDefault(); handleSemesterChangeRef.current(1); }
-      else if (e.key === '2')     { e.preventDefault(); handleSemesterChangeRef.current(2); }
+      else if (e.key === 'ArrowUp')    { e.preventDefault(); handleSemesterChangeRef.current(1); }
+      else if (e.key === 'ArrowDown')  { e.preventDefault(); handleSemesterChangeRef.current(2); }
+      else if (e.key === 'h' || e.key === 'H') {
+        if (!isCurrentWeekRef.current) { e.preventDefault(); goToTodayRef.current(); }
+      }
     }
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const current = getCurrentWeek();
-  const isCurrentWeek = year === current.year && week === current.week;
   const weekDates = getWeekDates(year, week);
   const rangeLabel = formatWeekRange(weekDates, locale);
 
@@ -181,6 +192,7 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
           {/* Today button — always rendered, fades in/out */}
           <button
             onClick={goToToday}
+            title={t('shortcutToday')}
             className={[
               'px-2.5 py-1 text-xs font-medium rounded-sm',
               'text-accent hover:bg-accent-subtle',

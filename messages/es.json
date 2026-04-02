@@ -113,8 +113,9 @@
     "nextWeek": "Semana siguiente",
     "shortcutPrevWeek": "Semana anterior (Alt + ←)",
     "shortcutNextWeek": "Semana siguiente (Alt + →)",
-    "shortcutSem1": "1.er semestre (Alt + 1)",
-    "shortcutSem2": "2.º semestre (Alt + 2)",
+    "shortcutToday": "Volver a hoy (Alt + H)",
+    "shortcutSem1": "1.er semestre (Alt + ↑)",
+    "shortcutSem2": "2.º semestre (Alt + ↓)",
     "createClassAt": "Añadir clase a las {time}"
   },
   "events": {
