@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 import type { UserEvent, EventType } from '@/lib/types/events';
 import { EventPopover } from './EventPopover';
 
@@ -14,14 +15,22 @@ export const EVENT_TYPE_COLOR: Record<EventType, { css: string; tailwindText: st
   other:    { css: 'var(--text-secondary)', tailwindText: 'text-secondary' },
 };
 
-// ─── Grid constant (must match ScheduleGrid) ─────────────────────────────────
-const SLOT_HEIGHT   = 48;
-const DAY_START_MIN = 8 * 60; // 480
+// ─── Grid constants (must match ScheduleGrid) ────────────────────────────────
+const SLOT_HEIGHT    = 48;
+const DAY_START_MIN  = 8 * 60;   // 480
+const DAY_END_MIN    = 21 * 60;  // 1260
+const TOTAL_SLOTS    = (DAY_END_MIN - DAY_START_MIN) / 30; // 26
+const GRID_HEIGHT_PX = TOTAL_SLOTS * SLOT_HEIGHT;          // 1248
 
 export function timeToTopPx(time: string): number {
   const [h, m] = time.split(':').map(Number);
   const mins   = h * 60 + m;
   return ((mins - DAY_START_MIN) / 30) * SLOT_HEIGHT;
+}
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────
@@ -41,8 +50,21 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
   const dotRef     = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
-  // Each stacked event is offset by 14px (dot height 10px + gap 4px)
-  const topPx  = timeToTopPx(event.time) + stackIndex * 14;
+  const eventMins    = timeToMinutes(event.time);
+  const isBeforeGrid = eventMins < DAY_START_MIN;
+  const isAfterGrid  = eventMins >= DAY_END_MIN;
+  const isOutOfRange = isBeforeGrid || isAfterGrid;
+
+  // Clamp position to grid edges for out-of-range events;
+  // stack downward from top (before) or upward from bottom (after).
+  let topPx: number;
+  if (isBeforeGrid) {
+    topPx = stackIndex * 14;
+  } else if (isAfterGrid) {
+    topPx = GRID_HEIGHT_PX - (stackIndex + 1) * 14;
+  } else {
+    topPx = timeToTopPx(event.time) + stackIndex * 14;
+  }
 
   return (
     <>
@@ -55,6 +77,22 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true); } }}
         aria-label={event.title}
       >
+        {/* Out-of-range direction arrow */}
+        {isBeforeGrid && (
+          <ArrowUp
+            size={10}
+            style={{ color: cssColor, marginLeft: 2, marginRight: 2, flexShrink: 0 }}
+            aria-hidden
+          />
+        )}
+        {isAfterGrid && (
+          <ArrowDown
+            size={10}
+            style={{ color: cssColor, marginLeft: 2, marginRight: 2, flexShrink: 0 }}
+            aria-hidden
+          />
+        )}
+
         {/* Dot */}
         <div
           ref={dotRef}
@@ -63,7 +101,7 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
             width:           6,
             height:          6,
             backgroundColor: cssColor,
-            marginLeft:      2,
+            marginLeft:      isOutOfRange ? 0 : 2,
             marginRight:     4,
           }}
         />
@@ -86,7 +124,7 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
           style={event.color ? { color: cssColor } : {}}
           aria-hidden
         >
-          {event.title}
+          {event.title}{isOutOfRange ? ` [${event.time}]` : ''}
         </span>
       </div>
 
@@ -102,6 +140,14 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
         >
           {event.title}
         </span>
+        {isOutOfRange && (
+          <span
+            className="text-[10px] leading-none ml-1"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
+            [{event.time}]
+          </span>
+        )}
       </div>
 
       {open && (
