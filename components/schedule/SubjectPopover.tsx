@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { ClassForm } from '@/components/classes/ClassForm';
 import { ClassDeleteConfirm } from '@/components/classes/ClassDeleteConfirm';
 import { ProposalForm } from '@/components/proposals/ProposalForm';
+import { HistoryTab } from '@/components/schedule/HistoryTab';
 import { ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
 import { timeToMinutes } from '@/lib/utils/scheduleHelpers';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
@@ -26,6 +27,7 @@ const POPOVER_HEIGHT_EST = 248; // estimated height for position clamping
 const GAP = 8; // min distance from viewport edges
 
 type Mode = 'info' | 'editing' | 'deleting' | 'proposing';
+type PopoverTab = 'info' | 'history';
 
 function subjectToClass(s: SubjectWithLayout): Class {
   const durationMinutes = timeToMinutes(s.endTime) - timeToMinutes(s.startTime);
@@ -60,11 +62,13 @@ export function SubjectPopover({
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [mode, setMode]         = useState<Mode>('info');
+  const [activeTab, setActiveTab] = useState<PopoverTab>('info');
   const [proposalSent, setProposalSent] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const tc     = useTranslations('classes');
   const tp     = useTranslations('proposals');
+  const th     = useTranslations('history');
   const locale = useLocale();
   const { user } = useAuth();
   const refreshSchedule = useContext(ScheduleRefreshContext);
@@ -220,80 +224,115 @@ export function SubjectPopover({
         </button>
       </div>
 
-      {/* ── Type ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-xs text-secondary shrink-0">{tc('colType')}:</span>
-        <span className={`text-xs font-medium px-1.5 py-0.5 rounded-sm ${typeBadgeCls}`}>
-          {typeLabel}
-        </span>
+      {/* ── Tabs ─────────────────────────────────────────────────────────── */}
+      <div className="flex gap-3 mb-3 border-b border-subtle">
+        {(['info', 'history'] as PopoverTab[]).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={[
+              'pb-1.5 text-xs transition-colors transition-base',
+              activeTab === tab
+                ? 'text-primary border-b-2 border-accent -mb-px'
+                : 'text-secondary hover:text-primary',
+            ].join(' ')}
+          >
+            {tab === 'info' ? th('tabInfo') : th('tabHistory')}
+          </button>
+        ))}
       </div>
 
-      {/* ── Classroom ────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 mb-2">
-        <MapPin size={12} className="text-tertiary shrink-0" aria-hidden />
-        <span className="text-xs text-secondary truncate">
-          {subject.classroom || tc('noClassroom')}
-        </span>
-      </div>
-
-      {/* ── Time ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 mb-2">
-        <Clock size={12} className="text-tertiary shrink-0" aria-hidden />
-        <span className="text-xs text-secondary tabular-nums">
-          {subject.startTime} – {subject.endTime}
-        </span>
-      </div>
-
-      {/* ── Date ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 mb-4">
-        <Calendar size={12} className="text-tertiary shrink-0" aria-hidden />
-        <span className="text-xs text-secondary">
-          {formattedDate}
-        </span>
-      </div>
-
-      {/* ── Actions / proposal confirmation ──────────────────────────────── */}
-      {proposalSent ? (
-        <div className="flex items-start gap-2 pt-3 border-t border-subtle">
-          <CheckCircle size={13} className="text-success shrink-0 mt-0.5" aria-hidden />
-          <p className="text-xs text-success leading-snug">
-            {tp('proposeSuccessMessage')}
-          </p>
+      {/* ── Tab content ──────────────────────────────────────────────────── */}
+      <div
+        className={[
+          'transition-opacity transition-fast',
+          activeTab === 'info' ? 'opacity-100' : 'opacity-0 hidden',
+        ].join(' ')}
+      >
+        {/* Type */}
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs text-secondary shrink-0">{tc('colType')}:</span>
+          <span className={`text-xs font-medium px-1.5 py-0.5 rounded-sm ${typeBadgeCls}`}>
+            {typeLabel}
+          </span>
         </div>
-      ) : (canManage || canPropose) && (
-        <div className="flex flex-wrap gap-2 pt-3 border-t border-subtle">
-          {canManage && (
-            <Button
-              size="sm"
-              variant="secondary"
-              iconLeft={Pencil}
-              onClick={() => setMode('editing')}
-            >
-              {tc('edit')}
-            </Button>
-          )}
-          {canManage && (
-            <Button
-              size="sm"
-              variant="destructive"
-              iconLeft={Trash2}
-              onClick={() => setMode('deleting')}
-            >
-              {tc('delete')}
-            </Button>
-          )}
-          {canPropose && (
-            <Button
-              size="sm"
-              variant="secondary"
-              iconLeft={MessageSquare}
-              onClick={() => setMode('proposing')}
-            >
-              {tp('proposeTitle')}
-            </Button>
-          )}
+
+        {/* Classroom */}
+        <div className="flex items-center gap-1.5 mb-2">
+          <MapPin size={12} className="text-tertiary shrink-0" aria-hidden />
+          <span className="text-xs text-secondary truncate">
+            {subject.classroom || tc('noClassroom')}
+          </span>
         </div>
-      )}
+
+        {/* Time */}
+        <div className="flex items-center gap-1.5 mb-2">
+          <Clock size={12} className="text-tertiary shrink-0" aria-hidden />
+          <span className="text-xs text-secondary tabular-nums">
+            {subject.startTime} – {subject.endTime}
+          </span>
+        </div>
+
+        {/* Date */}
+        <div className="flex items-center gap-1.5 mb-4">
+          <Calendar size={12} className="text-tertiary shrink-0" aria-hidden />
+          <span className="text-xs text-secondary">
+            {formattedDate}
+          </span>
+        </div>
+
+        {/* Actions / proposal confirmation */}
+        {proposalSent ? (
+          <div className="flex items-start gap-2 pt-3 border-t border-subtle">
+            <CheckCircle size={13} className="text-success shrink-0 mt-0.5" aria-hidden />
+            <p className="text-xs text-success leading-snug">
+              {tp('proposeSuccessMessage')}
+            </p>
+          </div>
+        ) : (canManage || canPropose) && (
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-subtle">
+            {canManage && (
+              <Button
+                size="sm"
+                variant="secondary"
+                iconLeft={Pencil}
+                onClick={() => setMode('editing')}
+              >
+                {tc('edit')}
+              </Button>
+            )}
+            {canManage && (
+              <Button
+                size="sm"
+                variant="destructive"
+                iconLeft={Trash2}
+                onClick={() => setMode('deleting')}
+              >
+                {tc('delete')}
+              </Button>
+            )}
+            {canPropose && (
+              <Button
+                size="sm"
+                variant="secondary"
+                iconLeft={MessageSquare}
+                onClick={() => setMode('proposing')}
+              >
+                {tp('proposeTitle')}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div
+        className={[
+          'transition-opacity transition-fast',
+          activeTab === 'history' ? 'opacity-100' : 'opacity-0 hidden',
+        ].join(' ')}
+      >
+        <HistoryTab classId={subject.id} />
+      </div>
     </div>
   );
 

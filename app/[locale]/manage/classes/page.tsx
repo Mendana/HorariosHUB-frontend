@@ -11,6 +11,7 @@ import { ClassList, type SortCol, type SortDir } from '@/components/classes/Clas
 import { ClassFilters } from '@/components/classes/ClassFilters';
 import { ClassForm, PCEO_SUBJECTS } from '@/components/classes/ClassForm';
 import { ClassDeleteConfirm } from '@/components/classes/ClassDeleteConfirm';
+import { ClassHistory } from '@/components/classes/ClassHistory';
 import type { Class, ClassInput } from '@/lib/types/classes';
 
 type Modal =
@@ -18,6 +19,8 @@ type Modal =
   | { kind: 'create' }
   | { kind: 'edit'; cls: Class }
   | { kind: 'delete'; cls: Class };
+
+type PageTab = 'classes' | 'history';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -56,6 +59,7 @@ const SUBJECT_NAME: Record<string, string> = Object.fromEntries(
 
 export default function ManageClassesPage() {
   const t = useTranslations('classes');
+  const th = useTranslations('history');
   const { user } = useAuth();
   const router = useRouter();
 
@@ -70,6 +74,7 @@ export default function ManageClassesPage() {
 
   const { classes, isLoading, error, createClass, updateClass, deleteClass } = useClasses();
   const [modal, setModal] = useState<Modal>({ kind: 'none' });
+  const [pageTab, setPageTab] = useState<PageTab>('classes');
 
   const [retryTick, setRetryTick] = useState(0);
   void retryTick;
@@ -182,48 +187,74 @@ export default function ManageClassesPage() {
       {/* Page header */}
       <div className="flex items-center justify-between gap-4 mb-4">
         <h1 className="text-xl font-semibold text-primary">{t('title')}</h1>
-        <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setModal({ kind: 'create' })}>
-          {t('newClass')}
-        </Button>
+        {pageTab === 'classes' && (
+          <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setModal({ kind: 'create' })}>
+            {t('newClass')}
+          </Button>
+        )}
       </div>
 
-      {/* Filters */}
-      <ClassFilters
-        search={search}
-        type={typeFilter}
-        week={weekFilter}
-        hasActiveFilters={hasActiveFilters}
-        onSearchChange={handleSearchChange}
-        onTypeChange={handleTypeChange}
-        onWeekChange={handleWeekChange}
-        onClear={handleClearFilters}
-      />
+      {/* Page tabs */}
+      <div className="flex gap-4 mb-4 border-b border-subtle">
+        {(['classes', 'history'] as PageTab[]).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setPageTab(tab)}
+            className={[
+              'pb-2 text-sm transition-colors transition-base',
+              pageTab === tab
+                ? 'text-primary border-b-2 border-accent -mb-px font-medium'
+                : 'text-secondary hover:text-primary',
+            ].join(' ')}
+          >
+            {tab === 'classes' ? t('title') : th('tabTitle')}
+          </button>
+        ))}
+      </div>
 
-      {/* Count */}
-      {!isLoading && !error && (
-        <p className="mb-2 text-xs text-tertiary">
-          {sorted.length === 1
-            ? t('countFoundOne')
-            : t('countFoundMany', { count: sorted.length })}
-        </p>
+      {pageTab === 'classes' && (
+        <>
+          {/* Filters */}
+          <ClassFilters
+            search={search}
+            type={typeFilter}
+            week={weekFilter}
+            hasActiveFilters={hasActiveFilters}
+            onSearchChange={handleSearchChange}
+            onTypeChange={handleTypeChange}
+            onWeekChange={handleWeekChange}
+            onClear={handleClearFilters}
+          />
+
+          {/* Count */}
+          {!isLoading && !error && (
+            <p className="mb-2 text-xs text-tertiary">
+              {sorted.length === 1
+                ? t('countFoundOne')
+                : t('countFoundMany', { count: sorted.length })}
+            </p>
+          )}
+
+          <ClassList
+            classes={paginated}
+            isLoading={isLoading}
+            error={error}
+            sortCol={sortCol}
+            sortDir={sortDir}
+            onSort={handleSort}
+            onEdit={(cls) => setModal({ kind: 'edit', cls })}
+            onDelete={(cls) => setModal({ kind: 'delete', cls })}
+            onRetry={() => setRetryTick((n) => n + 1)}
+            page={page}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </>
       )}
 
-      <ClassList
-        classes={paginated}
-        isLoading={isLoading}
-        error={error}
-        sortCol={sortCol}
-        sortDir={sortDir}
-        onSort={handleSort}
-        onEdit={(cls) => setModal({ kind: 'edit', cls })}
-        onDelete={(cls) => setModal({ kind: 'delete', cls })}
-        onRetry={() => setRetryTick((n) => n + 1)}
-        page={page}
-        totalPages={totalPages}
-        pageSize={pageSize}
-        onPageChange={setPage}
-        onPageSizeChange={handlePageSizeChange}
-      />
+      {pageTab === 'history' && <ClassHistory />}
 
       {/* Modals */}
       {modal.kind === 'create' && (

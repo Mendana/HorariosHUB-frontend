@@ -29,3 +29,16 @@ export interface ProposalsResponse {
   page: number;
   limit: number;
 }
+
+export interface ChangeRecord {
+  id: string;
+  classId: string;
+  action: ProposalAction;
+  changes: {
+    old: ClassSnapshot | null;
+    new: ClassSnapshot | null;
+  };
+  approvedBy: string;
+  approvedAt: string;
+  author: string;
+}
