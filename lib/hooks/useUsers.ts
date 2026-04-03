@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -6,6 +7,7 @@ import { MOCK_USERS } from '@/lib/mock/users';
 import type { User, UserRole } from '@/lib/types/users';
 import { getErrorMessage } from '@/lib/errors';
 import { useToast } from '@/lib/hooks/useToast';
+import { MOCKS } from '@/lib/config/mocks';
 
 export function useUsers(): {
   users: User[];
@@ -14,121 +16,136 @@ export function useUsers(): {
   changeRole: (email: string, role: UserRole) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
 } {
-  const { user: currentUser } = useAuth();
-  const { toast } = useToast();
+  if (MOCKS.users) {
+    const { user: currentUser } = useAuth();
+    const { toast } = useToast();
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+    const [users, setUsers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error] = useState<string | null>(null);
 
-  // Simulate GET /api/users
-  useEffect(() => {
-    setIsLoading(true);
-    const t = setTimeout(() => {
-      setUsers([...MOCK_USERS]);
-      setIsLoading(false);
-    }, 400);
-    return () => clearTimeout(t);
-  }, []);
+    // Simulate GET /api/users
+    useEffect(() => {
+      setIsLoading(true);
+      const t = setTimeout(() => {
+        setUsers([...MOCK_USERS]);
+        setIsLoading(false);
+      }, 400);
+      return () => clearTimeout(t);
+    }, []);
 
-  // Simulate PATCH /api/users/{email}/role
-  // SELF_ROLE is thrown before the try/catch so the caller receives it without a toast
-  // (the component handles it with its own inline error message).
-  const changeRole = useCallback(
-    async (email: string, role: UserRole) => {
-      if (email === currentUser?.email) {
-        throw new Error('SELF_ROLE');
-      }
-      // Optimistic update
-      setUsers((prev) => prev.map((u) => (u.email === email ? { ...u, role } : u)));
-      try {
-        await new Promise<void>((resolve) => setTimeout(resolve, 600));
-      } catch (err) {
-        // Roll back optimistic update on failure
-        setUsers((prev) => prev.map((u) => (u.email === email ? { ...u } : u)));
-        toast.error(getErrorMessage(err));
-        throw err;
-      }
-    },
-    [currentUser?.email, toast],
-  );
+    // Simulate PATCH /api/users/{email}/role
+    // SELF_ROLE is thrown before the try/catch so the caller receives it without a toast
+    // (the component handles it with its own inline error message).
+    const changeRole = useCallback(
+      async (email: string, role: UserRole) => {
+        if (email === currentUser?.email) {
+          throw new Error('SELF_ROLE');
+        }
+        // Optimistic update
+        setUsers((prev) => prev.map((u) => (u.email === email ? { ...u, role } : u)));
+        try {
+          await new Promise<void>((resolve) => setTimeout(resolve, 600));
+        } catch (err) {
+          // Roll back optimistic update on failure
+          setUsers((prev) => prev.map((u) => (u.email === email ? { ...u } : u)));
+          toast.error(getErrorMessage(err));
+          throw err;
+        }
+      },
+      [currentUser?.email, toast],
+    );
 
-  // Simulate DELETE /api/users/{email}
-  // SELF_DELETE is thrown before the try/catch for the same reason as SELF_ROLE.
-  const deleteUser = useCallback(
-    async (email: string) => {
-      if (email === currentUser?.email) {
-        throw new Error('SELF_DELETE');
-      }
-      // Optimistic update
-      setUsers((prev) => prev.filter((u) => u.email !== email));
-      try {
-        await new Promise<void>((resolve) => setTimeout(resolve, 400));
-      } catch (err) {
-        toast.error(getErrorMessage(err));
-        throw err;
-      }
-    },
-    [currentUser?.email, toast],
-  );
+    // Simulate DELETE /api/users/{email}
+    // SELF_DELETE is thrown before the try/catch for the same reason as SELF_ROLE.
+    const deleteUser = useCallback(
+      async (email: string) => {
+        if (email === currentUser?.email) {
+          throw new Error('SELF_DELETE');
+        }
+        // Optimistic update
+        setUsers((prev) => prev.filter((u) => u.email !== email));
+        try {
+          await new Promise<void>((resolve) => setTimeout(resolve, 400));
+        } catch (err) {
+          toast.error(getErrorMessage(err));
+          throw err;
+        }
+      },
+      [currentUser?.email, toast],
+    );
 
-  return { users, isLoading, error, changeRole, deleteUser };
+    return { users, isLoading, error, changeRole, deleteUser };
+  }
 
-  /* ── TanStack Query (uncomment when backend is ready) ─────────────────────────
+  // ── Real implementation — descomentar cuando MOCKS.users = false ───────────
+  // import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+  // import { apiFetch } from '@/lib/apiFetch';
+  //
+  // const { user: currentUser } = useAuth();
+  // const { toast } = useToast();
+  // const queryClient = useQueryClient();
+  //
+  // const { data, isLoading, error: queryError } = useQuery({
+  //   queryKey: ['users'],
+  //   queryFn: () => apiFetch<User[]>('/api/users'),
+  // });
+  //
+  // const changeRoleMutation = useMutation({
+  //   mutationFn: ({ email, role }: { email: string; role: UserRole }) =>
+  //     apiFetch<User>(`/api/users/${encodeURIComponent(email)}/role`, {
+  //       method: 'PATCH',
+  //       body: JSON.stringify({ role }),
+  //     }),
+  //   onMutate: async ({ email, role }) => {
+  //     await queryClient.cancelQueries({ queryKey: ['users'] });
+  //     const previous = queryClient.getQueryData<User[]>(['users']);
+  //     queryClient.setQueryData<User[]>(['users'], (old = []) =>
+  //       old.map((u) => (u.email === email ? { ...u, role } : u)),
+  //     );
+  //     return { previous };
+  //   },
+  //   onError: (_err, _vars, context) => {
+  //     if (context?.previous) queryClient.setQueryData(['users'], context.previous);
+  //     toast.error(getErrorMessage(_err));
+  //   },
+  //   onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+  // });
+  //
+  // const deleteMutation = useMutation({
+  //   mutationFn: (email: string) =>
+  //     apiFetch(`/api/users/${encodeURIComponent(email)}`, { method: 'DELETE' }),
+  //   onMutate: async (email) => {
+  //     await queryClient.cancelQueries({ queryKey: ['users'] });
+  //     const previous = queryClient.getQueryData<User[]>(['users']);
+  //     queryClient.setQueryData<User[]>(['users'], (old = []) =>
+  //       old.filter((u) => u.email !== email),
+  //     );
+  //     return { previous };
+  //   },
+  //   onError: (_err, _vars, context) => {
+  //     if (context?.previous) queryClient.setQueryData(['users'], context.previous);
+  //     toast.error(getErrorMessage(_err));
+  //   },
+  //   onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+  // });
+  //
+  // const changeRole = async (email: string, role: UserRole) => {
+  //   if (email === currentUser?.email) throw new Error('SELF_ROLE');
+  //   return changeRoleMutation.mutateAsync({ email, role });
+  // };
+  // const deleteUser = async (email: string) => {
+  //   if (email === currentUser?.email) throw new Error('SELF_DELETE');
+  //   return deleteMutation.mutateAsync(email);
+  // };
+  //
+  // return {
+  //   users: data ?? [],
+  //   isLoading,
+  //   error: queryError ? getErrorMessage(queryError) : null,
+  //   changeRole,
+  //   deleteUser,
+  // };
 
-  const queryClient = useQueryClient();
-
-  const { data, isLoading, error: queryError } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => apiFetch<User[]>('/api/users'),
-  });
-
-  const changeRoleMutation = useMutation({
-    mutationFn: ({ email, role }: { email: string; role: UserRole }) =>
-      apiFetch<User>(`/api/users/${encodeURIComponent(email)}/role`, {
-        method: 'PATCH',
-        body: JSON.stringify({ role }),
-      }),
-    onMutate: async ({ email, role }) => {
-      await queryClient.cancelQueries({ queryKey: ['users'] });
-      const previous = queryClient.getQueryData<User[]>(['users']);
-      queryClient.setQueryData<User[]>(['users'], (old = []) =>
-        old.map((u) => (u.email === email ? { ...u, role } : u)),
-      );
-      return { previous };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(['users'], context.previous);
-      toast.error(getErrorMessage(_err));
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (email: string) =>
-      apiFetch(`/api/users/${encodeURIComponent(email)}`, { method: 'DELETE' }),
-    onMutate: async (email) => {
-      await queryClient.cancelQueries({ queryKey: ['users'] });
-      const previous = queryClient.getQueryData<User[]>(['users']);
-      queryClient.setQueryData<User[]>(['users'], (old = []) =>
-        old.filter((u) => u.email !== email),
-      );
-      return { previous };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(['users'], context.previous);
-      toast.error(getErrorMessage(_err));
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
-  });
-
-  return {
-    users: data ?? [],
-    isLoading,
-    error: queryError ? getErrorMessage(queryError) : null,
-    changeRole: (email, role) => changeRoleMutation.mutateAsync({ email, role }),
-    deleteUser: (email) => deleteMutation.mutateAsync(email),
-  };
-
-  ─────────────────────────────────────────────────────────────────────────── */
+  throw new Error('MOCKS.users is false pero la implementación real no está conectada. Ver docs/CONNECTING_BACKEND.md');
 }
