@@ -9,6 +9,7 @@
     "ariaLabel": "Main navigation",
     "schedule": "Schedule",
     "mySubjects": "My Subjects",
+    "stats": "Statistics",
     "proposals": "Proposals",
     "manage": "Management",
     "manageUsers": "Users"
@@ -374,6 +375,33 @@
       "viewRepo": "View repository",
       "reportIssue": "Report an issue"
     }
+  },
+  "stats": {
+    "title": "My Statistics",
+    "subtitle": "Based on {classes} classes · {hours} total hours",
+    "noSchedule": "No schedule loaded",
+    "noScheduleHint": "Load your schedule on the home page to see your statistics.",
+    "noScheduleLink": "Go to schedule",
+    "noData": "No data for this semester",
+    "cardWeeklyHours": "average per week",
+    "cardBusiestDay": "with {hours} h and {classes} classes",
+    "cardFirstClass": "is your earliest class",
+    "cardLastClass": "is your latest class",
+    "sectionByDay": "Load by day",
+    "sectionBySubject": "Hours per subject",
+    "sectionByType": "Class types",
+    "sectionInsight": "Summary",
+    "hoursClasses": "{hours} h · {classes}",
+    "showAll": "Show all",
+    "showLess": "Show less",
+    "insightBusiestDay": "Your busiest day is {day} with {hours} hours.",
+    "insightMainType": "{percent}% of your classes are {type}.",
+    "insightFreeAfternoon": "You have free afternoons on {day}.",
+    "insightEarlyStart": "Your earliest start time is {time}.",
+    "typeTeoria": "Theory",
+    "typePractica": "Practice",
+    "typeExamen": "Exam",
+    "typeOtros": "Other"
   },
   "errors": {
     "title": "Something went wrong",

@@ -9,6 +9,7 @@
     "ariaLabel": "Navegación principal",
     "schedule": "Horario",
     "mySubjects": "Mis Asignaturas",
+    "stats": "Estadísticas",
     "proposals": "Propuestas",
     "manage": "Gestión",
     "manageUsers": "Usuarios"
@@ -374,6 +375,33 @@
       "viewRepo": "Ver repositorio",
       "reportIssue": "Reportar un problema"
     }
+  },
+  "stats": {
+    "title": "Mis Estadísticas",
+    "subtitle": "Basado en {classes} clases · {hours} horas totales",
+    "noSchedule": "No tienes ningún horario cargado",
+    "noScheduleHint": "Carga tu horario en la página principal para ver tus estadísticas.",
+    "noScheduleLink": "Ir al horario",
+    "noData": "Sin datos para este semestre",
+    "cardWeeklyHours": "de media por semana",
+    "cardBusiestDay": "con {hours} h y {classes} clases",
+    "cardFirstClass": "es tu hora más temprana",
+    "cardLastClass": "es tu hora más tardía",
+    "sectionByDay": "Carga por día",
+    "sectionBySubject": "Horas por asignatura",
+    "sectionByType": "Tipos de clase",
+    "sectionInsight": "Resumen",
+    "hoursClasses": "{hours} h · {classes}",
+    "showAll": "Ver todas",
+    "showLess": "Ver menos",
+    "insightBusiestDay": "Tu día más cargado es el {day} con {hours} horas.",
+    "insightMainType": "El {percent}% de tus clases son de {type}.",
+    "insightFreeAfternoon": "Tienes las tardes del {day} libres.",
+    "insightEarlyStart": "Tu hora de entrada más temprana es a las {time}.",
+    "typeTeoria": "Teoría",
+    "typePractica": "Práctica",
+    "typeExamen": "Examen",
+    "typeOtros": "Otros"
   },
   "errors": {
     "title": "Algo salió mal",
