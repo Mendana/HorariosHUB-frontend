@@ -116,7 +116,14 @@
     "shortcutToday": "Go to today (Alt + H)",
     "shortcutSem1": "1st semester (Alt + ↑)",
     "shortcutSem2": "2nd semester (Alt + ↓)",
-    "createClassAt": "Add class at {time}"
+    "createClassAt": "Add class at {time}",
+    "nextClassOngoingLabel": "Ongoing",
+    "nextClassEndsIn": "ends in {time}",
+    "nextClassSoonPrefix": "In {time}",
+    "nextClassUpcomingLabel": "Next class",
+    "nextClassInTime": "in {time}",
+    "nextClassTimeMin": "{minutes} min",
+    "nextClassTimeHrMin": "{hours}h {minutes}min"
   },
   "events": {
     "newEvent": "New event",

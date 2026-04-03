@@ -11,6 +11,7 @@ import { WeekNavigator } from '@/components/schedule/WeekNavigator';
 import { ScheduleGrid } from '@/components/schedule/ScheduleGrid';
 import { MonthGrid } from '@/components/schedule/MonthGrid';
 import { ImportBanner } from '@/components/schedule/ImportBanner';
+import { NextClassBanner } from '@/components/schedule/NextClassBanner';
 import { ShareModal } from '@/components/schedule/ShareModal';
 import { EventForm } from '@/components/events/EventForm';
 import { ClassForm } from '@/components/classes/ClassForm';
@@ -214,6 +215,13 @@ export default function SchedulePage() {
           eventsVisible={eventsVisible}
           onToggleEvents={toggleEventsVisibility}
         />
+        {identifier !== null && (
+          <NextClassBanner
+            subjects={subjects}
+            isCurrentWeek={selectedYear === initial.year && selectedWeek === initial.week}
+            scheduleView={scheduleView}
+          />
+        )}
         {scheduleView === 'week' ? (
           <ScheduleGrid
             subjects={subjects}
