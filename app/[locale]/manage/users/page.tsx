@@ -77,8 +77,11 @@ export default function ManageUsersPage() {
   if (currentUser === null || currentUser.role !== 'admin') return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-      <h1 className="text-xl font-semibold text-primary mb-4">{t('title')}</h1>
+    <div className="max-w-5xl mx-auto px-4 md:px-6 pb-12">
+      <div className="pt-6 pb-5 border-b border-subtle mb-6">
+        <h1 className="text-xl font-semibold text-primary leading-tight">{t('title')}</h1>
+        <p className="mt-1 text-sm text-secondary leading-snug max-w-xl">{t('subtitle')}</p>
+      </div>
 
       <UserFilters
         search={search}

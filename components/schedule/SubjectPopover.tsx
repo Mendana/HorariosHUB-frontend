@@ -22,7 +22,7 @@ const TYPE_BADGE_CLS: Partial<Record<string, string>> = {
   'Otros':    'bg-surface-sunken text-tertiary border border-subtle',
 };
 
-const POPOVER_WIDTH = 256;
+const POPOVER_WIDTH = 272;
 const POPOVER_HEIGHT_EST = 248; // estimated height for position clamping
 const GAP = 8; // min distance from viewport edges
 
@@ -218,7 +218,7 @@ export function SubjectPopover({
         <button
           onClick={onClose}
           aria-label={tc('cancel')}
-          className="shrink-0 mt-0.5 size-5 flex items-center justify-center rounded-sm text-tertiary transition-colors transition-fast hover:text-secondary hover:bg-surface-sunken"
+          className="shrink-0 -mt-0.5 -mr-1 size-7 flex items-center justify-center rounded-sm text-tertiary transition-[background-color,color] transition-fast hover:text-primary hover:bg-surface-raised"
         >
           <X size={14} aria-hidden />
         </button>
@@ -231,10 +231,10 @@ export function SubjectPopover({
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={[
-              'pb-1.5 text-xs transition-colors transition-base',
+              'pb-1.5 text-xs transition-[color,border-color] transition-base',
               activeTab === tab
-                ? 'text-primary border-b-2 border-accent -mb-px'
-                : 'text-secondary hover:text-primary',
+                ? 'font-medium text-primary border-b-2 border-accent -mb-px'
+                : 'font-normal text-secondary hover:text-primary',
             ].join(' ')}
           >
             {tab === 'info' ? th('tabInfo') : th('tabHistory')}

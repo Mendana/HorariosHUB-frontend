@@ -87,9 +87,9 @@ export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, o
               <button
                 key={y.suffix}
                 onClick={() => handleYearSelect(y.suffix)}
-                className={`px-3 py-1 text-sm rounded-sm border transition-[background-color,border-color,color] transition-base ${
+                className={`px-2.5 py-1 text-xs font-medium rounded-sm border transition-[background-color,border-color,color] transition-base ${
                   active
-                    ? 'bg-accent-subtle border-accent text-accent font-medium'
+                    ? 'bg-accent-subtle border-accent text-accent'
                     : 'bg-surface-raised border-subtle text-secondary hover:text-primary hover:border-strong'
                 }`}
               >

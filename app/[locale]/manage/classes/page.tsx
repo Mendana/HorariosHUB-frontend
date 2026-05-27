@@ -183,27 +183,33 @@ export default function ManageClassesPage() {
   if (user === null || user.role === 'user') return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+    <div className="max-w-5xl mx-auto px-4 md:px-6 pb-12">
       {/* Page header */}
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <h1 className="text-xl font-semibold text-primary">{t('title')}</h1>
-        {pageTab === 'classes' && (
-          <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setModal({ kind: 'create' })}>
-            {t('newClass')}
-          </Button>
-        )}
+      <div className="pt-6 pb-5 border-b border-subtle mb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-primary leading-tight">{t('title')}</h1>
+            <p className="mt-1 text-sm text-secondary leading-snug max-w-xl">{t('subtitle')}</p>
+          </div>
+          {pageTab === 'classes' && (
+            <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setModal({ kind: 'create' })}>
+              {t('newClass')}
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Page tabs */}
-      <div className="flex gap-4 mb-4 border-b border-subtle">
+      {/* Page tabs — segmented tray */}
+      <div className="flex items-center bg-surface-raised border border-subtle rounded-md p-1 gap-0.5 w-fit mb-6">
         {(['classes', 'history'] as PageTab[]).map((tab) => (
           <button
             key={tab}
+            type="button"
             onClick={() => setPageTab(tab)}
             className={[
-              'pb-2 text-sm transition-colors transition-base',
+              'px-3 py-1.5 text-sm rounded-sm transition-[background-color,color,box-shadow] duration-150',
               pageTab === tab
-                ? 'text-primary border-b-2 border-accent -mb-px font-medium'
+                ? 'bg-surface-base shadow-sm text-primary font-medium'
                 : 'text-secondary hover:text-primary',
             ].join(' ')}
           >

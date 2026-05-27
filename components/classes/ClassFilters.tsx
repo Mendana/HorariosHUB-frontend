@@ -18,7 +18,7 @@ interface ClassFiltersProps {
   onClear: () => void;
 }
 
-const inputClass = `${INPUT_FIELD_CLS} h-9 px-3 text-sm`;
+const inputCls = `${INPUT_FIELD_CLS} h-8 px-3 text-sm`;
 
 export function ClassFilters({
   search, type, week, hasActiveFilters,
@@ -47,7 +47,7 @@ export function ClassFilters({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('filterSearchPlaceholder')}
-          className={`${inputClass} pl-8 w-52`}
+          className={`${inputCls} pl-8 w-52`}
         />
       </div>
 
@@ -55,7 +55,7 @@ export function ClassFilters({
       <select
         value={type}
         onChange={(e) => onTypeChange(e.target.value)}
-        className={`${inputClass} w-40`}
+        className={`${inputCls} w-40`}
       >
         <option value="">{t('filterTypeAll')}</option>
         {CLASS_TYPES.map((ct) => (
@@ -69,16 +69,17 @@ export function ClassFilters({
         value={week}
         onChange={(e) => onWeekChange(e.target.value)}
         aria-label={t('filterWeekLabel')}
-        className={`${inputClass} w-44`}
+        className={`${inputCls} w-44`}
       />
 
       {/* Clear */}
       {hasActiveFilters && (
         <button
+          type="button"
           onClick={onClear}
-          className="inline-flex items-center gap-1.5 h-9 px-3 text-sm text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong transition-colors"
+          className="inline-flex items-center gap-1.5 h-8 px-3 text-xs text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong transition-colors"
         >
-          <X size={14} aria-hidden />
+          <X size={13} aria-hidden />
           {t('filterClear')}
         </button>
       )}

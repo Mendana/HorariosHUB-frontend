@@ -21,6 +21,13 @@ function formatResultDate(d: { year: number; month: number; day: number }): stri
   return `${DOW_SHORT[dow]} ${day} ${month}`;
 }
 
+// Semantic badge classes — consistent with SubjectBlock corner badges
+const TYPE_BADGE_CLS: Partial<Record<string, string>> = {
+  'Práctica': 'bg-warning-subtle text-warning',
+  'Examen':   'bg-error-subtle text-error',
+  'Otros':    'bg-surface-sunken text-tertiary',
+};
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface SearchResultItemProps {
@@ -41,12 +48,20 @@ export function SearchResultItem({ result, onSelect, highlighted = false }: Sear
       aria-selected={highlighted}
       id={`search-result-${result.subject.id}`}
       onClick={() => onSelect(result)}
-      className={`w-full flex items-start gap-2.5 px-3 py-2 text-left transition-[background-color] transition-fast ${highlighted ? 'bg-accent-subtle' : 'hover:bg-accent-subtle'}`}
+      // Border-left indicator: transparent → accent/40 on hover → accent solid on keyboard select.
+      // pl-[10px] + border-l-2 = 12px total left gap, matching the visual rhythm of px-3.
+      className={[
+        'w-full flex items-start gap-2.5 pl-[10px] pr-3 py-2 text-left',
+        'border-l-2 transition-[background-color,border-color] transition-fast',
+        highlighted
+          ? 'bg-accent-subtle border-accent'
+          : 'border-transparent hover:bg-accent-subtle hover:border-accent/40',
+      ].join(' ')}
     >
-      {/* Color dot */}
+      {/* Color dot — slightly larger for more visual presence */}
       <span
         aria-hidden
-        className="mt-0.75 size-2 rounded-full shrink-0"
+        className="mt-1 size-2.5 rounded-full shrink-0"
         style={{ backgroundColor: dotColor }}
       />
 
@@ -57,7 +72,9 @@ export function SearchResultItem({ result, onSelect, highlighted = false }: Sear
             {subject.name}
           </span>
           {subject.type && subject.type !== 'Teoría' && (
-            <span className="text-[10px] font-medium text-secondary bg-surface-sunken px-1.5 py-0.5 rounded-sm leading-none">
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-sm leading-none ${
+              TYPE_BADGE_CLS[subject.type] ?? 'bg-surface-sunken text-secondary'
+            }`}>
               {subject.type}
             </span>
           )}

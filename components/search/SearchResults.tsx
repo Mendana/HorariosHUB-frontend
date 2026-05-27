@@ -82,7 +82,7 @@ export function SearchResults({ query, results, onSelect, highlightedIdx = -1 }:
         <div key={key}>
           {gi > 0 && <div className="border-t border-subtle" />}
           <div className="px-3 pt-2 pb-1" role="presentation">
-            <span className="text-[11px] font-medium text-tertiary uppercase tracking-wide">
+            <span className="text-[10px] font-medium text-tertiary tracking-label">
               {groupHeader(key)}
             </span>
           </div>

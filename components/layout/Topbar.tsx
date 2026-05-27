@@ -114,12 +114,12 @@ export function Topbar() {
             aria-label="PCEO Hub"
             className="shrink-0 transition-opacity transition-fast hover:opacity-80"
           >
-            <span className="text-[15px] font-semibold text-primary">PCEO</span>
-            <span className="text-[15px] font-normal text-accent">Hub</span>
+            <span className="text-[15px] font-semibold text-primary tracking-tight">PCEO</span>
+            <span className="text-[15px] font-normal text-accent tracking-tight">Hub</span>
           </Link>
 
-          {/* Separador logo / nav */}
-          <div aria-hidden className="hidden sm:block mx-3 w-px h-4 bg-subtle shrink-0" />
+          {/* Separador logo / nav — bg-strong para visibilidad en dark mode */}
+          <div aria-hidden className="hidden sm:block mx-3 w-px h-4 bg-strong opacity-40 shrink-0" />
 
           {/* ── Zona central: Navegación (≥ 640px) ─────────── */}
           <div className="hidden sm:flex flex-1 items-center">

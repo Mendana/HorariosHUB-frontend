@@ -16,11 +16,11 @@ export const EVENT_TYPE_COLOR: Record<EventType, { css: string; tailwindText: st
 };
 
 // ─── Grid constants (must match ScheduleGrid) ────────────────────────────────
-const SLOT_HEIGHT    = 48;
+const SLOT_HEIGHT    = 36;
 const DAY_START_MIN  = 8 * 60;   // 480
 const DAY_END_MIN    = 21 * 60;  // 1260
 const TOTAL_SLOTS    = (DAY_END_MIN - DAY_START_MIN) / 30; // 26
-const GRID_HEIGHT_PX = TOTAL_SLOTS * SLOT_HEIGHT;          // 1248
+const GRID_HEIGHT_PX = TOTAL_SLOTS * SLOT_HEIGHT;          // 936
 
 export function timeToTopPx(time: string): number {
   const [h, m] = time.split(':').map(Number);

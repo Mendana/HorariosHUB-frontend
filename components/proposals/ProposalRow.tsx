@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { ChevronDown } from 'lucide-react';
 import type { Proposal, ProposalAction, ProposalStatus } from '@/lib/types/proposals';
 import { ProposalDiff } from './ProposalDiff';
 import { ProposalActions } from './ProposalActions';
@@ -26,12 +27,21 @@ const STATUS_VARIANT: Record<ProposalStatus, BadgeVariant> = {
   rejected: 'error',
 };
 
-function relativeDate(iso: string): string {
+const ACTION_BAR_COLOR: Record<ProposalAction, string> = {
+  create: 'var(--color-success)',
+  update: 'var(--color-warning)',
+  delete: 'var(--color-error)',
+};
+
+function relativeDate(
+  iso: string,
+  t: (key: string, values?: Record<string, string | number | Date>) => string,
+): string {
   const diff = Date.now() - new Date(iso).getTime();
   const days = Math.floor(diff / 86400000);
-  if (days === 0) return 'hoy';
-  if (days === 1) return 'ayer';
-  if (days < 7) return `hace ${days} días`;
+  if (days === 0) return t('relativeDateToday');
+  if (days === 1) return t('relativeDateYesterday');
+  if (days < 7) return t('relativeDateDaysAgo', { days });
   return new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
@@ -46,51 +56,94 @@ export function ProposalRow({ proposal, showActions, onApprove, onReject }: Prop
 
   const actionLabelKey = `action${proposal.action.charAt(0).toUpperCase() + proposal.action.slice(1)}` as const;
   const statusLabelKey = `status${proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}` as const;
+  const barColor = ACTION_BAR_COLOR[proposal.action];
 
   return (
     <>
-      <tr className="border-b border-subtle hover:bg-surface-raised transition-colors">
-        <td className="py-3 px-3">
+      {/* Main data row — box-shadow trick for left color bar (no extra column) */}
+      <tr
+        className="border-b border-subtle hover:bg-surface-raised/50 transition-colors cursor-pointer"
+        style={{
+          boxShadow: `inset 3px 0 0 ${barColor}`,
+        }}
+        onClick={() => setExpanded((e) => !e)}
+      >
+        <td className="py-3 pl-4 pr-3">
           <Badge variant={ACTION_VARIANT[proposal.action]} size="sm">{t(actionLabelKey)}</Badge>
         </td>
-        <td className="py-3 px-3 text-sm text-primary">{subjectLabel(proposal)}</td>
-        <td className="py-3 px-3 text-sm text-secondary">{proposal.author}</td>
-        <td className="py-3 px-3 text-sm text-secondary" title={new Date(proposal.created_at).toLocaleString('es-ES')}>
-          {relativeDate(proposal.created_at)}
+        <td className="py-3 px-3 text-sm text-primary font-medium">
+          {subjectLabel(proposal)}
+        </td>
+        <td className="py-3 px-3 text-xs text-secondary font-mono">
+          {proposal.author}
+        </td>
+        <td
+          className="py-3 px-3 text-xs text-secondary tabular-nums"
+          title={new Date(proposal.created_at).toLocaleString('es-ES')}
+        >
+          {relativeDate(proposal.created_at, t)}
         </td>
         <td className="py-3 px-3">
           <Badge variant={STATUS_VARIANT[proposal.status]} size="sm">{t(statusLabelKey)}</Badge>
         </td>
-        <td className="py-3 px-3">
-          <div className="flex items-center gap-3 flex-wrap">
+        <td className="py-3 pl-3 pr-4">
+          {/* Stop propagation so clicking the chevron itself still works */}
+          <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
             <button
+              type="button"
               onClick={() => setExpanded((e) => !e)}
-              className="text-xs text-accent hover:underline"
+              aria-label={expanded ? t('hideDetail') : t('viewDetail')}
+              aria-expanded={expanded}
+              className="size-6 flex items-center justify-center rounded-sm text-tertiary hover:text-primary hover:bg-surface-sunken transition-colors"
             >
-              {expanded ? t('hideDetail') : t('viewDetail')}
-            </button>
-            {showActions && proposal.status === 'pending' && (
-              <ProposalActions
-                proposalId={proposal.id}
-                onApprove={onApprove}
-                onReject={onReject}
+              <ChevronDown
+                size={14}
+                className={[
+                  'transition-transform duration-200',
+                  expanded ? 'rotate-180' : '',
+                ].join(' ')}
+                aria-hidden
               />
-            )}
+            </button>
           </div>
         </td>
       </tr>
-      {expanded && (
-        <tr className="border-b border-subtle">
-          <td colSpan={6} className="px-3 pb-3">
-            <ProposalDiff proposal={proposal} />
-            {proposal.status === 'rejected' && proposal.reject_reason && (
-              <p className="mt-2 text-xs text-error">
-                {t('rejectReasonLabel')}: {proposal.reject_reason}
-              </p>
-            )}
-          </td>
-        </tr>
-      )}
+
+      {/* Expansion row — always rendered, animated via CSS grid trick */}
+      <tr className="border-b border-subtle">
+        <td colSpan={6} className="p-0">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateRows: expanded ? '1fr' : '0fr',
+              transition: 'grid-template-rows 200ms ease',
+            }}
+          >
+            <div className="overflow-hidden">
+              <div className="px-4 py-3 bg-surface-sunken/30">
+                <ProposalDiff proposal={proposal} />
+
+                {proposal.status === 'rejected' && proposal.reject_reason && (
+                  <p className="mt-2 text-xs text-error flex items-start gap-1.5">
+                    <span className="font-medium shrink-0">{t('rejectReasonLabel')}:</span>
+                    {proposal.reject_reason}
+                  </p>
+                )}
+
+                {showActions && proposal.status === 'pending' && (
+                  <div className="mt-3 flex justify-end" onClick={(e) => e.stopPropagation()}>
+                    <ProposalActions
+                      proposalId={proposal.id}
+                      onApprove={onApprove}
+                      onReject={onReject}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
     </>
   );
 }
