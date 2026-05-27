@@ -6,72 +6,112 @@ import { useTranslations } from 'next-intl';
 import type { CatalogSubject } from '@/lib/types/subjects';
 import { GroupItem } from './GroupItem';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { Badge } from '@/components/ui/Badge';
+import { getSubjectColorVars } from '@/lib/config/subjectColors';
 
 interface SubjectItemProps {
   subject: CatalogSubject;
   localSelection: Set<string>;
   onToggle: (groupId: string) => void;
+  /** Position index — drives staggered entry animation */
+  index?: number;
 }
 
-export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemProps) {
+export function SubjectItem({ subject, localSelection, onToggle, index = 0 }: SubjectItemProps) {
   const t = useTranslations('mySubjects');
   const [isOpen, setIsOpen] = useState(false);
 
-  const total = subject.groups.length;
+  const total         = subject.groups.length;
   const selectedCount = subject.groups.filter((g) => localSelection.has(g.id)).length;
-  const allSelected = selectedCount === total;
+  const allSelected   = selectedCount === total && total > 0;
   const isIndeterminate = selectedCount > 0 && !allSelected;
 
-  // Toggles all groups in this subject without consuming a React mouse event.
-  // Wrapped in useCallback so GroupItem renders are stable.
+  // Color vars derived from subject name (matches schedule grid)
+  const colorVars  = getSubjectColorVars(subject.name);
+  const borderColor = colorVars['--sb-border'];
+
   const handleHeaderCheckboxChange = useCallback(() => {
     if (allSelected) {
-      subject.groups.forEach((g) => {
-        if (localSelection.has(g.id)) onToggle(g.id);
-      });
+      subject.groups.forEach((g) => { if (localSelection.has(g.id))  onToggle(g.id); });
     } else {
-      subject.groups.forEach((g) => {
-        if (!localSelection.has(g.id)) onToggle(g.id);
-      });
+      subject.groups.forEach((g) => { if (!localSelection.has(g.id)) onToggle(g.id); });
     }
   }, [allSelected, subject.groups, localSelection, onToggle]);
 
+  // Status badge styling
+  const badgeClass = allSelected
+    ? 'bg-success-subtle text-success'
+    : isIndeterminate
+    ? 'bg-accent-subtle text-accent'
+    : 'bg-surface-sunken text-tertiary';
+
+  const badgeLabel = t('groupsSelected', { selected: selectedCount, total });
+
+  // Stagger: 30ms per item, capped at 250ms so the list doesn't drag
+  const staggerDelay = `${Math.min(index * 30, 250)}ms`;
+
   return (
-    <div>
-      {/* Header row */}
+    <div
+      className="border-b border-subtle last:border-b-0 animate-block-in"
+      style={{ animationDelay: staggerDelay }}
+    >
+      {/* ── Header row ───────────────────────────────────────────────────────── */}
       <div
         role="button"
         tabIndex={0}
         onClick={() => setIsOpen((o) => !o)}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setIsOpen((o) => !o)}
-        className="flex items-center gap-3 py-3 px-1 cursor-pointer hover:bg-surface-raised transition-colors transition-base select-none"
+        className="group relative flex items-center gap-3 py-3 pl-4 pr-3 cursor-pointer select-none hover:bg-surface-raised transition-[background-color] transition-base"
+        aria-expanded={isOpen}
       >
-        {/*
-         * Stop propagation here so a click on the checkbox doesn't also
-         * toggle the accordion. The Checkbox itself is a <label> element
-         * wrapping a native input, so we intercept at this span level.
-         */}
+        {/* Left color bar — uses the same color as the schedule block */}
+        <span
+          aria-hidden
+          className="absolute left-0 inset-y-2 w-[3px] rounded-full transition-[opacity] transition-base opacity-60 group-hover:opacity-100"
+          style={{ backgroundColor: borderColor }}
+        />
+
+        {/* Checkbox — stop propagation so it doesn't toggle accordion */}
         <span onClick={(e) => e.stopPropagation()}>
           <Checkbox
             checked={allSelected}
             indeterminate={isIndeterminate}
             onChange={handleHeaderCheckboxChange}
             ariaLabel={subject.name}
+            size="sm"
           />
         </span>
 
-        <div className="flex-1 min-w-0">
-          <span className="text-sm font-medium text-primary">{subject.name}</span>
-          <span className="ml-2 text-xs text-tertiary">{subject.code}</span>
+        {/* Subject info */}
+        <div className="flex-1 min-w-0 flex items-baseline gap-2">
+          <span className="text-sm font-medium text-primary leading-snug truncate">
+            {subject.name}
+          </span>
+          <span className="text-[11px] text-tertiary font-mono shrink-0 tracking-wide">
+            {subject.code}
+          </span>
         </div>
 
-        <Badge variant={allSelected ? 'accent' : 'default'} size="sm">
-          {t('groupsSelected', { selected: selectedCount, total })}
-        </Badge>
+        {/* Selected badge */}
+        <span className={`shrink-0 text-[11px] font-medium px-1.5 py-0.5 rounded-sm leading-none ${badgeClass}`}>
+          {badgeLabel}
+        </span>
 
+        {/* Group dots — a quick visual summary of selection state */}
+        <div className="hidden sm:flex items-center gap-[3px] shrink-0" aria-hidden>
+          {subject.groups.map((g) => (
+            <span
+              key={g.id}
+              className={[
+                'size-1.5 rounded-full transition-[background-color] transition-fast',
+                localSelection.has(g.id) ? 'bg-accent' : 'bg-border-strong/40',
+              ].join(' ')}
+            />
+          ))}
+        </div>
+
+        {/* Chevron */}
         <ChevronDown
-          size={14}
+          size={13}
           aria-hidden
           className={`text-tertiary shrink-0 transition-[transform] transition-smooth ${
             isOpen ? 'rotate-180' : ''
@@ -79,7 +119,7 @@ export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemPr
         />
       </div>
 
-      {/* Expandable groups — smooth CSS grid animation, no JS */}
+      {/* ── Expandable groups — CSS grid animation, zero JS ───────────────── */}
       <div
         style={{
           display: 'grid',
@@ -88,13 +128,14 @@ export function SubjectItem({ subject, localSelection, onToggle }: SubjectItemPr
         }}
       >
         <div className="overflow-hidden">
-          <div className="pb-1 pl-7">
+          <div className="pb-2 pl-[52px] pr-3">
             {subject.groups.map((group) => (
               <GroupItem
                 key={group.id}
                 group={group}
                 checked={localSelection.has(group.id)}
                 onChange={() => onToggle(group.id)}
+                accentColor={borderColor}
               />
             ))}
           </div>

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
+import type { UserRole } from '@/lib/types/users';
 
 interface UserFiltersProps {
   search: string;
@@ -14,21 +15,28 @@ interface UserFiltersProps {
   onClear: () => void;
 }
 
+const ROLE_OPTIONS: { value: string; labelKey: string }[] = [
+  { value: '',          labelKey: 'filterRoleAll' },
+  { value: 'admin',     labelKey: 'filterRoleAdmin' },
+  { value: 'professor', labelKey: 'filterRoleProfessor' },
+  { value: 'user',      labelKey: 'filterRoleUser' },
+];
+
+const ACTIVE_ROLE_CLS: Record<UserRole | '', string> = {
+  '':          'bg-accent-subtle text-accent border-accent/30',
+  admin:       'bg-accent-subtle text-accent border-accent/30',
+  professor:   'bg-warning-subtle text-warning border-warning/30',
+  user:        'bg-surface-raised text-primary border-strong/40',
+};
+
 export function UserFilters({
   search, role, total, hasActiveFilters,
   onSearchChange, onRoleChange, onClear,
 }: UserFiltersProps) {
   const t = useTranslations('users');
 
-  const roleOptions = [
-    { value: '',          label: t('filterRoleAll') },
-    { value: 'admin',     label: t('filterRoleAdmin') },
-    { value: 'professor', label: t('filterRoleProfessor') },
-    { value: 'user',      label: t('filterRoleUser') },
-  ];
-
   return (
-    <div className="mb-4">
+    <div className="mb-5">
       <div className="flex flex-wrap items-center gap-2 mb-3">
         {/* Search */}
         <div className="relative">
@@ -42,41 +50,47 @@ export function UserFilters({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t('filterSearchPlaceholder')}
-            className={`${INPUT_FIELD_CLS} h-9 pl-8 pr-3 text-sm w-64`}
+            className={`${INPUT_FIELD_CLS} h-8 pl-8 pr-3 text-sm w-60`}
           />
         </div>
 
-        {/* Role pills */}
+        {/* Role filter pills */}
         <div className="flex items-center gap-1">
-          {roleOptions.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => onRoleChange(opt.value)}
-              className={`h-9 px-3 text-sm rounded-sm border transition-colors ${
-                role === opt.value
-                  ? 'bg-accent-subtle border-accent text-accent font-medium'
-                  : 'border-subtle text-secondary hover:text-primary hover:border-strong'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+          {ROLE_OPTIONS.map((opt) => {
+            const isActive = role === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onRoleChange(opt.value)}
+                className={[
+                  'h-8 px-3 text-xs font-medium rounded-sm border transition-[background-color,color,border-color] duration-150',
+                  isActive
+                    ? ACTIVE_ROLE_CLS[opt.value as UserRole | '']
+                    : 'border-subtle text-secondary hover:text-primary hover:border-strong/60',
+                ].join(' ')}
+              >
+                {t(opt.labelKey)}
+              </button>
+            );
+          })}
         </div>
 
         {/* Clear */}
         {hasActiveFilters && (
           <button
+            type="button"
             onClick={onClear}
-            className="inline-flex items-center gap-1.5 h-9 px-3 text-sm text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong transition-colors"
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs text-secondary border border-subtle rounded-sm hover:text-primary hover:border-strong transition-colors"
           >
-            <X size={14} aria-hidden />
+            <X size={13} aria-hidden />
             {t('filterClear')}
           </button>
         )}
       </div>
 
-      {/* Count */}
-      <p className="text-xs text-tertiary">
+      {/* Result count */}
+      <p className="text-xs text-tertiary tabular-nums">
         {total === 1 ? t('countFoundOne') : t('countFoundMany', { count: total })}
       </p>
     </div>

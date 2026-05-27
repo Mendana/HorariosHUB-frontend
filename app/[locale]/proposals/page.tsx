@@ -12,16 +12,16 @@ import { MOCK_PROPOSALS } from '@/lib/mock/proposals';
 
 type Filter = ProposalStatus | 'all';
 
-// Pre-compute counts for the filter tabs (professor/admin view)
+/** Pre-compute status counts from mock data (replaced by API data when live). */
 function computeCounts(): Record<Filter, number> {
-  const all = MOCK_PROPOSALS.length;
-  const pending = MOCK_PROPOSALS.filter((p) => p.status === 'pending').length;
+  const all      = MOCK_PROPOSALS.length;
+  const pending  = MOCK_PROPOSALS.filter((p) => p.status === 'pending').length;
   const approved = MOCK_PROPOSALS.filter((p) => p.status === 'approved').length;
   const rejected = MOCK_PROPOSALS.filter((p) => p.status === 'rejected').length;
   return { all, pending, approved, rejected };
 }
 
-// ── Professor/Admin tab: pending review ──────────────────────────────────────
+// ── Professor/Admin review tab ────────────────────────────────────────────────
 
 function ReviewTab() {
   const t = useTranslations('proposals');
@@ -30,11 +30,11 @@ function ReviewTab() {
   const [pageSize, setPageSize] = useState(() =>
     typeof window !== 'undefined' ? Number(localStorage.getItem('proposalsPageSize')) || 10 : 10,
   );
-  const [counts, setCounts] = useState(computeCounts());
+  const [counts, setCounts] = useState(computeCounts);
 
   const { proposals, total, isLoading, error, approve, reject } = useProposals('all', filter, page);
 
-  // Reset page when filter changes
+  // Reset to page 1 on filter change
   useEffect(() => { setPage(1); }, [filter]);
 
   function handlePageSizeChange(size: number) {
@@ -43,25 +43,19 @@ function ReviewTab() {
     localStorage.setItem('proposalsPageSize', String(size));
   }
 
-  const handleApprove = useCallback(
-    async (id: string) => {
-      await approve(id);
-      setCounts((c) => ({ ...c, pending: Math.max(0, c.pending - 1), approved: c.approved + 1 }));
-    },
-    [approve],
-  );
+  const handleApprove = useCallback(async (id: string) => {
+    await approve(id);
+    setCounts((c) => ({ ...c, pending: Math.max(0, c.pending - 1), approved: c.approved + 1 }));
+  }, [approve]);
 
-  const handleReject = useCallback(
-    async (id: string, reason?: string) => {
-      await reject(id, reason);
-      setCounts((c) => ({ ...c, pending: Math.max(0, c.pending - 1), rejected: c.rejected + 1 }));
-    },
-    [reject],
-  );
+  const handleReject = useCallback(async (id: string, reason?: string) => {
+    await reject(id, reason);
+    setCounts((c) => ({ ...c, pending: Math.max(0, c.pending - 1), rejected: c.rejected + 1 }));
+  }, [reject]);
 
   return (
     <div>
-      <ProposalFilters active={filter} counts={counts} onChange={(f) => setFilter(f)} />
+      <ProposalFilters active={filter} counts={counts} onChange={setFilter} />
       <ProposalList
         proposals={proposals}
         total={total}
@@ -70,7 +64,7 @@ function ReviewTab() {
         isLoading={isLoading}
         error={error}
         emptyContext={filter === 'pending' ? 'pending' : 'filtered'}
-        showActions={true}
+        showActions
         onPageChange={setPage}
         onPageSizeChange={handlePageSizeChange}
         onRetry={() => setPage((p) => p)}
@@ -81,7 +75,7 @@ function ReviewTab() {
   );
 }
 
-// ── My proposals tab (or sole view for regular users) ────────────────────────
+// ── My proposals (regular users or tab within prof/admin view) ────────────────
 
 function MyProposalsView() {
   const [page, setPage] = useState(1);
@@ -115,13 +109,14 @@ function MyProposalsView() {
   );
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ProposalsPage() {
   const t = useTranslations('proposals');
   const { user } = useAuth();
   const router = useRouter();
 
+  // Auth guard
   useEffect(() => {
     if (user === null) router.push('/auth/login');
   }, [user, router]);
@@ -131,33 +126,69 @@ export default function ProposalsPage() {
   if (user === null) return null;
 
   const isProfOrAdmin = user.role === 'professor' || user.role === 'admin';
+  const pendingCount = MOCK_PROPOSALS.filter((p) => p.status === 'pending').length;
 
+  /* ── Regular user view (no tabs) ─────────────────────────────────────────── */
   if (!isProfOrAdmin) {
     return (
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-        <h1 className="text-xl font-semibold text-primary mb-6">{t('titleMine')}</h1>
+      <div className="max-w-5xl mx-auto px-4 md:px-6 pb-12">
+        <div className="pt-6 pb-5 border-b border-subtle mb-6">
+          <h1 className="text-xl font-semibold text-primary leading-tight">
+            {t('titleMine')}
+          </h1>
+          <p className="mt-1 text-sm text-secondary leading-snug max-w-xl">
+            {t('subtitleMine')}
+          </p>
+        </div>
         <MyProposalsView />
       </div>
     );
   }
 
+  /* ── Professor / Admin view (with tabs) ──────────────────────────────────── */
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-      <h1 className="text-xl font-semibold text-primary mb-4">{t('titleReview')}</h1>
+    <div className="max-w-5xl mx-auto px-4 md:px-6 pb-12">
+      {/* Page header */}
+      <div className="pt-6 pb-5 border-b border-subtle mb-6">
+        <h1 className="text-xl font-semibold text-primary leading-tight">
+          {t('titleReview')}
+        </h1>
+        <p className="mt-1 text-sm text-secondary leading-snug max-w-xl">
+          {t('subtitle')}
+        </p>
+      </div>
 
-      {/* Main tabs */}
-      <div className="flex gap-0 border-b border-subtle mb-6">
+      {/* Tab switcher — segmented tray */}
+      <div className="flex items-center bg-surface-raised border border-subtle rounded-md p-1 gap-0.5 w-fit mb-6">
         {(['review', 'mine'] as const).map((tab) => (
           <button
             key={tab}
+            type="button"
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm border-b-2 transition-colors ${
+            className={[
+              'inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-sm',
+              'transition-[background-color,color,box-shadow] duration-150',
               activeTab === tab
-                ? 'border-accent text-accent font-medium'
-                : 'border-transparent text-secondary hover:text-primary'
-            }`}
+                ? 'bg-surface-base shadow-sm text-primary font-medium'
+                : 'text-secondary hover:text-primary',
+            ].join(' ')}
           >
             {tab === 'review' ? t('tabPending') : t('tabMine')}
+
+            {/* Pending badge — only visible on the review tab */}
+            {tab === 'review' && pendingCount > 0 && (
+              <span
+                className={[
+                  'text-[10px] font-semibold px-1.5 py-0.5 rounded-full min-w-4.5 text-center',
+                  'leading-none tabular-nums transition-colors duration-150',
+                  activeTab === 'review'
+                    ? 'bg-warning-subtle text-warning'
+                    : 'bg-surface-sunken text-tertiary',
+                ].join(' ')}
+              >
+                {pendingCount}
+              </span>
+            )}
           </button>
         ))}
       </div>

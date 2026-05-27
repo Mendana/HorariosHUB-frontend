@@ -240,6 +240,16 @@
   transition-timing-function: ease-in-out;
 }
 
+/* Tipografía con personalidad — utilidades de tracking
+   tracking-tight:   headings y elementos de alto peso (título de página, logo)
+   tracking-label:   labels de categoría, nombres de día en el grid, badges de estado
+   Ambas sobreescriben el -0.01em del body según el contexto. */
+@utility tracking-tight { letter-spacing: -0.025em }
+@utility tracking-label {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 /* Transición de botón — cubre todas las propiedades que cambian en hover/active.
    scale y translate usan la curva spring para el efecto de rebote en la vuelta.
    El resto (colores, sombra, brillo) van a 200ms ease-in-out para suavidad.
@@ -283,7 +293,17 @@
     background-color: var(--surface-base);
     color: var(--text-primary);
     font-family: var(--font-geist-sans), system-ui, sans-serif;
+    /* Tracking negativo sutil — da personalidad sin sacrificar legibilidad.
+       Linear/Vercel usan -0.01em en UI text; aquí se aplica globalmente
+       y se refuerza en headings y labels de navegación con utilidades propias. */
+    letter-spacing: -0.01em;
   }
+
+  /* Headings: tracking más ajustado. h1 usa -0.025em (tracking-tight),
+     h2/h3 usan -0.02em para mantener jerarquía. Los pesos altos (600)
+     necesitan tracking negativo para que las letras no "floten". */
+  h1 { letter-spacing: -0.025em; }
+  h2, h3 { letter-spacing: -0.02em; }
 
   /* Cursor pointer — Tailwind/preflight resetea cursor:default en <button>.
      Esta regla lo restaura globalmente para todos los elementos interactivos.
@@ -370,6 +390,17 @@
   animation: subject-highlight 1.2s ease-in-out;
 }
 
+/* Entrada de bloques de asignatura al cargar el horario.
+   El stagger (animation-delay por slot en SubjectBlock) crea una cascada
+   suave de arriba a abajo — el bloque de las 8:00 entra antes que el de las 20:00. */
+@keyframes block-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+@utility animate-block-in {
+  animation: block-in 200ms ease-out both;
+}
+
 /* ─────────────────────────────────────────────────────────
    Respeta prefers-reduced-motion: desactiva animaciones
    decorativas para usuarios con sensibilidad al movimiento.
@@ -383,6 +414,11 @@
   }
   .theme-toggle-spin {
     animation: none;
+  }
+  /* Entrada de bloques: desactivar animación, garantizar opacidad 1 */
+  .animate-block-in {
+    animation: none;
+    opacity: 1;
   }
 }
 

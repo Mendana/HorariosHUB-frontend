@@ -16,7 +16,7 @@ export function ScheduleHeader({ dates, timeColWidth }: ScheduleHeaderProps) {
 
   return (
     <div
-      className="flex border-b border-subtle bg-surface-base sticky top-16 z-20"
+      className="flex border-b border-strong bg-surface-base sticky top-16 z-20"
       aria-hidden
     >
       {/* Empty cell aligned with the time-label column */}
@@ -29,20 +29,26 @@ export function ScheduleHeader({ dates, timeColWidth }: ScheduleHeaderProps) {
             key={i}
             className="flex-1 flex flex-col items-center py-2 gap-0.5"
           >
-            <span
-              className={`text-xs font-medium ${isToday ? 'text-accent' : 'text-secondary'}`}
-            >
+            {/* Día abreviado: uppercase + tracking amplio — estilo Linear */}
+            <span className="text-[10px] font-medium tracking-label text-tertiary leading-none">
               {t(DAY_KEYS[i])}
             </span>
+
+            {/* Número de día: jerarquía por tamaño, sin píldora */}
             <span
-              className={`text-sm font-medium leading-none ${
-                isToday
-                  ? 'bg-accent text-white rounded-full w-6 h-6 flex items-center justify-center'
-                  : 'text-primary'
+              className={`text-[17px] font-semibold leading-none tracking-tight ${
+                isToday ? 'text-accent' : 'text-primary'
               }`}
             >
               {date.getUTCDate()}
             </span>
+
+            {/* Dot indicator: solo hoy, debajo del número */}
+            {isToday ? (
+              <span className="size-1 rounded-full bg-accent mt-0.5" />
+            ) : (
+              <span className="size-1 mt-0.5 opacity-0" aria-hidden />
+            )}
           </div>
         );
       })}
