@@ -44,7 +44,7 @@ export function ProposalActions({ proposalId, onApprove, onReject }: ProposalAct
           onKeyDown={(e) => { if (e.key === 'Enter') handleConfirmReject(); }}
           placeholder={t('rejectReasonPlaceholder')}
           disabled={state === 'rejecting'}
-          // eslint-disable-next-line jsx-a11y/no-autofocus
+           
           autoFocus
           className={`${INPUT_FIELD_CLS} h-7 px-2 text-xs`}
         />

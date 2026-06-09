@@ -17,18 +17,24 @@ function VerifyContent() {
 
   useEffect(() => {
     const token = searchParams.get('token');
-    if (!token) {
-      setErrorMsg(t('errorNoToken'));
-      setStatus('error');
-      return;
-    }
-    authVerify(token)
-      .then(() => setStatus('success'))
-      .catch((err: unknown) => {
+  
+    const verify = async () => {
+      if (!token) {
+        setErrorMsg(t('errorNoToken'));
+        setStatus('error');
+        return;
+      }
+      try {
+        await authVerify(token);
+        setStatus('success');
+      } catch (err: unknown) {
         setErrorMsg(err instanceof Error ? err.message : t('verifyError'));
         setStatus('error');
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      }
+    };
+  
+    verify();
+     
   }, []);
 
   if (status === 'loading') {

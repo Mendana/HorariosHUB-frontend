@@ -33,46 +33,45 @@ async function fetcher<T>(path: string, init?: RequestInit): Promise<T> {
 // ── Auth ──────────────────────────────────────────────────────
 
 export function authLogin(email: string, password: string): Promise<void> {
-  return fetcher('/api/auth/login', {
+  return fetcher('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
 }
 
 export function authRegister(email: string, password: string): Promise<void> {
-  return fetcher('/api/auth/register', {
+  return fetcher('/auth/register', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
 }
 
 export function authVerify(token: string): Promise<void> {
-  return fetcher(`/api/auth/verify?token=${encodeURIComponent(token)}`);
+  return fetcher(`/auth/verify?token=${encodeURIComponent(token)}`);
 }
 
 export function authRecover(email: string): Promise<void> {
-  return fetcher('/api/auth/recover', {
+  return fetcher('/auth/recover', {
     method: 'POST',
     body: JSON.stringify({ email }),
   });
 }
 
 export function authResetPassword(token: string, password: string): Promise<void> {
-  return fetcher('/api/auth/reset-password', {
+  return fetcher('/auth/reset-password', {
     method: 'POST',
     body: JSON.stringify({ token, password }),
   });
 }
 
 export function authLogout(): Promise<void> {
-  return fetcher('/api/auth/logout', { method: 'POST' });
+  return fetcher('/auth/logout', { method: 'POST' });
 }
 
 // ── Schedule ──────────────────────────────────────────────────
 
-export function scheduleCopy(from: string, to: string): Promise<void> {
-  return fetcher('/api/schedule/copy', {
+export function scheduleCopy(from: string): Promise<void> {
+  return fetcher(`/schedule/copy?user=${encodeURIComponent(from)}`, {
     method: 'POST',
-    body: JSON.stringify({ from, to }),
   });
 }
