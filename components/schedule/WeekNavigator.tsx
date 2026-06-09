@@ -45,7 +45,7 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
     const storedWeek = readStorage<number>('selectedWeek', getCurrentWeek().week);
     setSemester(storedSem);
     onWeekChange(storedYear, storedWeek);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const handleSemesterChange = useCallback(
@@ -118,16 +118,18 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 py-3 px-1">
       {/* Left side: view toggle + semester tabs (week view only) */}
       <div className="flex items-center gap-2 flex-wrap">
-        {/* View toggle */}
-        <div className="flex rounded-sm overflow-hidden border border-subtle">
+        {/* View toggle — patrón "tray": bandeja surface-raised, chip activo
+            se eleva a surface-base con shadow-sm. Sin borde exterior. */}
+        <div className="flex gap-0.5 p-0.5 rounded-sm bg-surface-raised" role="group" aria-label={t('viewToggleLabel')}>
           <button
             onClick={() => onViewChange('week')}
             aria-label={t('viewWeek')}
+            aria-pressed={view === 'week'}
             title={t('viewWeek')}
-            className={`px-2.5 py-1.5 flex items-center justify-center transition-[background-color,color,filter] transition-base ${
+            className={`px-2.5 py-1.5 flex items-center justify-center rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
               view === 'week'
-                ? 'bg-accent-subtle text-accent'
-                : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
+                ? 'bg-surface-base text-primary shadow-sm'
+                : 'text-secondary hover:text-primary'
             }`}
           >
             <CalendarDays size={15} aria-hidden />
@@ -135,11 +137,12 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
           <button
             onClick={() => onViewChange('month')}
             aria-label={t('viewMonth')}
+            aria-pressed={view === 'month'}
             title={t('viewMonth')}
-            className={`px-2.5 py-1.5 flex items-center justify-center transition-[background-color,color,filter] transition-base ${
+            className={`px-2.5 py-1.5 flex items-center justify-center rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
               view === 'month'
-                ? 'bg-accent-subtle text-accent'
-                : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
+                ? 'bg-surface-base text-primary shadow-sm'
+                : 'text-secondary hover:text-primary'
             }`}
           >
             <CalendarRange size={15} aria-hidden />
@@ -163,9 +166,9 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
           <span>{t('eventsToggleLabel')}</span>
         </button>
 
-        {/* Semester tabs — only in week view */}
+        {/* Semester tabs — mismo patrón tray */}
         {view === 'week' && (
-          <div className="flex rounded-sm overflow-hidden border border-subtle" role="group">
+          <div className="flex gap-0.5 p-0.5 rounded-sm bg-surface-raised" role="group">
             {([1, 2] as const).map((sem) => (
               <button
                 key={sem}
@@ -173,10 +176,10 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
                 aria-label={t(sem === 1 ? 'semester1' : 'semester2')}
                 aria-pressed={semester === sem}
                 title={t(sem === 1 ? 'shortcutSem1' : 'shortcutSem2')}
-                className={`px-3 py-1.5 text-sm font-medium transition-[background-color,color,filter] transition-base ${
+                className={`px-3 py-1.5 text-[13px] font-medium rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
                   semester === sem
-                    ? 'bg-accent-subtle text-accent'
-                    : 'bg-surface-raised text-secondary hover:text-primary hover:brightness-[1.03]'
+                    ? 'bg-surface-base text-primary shadow-sm'
+                    : 'text-secondary hover:text-primary'
                 }`}
               >
                 {t(sem === 1 ? 'semester1' : 'semester2')}

@@ -87,7 +87,7 @@ export function NavLinks({ role, onNavigate, vertical = false }: NavLinksProps) 
     }
     // Horizontal (topbar): small-strong (13px/500) + indicador inferior activo
     return [
-      'px-3 py-2 rounded-sm text-[13px] font-medium',
+      'px-3 py-2 rounded-sm text-[13px] font-medium tracking-[-0.01em]',
       'transition-[background-color,color,box-shadow] transition-base',
       isActive
         ? 'text-primary bg-accent-subtle [box-shadow:inset_0_-2px_0_var(--accent)]'

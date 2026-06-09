@@ -17,6 +17,7 @@ import { EventForm } from '@/components/events/EventForm';
 import { ClassForm } from '@/components/classes/ClassForm';
 import type { UserEvent, NewEventData } from '@/lib/types/events';
 import type { Class, ClassInput } from '@/lib/types/classes';
+import { useSearchParams } from 'next/navigation';
 
 export default function SchedulePage() {
   const [identifier, setIdentifier] = useState<string | null>(null);
@@ -44,10 +45,25 @@ export default function SchedulePage() {
   const [classFormCell, setClassFormCell] = useState<{ date: string; time: string } | null>(null);
   const [creationHintVisible, setCreationHintVisible] = useState(true);
 
+
+
+const searchParams = useSearchParams();
+
+const uo = searchParams.get('uo')?.toLowerCase() ?? '';
+const shouldImport = searchParams.get('import') === 'true';
+
+if(uo) {
+  setIdentifier(uo)
+  if(shouldImport) setImportUo(uo)
+}
+
   useEffect(() => {
-    if (localStorage.getItem('hasCreatedByClick') === 'true') {
-      setCreationHintVisible(false);
-    }
+    const check = async () => {
+      if (localStorage.getItem('hasCreatedByClick') === 'true') {
+        setCreationHintVisible(false);
+      }
+    };
+    check();
   }, []);
 
   const handleCellClick = useCallback((date: string, time: string) => {
@@ -105,18 +121,6 @@ export default function SchedulePage() {
     await deleteEvent(id);
   }
 
-  // Read URL params on mount: ?uo=… and ?import=true
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const uo = params.get('uo');
-    const shouldImport = params.get('import') === 'true';
-    if (uo) {
-      const uoLower = uo.toLowerCase();
-      setIdentifier(uoLower);
-      if (shouldImport) setImportUo(uoLower);
-    }
-  }, []);
-
   // Rehydrate view preference from localStorage after mount
   useEffect(() => {
     const stored = localStorage.getItem('scheduleView');
@@ -149,12 +153,12 @@ export default function SchedulePage() {
     });
   }, []);
 
-  const handleWeekChange = useCallback((year: number, week: number) => {
+  const handleWeekChange = (year: number, week: number) => {
     setSelectedYear(year);
     setSelectedWeek(week);
-  }, []);
+  };
 
-  const handleViewChange = useCallback(
+  const handleViewChange = 
     (view: 'week' | 'month') => {
       if (view === 'month' && scheduleView === 'week') {
         const monday = getWeekDates(selectedYear, selectedWeek)[0];
@@ -170,23 +174,21 @@ export default function SchedulePage() {
       }
       setScheduleView(view);
       localStorage.setItem('scheduleView', view);
-    },
-    [scheduleView, selectedYear, selectedWeek, viewMonthYear, viewMonth],
-  );
+    };
 
-  const handleMonthChange = useCallback((year: number, month: number) => {
+  const handleMonthChange =(year: number, month: number) => {
     setViewMonthYear(year);
     setViewMonth(month);
-  }, []);
+  };
 
-  const handleGoToWeek = useCallback((isoYear: number, isoWeek: number) => {
+  const handleGoToWeek =(isoYear: number, isoWeek: number) => {
     setSelectedYear(isoYear);
     setSelectedWeek(isoWeek);
     localStorage.setItem('selectedWeekYear', JSON.stringify(isoYear));
     localStorage.setItem('selectedWeek', JSON.stringify(isoWeek));
     setScheduleView('week');
     localStorage.setItem('scheduleView', 'week');
-  }, []);
+  };
 
   // Only load events for authenticated users
   const effectiveEvents = user ? events : [];

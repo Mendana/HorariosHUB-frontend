@@ -21,7 +21,7 @@ import type { UserEvent } from '@/lib/types/events';
 import { EventLine } from '@/components/events/EventLine';
 
 // ─── Grid constants ────────────────────────────────────────────────────────────
-const SLOT_HEIGHT = 48;    // px per 30-min slot
+const SLOT_HEIGHT = 36;    // px per 30-min slot
 const START_HOUR = 8;
 const END_HOUR = 21;
 const SLOTS = (END_HOUR - START_HOUR) * 2; // 26
@@ -111,12 +111,17 @@ function DayColumn({
 
   return (
     <div className="relative border-l border-subtle" style={{ height: TOTAL_HEIGHT, minWidth: 0 }}>
-      {/* Horizontal grid lines */}
+      {/* Today column tint — subtle accent stripe for the current day */}
+      {isToday && (
+        <div className="absolute inset-0 bg-accent/[0.03] pointer-events-none" aria-hidden />
+      )}
+
+      {/* Horizontal grid lines — horas completas a full opacity, medias horas a 40% */}
       {Array.from({ length: SLOTS + 1 }, (_, i) => (
         <div
           key={i}
-          className={`absolute w-full pointer-events-none ${
-            i % 2 === 0 ? 'border-t border-subtle' : ''
+          className={`absolute w-full pointer-events-none border-t ${
+            i % 2 === 0 ? 'border-subtle' : 'border-subtle/40'
           }`}
           style={{ top: i * SLOT_HEIGHT }}
         />
@@ -151,12 +156,12 @@ function DayColumn({
         );
       })}
 
-      {/* Skeleton */}
+      {/* Skeleton — rounded-r-sm + borde izquierdo anticipa la forma del bloque real */}
       {isLoading &&
         SKELETON_BLOCKS.filter((b) => b.day === day).map((b, i) => (
           <div
             key={i}
-            className="absolute rounded-sm bg-surface-raised animate-pulse"
+            className="absolute rounded-r-sm bg-surface-raised animate-pulse border-l-[3px] border-strong/30"
             style={{
               top: b.startSlot * SLOT_HEIGHT + 2,
               height: b.span * SLOT_HEIGHT - 4,
@@ -198,13 +203,16 @@ function DayColumn({
           />
         ))}
 
-      {/* Current-time line */}
+      {/* Current-time line — accent stripe + dot + glow para presencia visual */}
       {isToday && currentTimePx !== null && (
         <div
           className="absolute w-full z-10 pointer-events-none"
           style={{ top: currentTimePx }}
         >
-          <div className="relative border-t-2 border-accent">
+          <div
+            className="relative border-t-2 border-accent"
+            style={{ filter: 'drop-shadow(0 0 4px var(--accent))' }}
+          >
             <span className="absolute -top-1.25 -left-1.5 size-2.5 rounded-full bg-accent" />
           </div>
         </div>

@@ -555,7 +555,6 @@ export function DatePicker({
         disabled={disabled}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        aria-invalid={error ? 'true' : undefined}
         onClick={() => (isOpen ? closeDropdown() : openDropdown())}
         className={triggerCls}
       >

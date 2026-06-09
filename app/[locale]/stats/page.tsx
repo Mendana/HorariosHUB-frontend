@@ -138,14 +138,6 @@ export default function StatsPage() {
     );
   }
 
-  const semesterTabCls = (active: boolean) =>
-    [
-      'px-4 py-1.5 text-[13px] font-medium rounded-sm border transition-[background-color,border-color,color] transition-base',
-      active
-        ? 'bg-accent-subtle border-accent text-accent'
-        : 'bg-surface-raised border-subtle text-secondary hover:text-primary hover:border-strong',
-    ].join(' ');
-
   return (
     <div className="max-w-3xl mx-auto px-4 md:px-6 pb-12">
       {/* ── header ─────────────────────────────────────────────────────────── */}
@@ -153,22 +145,23 @@ export default function StatsPage() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <h1 className="text-[22px] font-semibold text-primary">{t('title')}</h1>
 
-          {/* Semester selector */}
-          <div className="flex gap-1">
-            <button
-              type="button"
-              className={semesterTabCls(semester === 1)}
-              onClick={() => setSemester(1)}
-            >
-              {tSchedule('semester1')}
-            </button>
-            <button
-              type="button"
-              className={semesterTabCls(semester === 2)}
-              onClick={() => setSemester(2)}
-            >
-              {tSchedule('semester2')}
-            </button>
+          {/* Semester selector — patrón tray consistente con WeekNavigator */}
+          <div className="flex gap-0.5 p-0.5 rounded-sm bg-surface-raised">
+            {([1, 2] as const).map((sem) => (
+              <button
+                key={sem}
+                type="button"
+                aria-pressed={semester === sem}
+                onClick={() => setSemester(sem)}
+                className={`px-3 py-1.5 text-[13px] font-medium rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
+                  semester === sem
+                    ? 'bg-surface-base text-primary shadow-sm'
+                    : 'text-secondary hover:text-primary'
+                }`}
+              >
+                {tSchedule(sem === 1 ? 'semester1' : 'semester2')}
+              </button>
+            ))}
           </div>
         </div>
 

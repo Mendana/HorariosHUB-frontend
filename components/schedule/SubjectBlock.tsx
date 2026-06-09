@@ -112,6 +112,9 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
           borderLeftColor: colorVars['--sb-border'],
           // Ongoing: widen the accent stripe to 4px; default 3px comes from the class
           ...(ongoing && { borderLeftWidth: '4px' }),
+          // Stagger entry by time slot — blocks earlier in the day appear first.
+          // Each 30-min slot adds 4ms: 08:00 → 0ms, 20:00 → ~96ms.
+          animationDelay: `${Math.round((startMins - GRID_START_MINS) / 30 * 4)}ms`,
         } as React.CSSProperties}
         className={[
           // Position & shape
@@ -125,12 +128,14 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
           'bg-(--sb-bg) dark:bg-(--sb-bg-dark)',
           // Shadow: sm at rest, md when ongoing or hovering
           ongoing ? 'shadow-md' : 'shadow-sm',
-          // Hover: darken + lift
-          'hover:shadow-md hover:brightness-[0.94]',
+          // Hover: darken + 1px lift (el bloque "sube a encontrarte")
+          'hover:shadow-md hover:brightness-[0.94] hover:-translate-y-px',
           // Active/press: slight scale-down (spec: 0.98)
           'active:scale-[0.98]',
-          // Transitions: box-shadow + filter (brightness) + scale
-          'transition-[box-shadow,filter,scale] transition-base',
+          // Transitions: box-shadow + filter (brightness) + scale + translate
+          'transition-[box-shadow,filter,scale,translate] transition-base',
+          // Entry animation (stagger delay via inline animationDelay)
+          'animate-block-in',
         ].join(' ')}
       >
         {/* ── Corner indicators (type badge + ongoing pulse) ──────────────── */}
