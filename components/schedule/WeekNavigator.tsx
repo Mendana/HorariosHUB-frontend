@@ -45,7 +45,7 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
     const storedWeek = readStorage<number>('selectedWeek', getCurrentWeek().week);
     setSemester(storedSem);
     onWeekChange(storedYear, storedWeek);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const handleSemesterChange = useCallback(

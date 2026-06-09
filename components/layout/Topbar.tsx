@@ -79,7 +79,7 @@ export function Topbar() {
     }
     document.addEventListener('pointerdown', onPointerDown);
     return () => document.removeEventListener('pointerdown', onPointerDown);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [searchOpen]);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -92,7 +92,7 @@ export function Topbar() {
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const showResults = searchOpen && query.trim().length >= 2;

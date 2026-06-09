@@ -34,7 +34,7 @@ export function ImportBanner({ uo, onDismiss }: ImportBannerProps) {
     if (state !== 'success') return;
     const timer = setTimeout(() => dismiss(), 3000);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [state]);
 
   function dismiss() {
@@ -45,10 +45,9 @@ export function ImportBanner({ uo, onDismiss }: ImportBannerProps) {
 
   async function handleCopy() {
     if (!user) return;
-    const userUo = user.email.split('@')[0];
     setState('loading');
     try {
-      await scheduleCopy(uo, userUo);
+      await scheduleCopy(uo);
       setState('success');
       removeImportParam();
     } catch (err) {
