@@ -2,10 +2,12 @@ stages:
   - checks
   - test
   - docker
+
 variables:
   PNPM_VERSION: "9"
   NODE_VERSION: "22"
   PNPM_STORE_DIR: "${CI_PROJECT_DIR}/.pnpm-store"
+
 # Evita pipelines duplicadas: si hay MR abierto, solo corre la pipeline de MR
 workflow:
   rules:
@@ -13,21 +15,25 @@ workflow:
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
     - if: $CI_COMMIT_BRANCH
+
 default:
   image: node:22-alpine
   tags:
     - docker-dind
+
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .pnpm-store/
     - node_modules/
     - .next/cache/
+
 before_script:
   - corepack enable
   - corepack prepare pnpm@${PNPM_VERSION} --activate
   - pnpm config set store-dir $PNPM_STORE_DIR
   - pnpm install --frozen-lockfile
+
 # =========================
 # CHECKS (solo en MR)
 # =========================
@@ -37,12 +43,14 @@ lint:
     - pnpm lint
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
 typecheck:
   stage: checks
   script:
     - pnpm exec tsc --noEmit
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
 # =========================
 # TESTS (solo en MR)
 # =========================
@@ -52,32 +60,32 @@ test:
     - pnpm test --passWithNoTests
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
 # =========================
 # DOCKER SHARED CONFIG
 # =========================
 .docker-base:
   image: docker:28
-  before_script: []
+  before_script: [] # Limpia el entorno global de node/pnpm para este stage
   tags:
     - docker-dind
   services:
     - name: docker:28-dind
       alias: docker
+      command: ["--tls=false"] # Desactiva TLS interno para evitar colisiones de sockets compartidos
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375 # Puerto estándar sin TLS
+    DOCKER_TLS_CERTDIR: ""         # Desactiva la generación de certificados que daban error
+
 # =========================
 # DOCKER PUSH (solo al mergear a main)
 # =========================
 docker-push:
   extends: .docker-base
   stage: docker
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" |
-      docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
   script:
+    # El login se ejecuta aquí directamente para evitar sobreescribir el 'before_script: []' heredado
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker build --build-arg NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
