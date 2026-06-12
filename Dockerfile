@@ -2,18 +2,17 @@
     FROM node:22-alpine AS deps
     WORKDIR /app
     RUN corepack enable && corepack prepare pnpm@9 --activate
-    COPY package.json pnpm-lock.yaml ./
+    COPY package.json pnpm-lock.yaml .npmrc ./
     RUN pnpm install --frozen-lockfile --prod
     
     # ---- builder ----
     FROM node:22-alpine AS builder
     WORKDIR /app
     RUN corepack enable && corepack prepare pnpm@9 --activate
-    COPY package.json pnpm-lock.yaml ./
+    COPY package.json pnpm-lock.yaml .npmrc ./
     RUN pnpm install --frozen-lockfile
     COPY . .
     
-    # Declarar y exponer el build arg al build de Next.js
     ARG NEXT_PUBLIC_API_URL
     ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     ENV NEXT_TELEMETRY_DISABLED=1
