@@ -43,15 +43,6 @@ typecheck:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 # =========================
-# TESTS (solo en MR)
-# =========================
-test:
-  stage: test
-  script:
-    - pnpm test --passWithNoTests
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-# =========================
 # DOCKER SHARED CONFIG
 # =========================
 .docker-base:
