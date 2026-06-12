@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
-import { authVerify } from '@/lib/api';
+import { authVerify } from '@/lib/api/auth';
 
 type Status = 'loading' | 'success' | 'error';
 

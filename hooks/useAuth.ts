@@ -1,7 +1,11 @@
- 
 'use client';
 
-import { MOCKS } from '@/lib/config/mocks';
+import { authLogout } from "@/lib/api/auth";
+import { apiFetch } from "@/lib/api/apiFetch";
+import { isApiError } from "@/lib/errors";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter, usePathname } from "@/i18n/navigation";
+import { useCallback, useEffect } from "react";
 
 export type Role = 'visitor' | 'user' | 'professor' | 'admin';
 
@@ -10,37 +14,38 @@ export interface AuthUser {
   role: Role;
 }
 
-/**
- * Hook de autenticación.
- * MOCKS.auth = true  → devuelve el usuario mockeado (cambiar la línea comentada para probar roles).
- * MOCKS.auth = false → llama a GET /api/auth/me; 401 redirige a /auth/login.
- */
-export function useAuth(): { user: AuthUser | null } {
-  if (MOCKS.auth) {
-    // const user: AuthUser | null = null;
-    // const user: AuthUser = { email: 'alumno@uniovi.es', role: 'user' };
-    // const user: AuthUser = { email: 'profesor@uniovi.es', role: 'professor' };
-    const user: AuthUser = { email: 'admin@uniovi.es', role: 'admin' };
+export function useAuth(): {
+  user: AuthUser | null;
+  logout: () => Promise<void>;
+} {
+  const router = useRouter();
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
 
-    return { user };
-  }
+  const { data } = useQuery({
+    queryKey: ['me'],
+    queryFn: async () => {
+      try {
+        return await apiFetch<AuthUser>('/auth/me');
+      } catch (err) {
+        if (isApiError(err) && err.status === 401) return null;
+        throw err;
+      }
+    },
+    retry: false,
+    throwOnError: false,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  // ── Real implementation — descomentar cuando MOCKS.auth = false ────────────
-  // import { useQuery } from '@tanstack/react-query';
-  // import { useRouter } from 'next/navigation';
-  // import { apiFetch } from '@/lib/apiFetch';
-  //
-  // const router = useRouter();
-  // const { data } = useQuery({
-  //   queryKey: ['me'],
-  //   queryFn: () => apiFetch<AuthUser>('/api/auth/me'),
-  //   retry: false,
-  //   throwOnError: false,
-  // });
-  // useEffect(() => {
-  //   if (data === null) router.push('/auth/login');
-  // }, [data, router]);
-  // return { user: data ?? null };
+  useEffect(() => {
+    if (data === null && !pathname.startsWith('/auth/')) router.push('/auth/login');
+  }, [data, router, pathname]);
 
-  throw new Error('MOCKS.auth is false pero la implementación real no está conectada. Ver docs/CONNECTING_BACKEND.md');
+  const logout = useCallback(async () => {
+    await authLogout();
+    queryClient.setQueryData(['me'], null);
+    router.push('/auth/login');
+  }, [queryClient, router]);
+
+  return { user: data ?? null, logout };
 }

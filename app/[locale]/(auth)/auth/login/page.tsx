@@ -5,13 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { authLogin } from '@/lib/api';
+import { authLogin } from '@/lib/api/auth';
 
 function LoginForm() {
   const t = useTranslations('auth');
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const resetOk = searchParams.get('reset') === '1';
 
@@ -41,6 +43,7 @@ function LoginForm() {
     setLoading(true);
     try {
       await authLogin(email, password);
+      queryClient.removeQueries({ queryKey: ['me'] });
       let redirectTo = '/';
       try {
         const returnUrl = localStorage.getItem('returnUrl');
