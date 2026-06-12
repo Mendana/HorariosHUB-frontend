@@ -7,10 +7,10 @@ import type { AuthUser, Role } from '@/hooks/useAuth';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 
 const ROLE_VARIANT: Record<Role, BadgeVariant> = {
-  visitor:   'default',
-  user:      'default',
+  visitor: 'default',
+  user: 'default',
   professor: 'warning',
-  admin:     'accent',
+  admin: 'accent',
 };
 
 /** Toma las dos primeras letras del username del email, en mayúsculas. */
@@ -21,9 +21,10 @@ function getInitials(email: string): string {
 
 interface UserMenuProps {
   user: AuthUser;
+  onLogout: () => Promise<void>;
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ user, onLogout }: UserMenuProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -78,7 +79,7 @@ export function UserMenu({ user }: UserMenuProps) {
       {open && (
         <div
           role="menu"
-          className="animate-dropdown absolute right-0 top-full mt-1.5 w-[200px] bg-surface-raised border border-subtle rounded-md shadow-md z-50"
+          className="animate-dropdown absolute right-0 top-full mt-1.5 w-50 bg-surface-raised border border-subtle rounded-md shadow-md z-50"
         >
           {/* Cabecera: email + rol */}
           <div className="px-3 py-3 border-b border-subtle">
@@ -97,7 +98,7 @@ export function UserMenu({ user }: UserMenuProps) {
               type="button"
               onClick={() => {
                 setOpen(false);
-                // TODO: llamar a POST /api/auth/logout
+                onLogout();
               }}
               className="w-full flex items-center gap-2.5 text-left px-3 py-2 text-[13px] text-secondary hover:text-error hover:bg-surface-sunken transition-[background-color,color] transition-base"
             >

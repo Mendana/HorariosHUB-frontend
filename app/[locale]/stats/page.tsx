@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { Clock, TrendingUp, Sunrise, Sunset, CalendarDays } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';

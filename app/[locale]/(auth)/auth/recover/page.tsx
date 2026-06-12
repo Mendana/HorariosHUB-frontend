@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { authRecover } from '@/lib/api';
+import { authRecover } from '@/lib/api/auth';
 
 export default function RecoverPage() {
   const t = useTranslations('auth');
