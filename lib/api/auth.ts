@@ -32,7 +32,7 @@ export function authRecover(email: string): Promise<void> {
 export function authResetPassword(token: string, password: string): Promise<void> {
     return apiFetch('/auth/reset-password', {
         method: 'POST',
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ token, new_password:password }),
     })
 }
 
