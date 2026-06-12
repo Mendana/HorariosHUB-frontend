@@ -1,12 +1,13 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { authResetPassword } from '@/lib/api';
+import { authResetPassword } from '@/lib/api/auth';
 
 function ResetForm() {
   const t = useTranslations('auth');

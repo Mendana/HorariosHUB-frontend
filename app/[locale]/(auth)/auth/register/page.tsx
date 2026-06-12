@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { authRegister } from '@/lib/api';
+import { authRegister } from '@/lib/api/auth';
 
 export default function RegisterPage() {
   const t = useTranslations('auth');
