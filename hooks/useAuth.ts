@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { useCallback, useEffect } from "react";
 
-export type Role = 'visitor' | 'user' | 'professor' | 'admin';
+export type Role = 'student' | 'profesor' | 'admin';
 
 export interface AuthUser {
   email: string;

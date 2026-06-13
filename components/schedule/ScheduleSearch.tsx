@@ -41,7 +41,11 @@ export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, o
 
   function handleUoSearch() {
     const val = uoInput.trim().toLowerCase();
-    if (val && val !== identifier) onIdentifierChange(val);
+    if (!val) return;
+    const normalized = val.startsWith('uo') && !val.includes('@')
+      ? `${val}@uniovi.es`
+      : val;
+    if (normalized !== identifier) onIdentifierChange(normalized);
   }
 
   function handleYearSelect(suffix: string) {

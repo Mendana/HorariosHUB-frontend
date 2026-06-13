@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { AlertCircle, CheckCircle, Download, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
-import { scheduleCopy } from '@/lib/api';
+import { copySchedule } from '@/lib/api/schedule';
 
 interface ImportBannerProps {
   uo: string;
@@ -47,7 +47,7 @@ export function ImportBanner({ uo, onDismiss }: ImportBannerProps) {
     if (!user) return;
     setState('loading');
     try {
-      await scheduleCopy(uo);
+      await copySchedule(uo);
       setState('success');
       removeImportParam();
     } catch (err) {

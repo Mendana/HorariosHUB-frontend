@@ -67,7 +67,7 @@ export default function ManageClassesPage() {
   useEffect(() => {
     if (user === null) {
       router.push('/auth/login');
-    } else if (user.role === 'user') {
+    } else if (user.role === 'student') {
       router.push('/');
     }
   }, [user, router]);
@@ -180,7 +180,7 @@ export default function ManageClassesPage() {
   );
 
   // Prevent rendering while redirecting
-  if (user === null || user.role === 'user') return null;
+  if (user === null || user.role === 'student') return null;
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 pb-12">

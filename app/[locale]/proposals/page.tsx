@@ -125,7 +125,7 @@ export default function ProposalsPage() {
 
   if (user === null) return null;
 
-  const isProfOrAdmin = user.role === 'professor' || user.role === 'admin';
+  const isProfOrAdmin = user.role === 'profesor' || user.role === 'admin';
   const pendingCount = MOCK_PROPOSALS.filter((p) => p.status === 'pending').length;
 
   /* ── Regular user view (no tabs) ─────────────────────────────────────────── */
