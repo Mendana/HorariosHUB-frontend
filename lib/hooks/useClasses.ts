@@ -1,146 +1,62 @@
- 
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import type { Class, ClassInput } from '@/lib/types/classes';
-import { MOCK_CLASSES } from '@/lib/mock/classes';
-import { getErrorMessage } from '@/lib/errors';
-import { useToast } from '@/lib/hooks/useToast';
-import { MOCKS } from '@/lib/config/mocks';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Class, ClassInput, ClassesFilter } from "../types/classes";
+import { useToast } from "./useToast";
+import { fetchClasses, createClass, deleteClass, updateClass } from "../api/classes";
+import { getErrorMessage } from "../errors";
 
-let idCounter = MOCK_CLASSES.length + 1;
-
-function calcEndTime(startTime: string, durationMinutes: number): string {
-  const [h, m] = startTime.split(':').map(Number);
-  const total = h * 60 + m + durationMinutes;
-  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-}
+export type { ClassesFilter };
 
 export interface UseClassesResult {
   classes: Class[];
+  total: number;
   isLoading: boolean;
   error: string | null;
+  refetch: () => void;
   createClass: (input: ClassInput) => Promise<Class>;
   updateClass: (id: string, input: Partial<ClassInput>) => Promise<Class>;
   deleteClass: (id: string) => Promise<void>;
 }
 
-export function useClasses(): UseClassesResult {
-  if (MOCKS.classes) {
-    const { toast } = useToast();
-    const [classes, setClasses] = useState<Class[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error] = useState<string | null>(null);
+export function useClasses(filter: ClassesFilter = {}): UseClassesResult {
+  const { toast } = useToast();
+  const qc = useQueryClient();
 
-    useEffect(() => {
-      setIsLoading(true);
-      const t = setTimeout(() => {
-        setClasses([...MOCK_CLASSES]);
-        setIsLoading(false);
-      }, 400);
-      return () => clearTimeout(t);
-    }, []);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['classes', filter],
+    queryFn: () => fetchClasses(filter),
+    staleTime: 2 * 60 * 1000,
+  });
 
-    const createClass = useCallback(async (input: ClassInput): Promise<Class> => {
-      try {
-        await new Promise((res) => setTimeout(res, 600));
-        const newClass: Class = {
-          ...input,
-          id: `cls-new-${idCounter++}`,
-          endTime: calcEndTime(input.startTime, input.durationMinutes),
-        };
-        setClasses((prev) => [...prev, newClass]);
-        return newClass;
-      } catch (err) {
-        toast.error(getErrorMessage(err));
-        throw err;
-      }
-    }, [toast]);
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['classes'] });
 
-    const updateClass = useCallback(
-      async (id: string, input: Partial<ClassInput>): Promise<Class> => {
-        try {
-          await new Promise((res) => setTimeout(res, 600));
-          let updated!: Class;
-          setClasses((prev) =>
-            prev.map((c) => {
-              if (c.id !== id) return c;
-              const merged: Class = { ...c, ...input };
-              if (input.startTime || input.durationMinutes) {
-                merged.endTime = calcEndTime(
-                  input.startTime ?? c.startTime,
-                  input.durationMinutes ?? c.durationMinutes,
-                );
-              }
-              updated = merged;
-              return merged;
-            }),
-          );
-          return updated;
-        } catch (err) {
-          toast.error(getErrorMessage(err));
-          throw err;
-        }
-      },
-      [toast],
-    );
+  const createMutation = useMutation({
+    mutationFn: (input: ClassInput) => createClass(input),
+    onSuccess: invalidate,
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
 
-    const deleteClass = useCallback(async (id: string): Promise<void> => {
-      try {
-        await new Promise((res) => setTimeout(res, 400));
-        setClasses((prev) => prev.filter((c) => c.id !== id));
-      } catch (err) {
-        toast.error(getErrorMessage(err));
-        throw err;
-      }
-    }, [toast]);
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...input }: { id: string } & Partial<ClassInput>) => updateClass(id, input),
+    onSuccess: invalidate,
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
 
-    // Sort by date then startTime
-    const sorted = [...classes].sort((a, b) => {
-      const da = a.date.year * 10000 + a.date.month * 100 + a.date.day;
-      const db = b.date.year * 10000 + b.date.month * 100 + b.date.day;
-      if (da !== db) return da - db;
-      return a.startTime.localeCompare(b.startTime);
-    });
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteClass(id),
+    onSuccess: invalidate,
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
 
-    return { classes: sorted, isLoading, error, createClass, updateClass, deleteClass };
-  }
-
-  // ── Real implementation — descomentar cuando MOCKS.classes = false ─────────
-  // import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-  // import { apiFetch } from '@/lib/apiFetch';
-  //
-  // const { toast } = useToast();
-  // const qc = useQueryClient();
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ['classes'],
-  //   queryFn: () => apiFetch<Class[]>('/api/classes'),
-  // });
-  // const createMutation = useMutation({
-  //   mutationFn: (input: ClassInput) =>
-  //     apiFetch<Class>('/api/classes', { method: 'POST', body: JSON.stringify(input) }),
-  //   onSuccess: () => qc.invalidateQueries({ queryKey: ['classes'] }),
-  //   onError: (err) => toast.error(getErrorMessage(err)),
-  // });
-  // const updateMutation = useMutation({
-  //   mutationFn: ({ id, ...data }: { id: string } & Partial<ClassInput>) =>
-  //     apiFetch<Class>(`/api/classes/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  //   onSuccess: () => qc.invalidateQueries({ queryKey: ['classes'] }),
-  //   onError: (err) => toast.error(getErrorMessage(err)),
-  // });
-  // const deleteMutation = useMutation({
-  //   mutationFn: (id: string) => apiFetch(`/api/classes/${id}`, { method: 'DELETE' }),
-  //   onSuccess: () => qc.invalidateQueries({ queryKey: ['classes'] }),
-  //   onError: (err) => toast.error(getErrorMessage(err)),
-  // });
-  // return {
-  //   classes: data ?? [],
-  //   isLoading,
-  //   error: error ? getErrorMessage(error) : null,
-  //   createClass: (input) => createMutation.mutateAsync(input),
-  //   updateClass: (id, data) => updateMutation.mutateAsync({ id, ...data }),
-  //   deleteClass: (id) => deleteMutation.mutateAsync(id),
-  // };
-
-  throw new Error('MOCKS.classes is false pero la implementación real no está conectada. Ver docs/CONNECTING_BACKEND.md');
+  return {
+    classes: data?.classes ?? [],
+    total: data?.total ?? 0,
+    isLoading,
+    error: error ? getErrorMessage(error) : null,
+    refetch: () => { void refetch(); },
+    createClass: (input) => createMutation.mutateAsync(input),
+    updateClass: (id, input) => updateMutation.mutateAsync({ id, ...input }),
+    deleteClass: (id) => deleteMutation.mutateAsync(id),
+  };
 }

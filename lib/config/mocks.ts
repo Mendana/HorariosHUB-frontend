@@ -1,8 +1,6 @@
 export const MOCKS = {
-  schedule: false,
   subjects: true,
   proposals: true,
-  classes: true,
   users: true,
   events: true,
   notifications: true,
