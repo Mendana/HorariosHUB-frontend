@@ -13,14 +13,7 @@ import { HistoryTab } from '@/components/schedule/HistoryTab';
 import { ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
 import { timeToMinutes } from '@/lib/utils/scheduleHelpers';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
-import type { Class, ClassType } from '@/lib/types/classes';
-
-// Full-type badge styling used inside the popover (wider badges than the block corner)
-const TYPE_BADGE_CLS: Partial<Record<string, string>> = {
-  'Práctica': 'bg-warning-subtle text-warning',
-  'Examen':   'bg-error-subtle text-error',
-  'Otros':    'bg-surface-sunken text-tertiary border border-subtle',
-};
+import type { Class } from '@/lib/types/classes';
 
 const POPOVER_WIDTH = 272;
 const POPOVER_HEIGHT_EST = 248; // estimated height for position clamping
@@ -32,13 +25,12 @@ type PopoverTab = 'info' | 'history';
 function subjectToClass(s: SubjectWithLayout): Class {
   const durationMinutes = timeToMinutes(s.endTime) - timeToMinutes(s.startTime);
   return {
-    id:              s.id,
-    name:            s.name.split(' - ')[0].trim(),
-    type:            s.type as ClassType,
-    classroom:       s.classroom || undefined,
-    date:            s.date,
-    startTime:       s.startTime,
-    endTime:         s.endTime,
+    id: s.id,
+    name: s.name.split(' - ')[0].trim(),
+    classroom: s.classroom || undefined,
+    date: s.date,
+    startTime: s.startTime,
+    endTime: s.endTime,
     durationMinutes,
   };
 }
@@ -58,17 +50,17 @@ export function SubjectPopover({
   anchorRef,
   onClose,
 }: SubjectPopoverProps) {
-  const [pos, setPos]         = useState<{ top: number; left: number } | null>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [mode, setMode]         = useState<Mode>('info');
+  const [mode, setMode] = useState<Mode>('info');
   const [activeTab, setActiveTab] = useState<PopoverTab>('info');
   const [proposalSent, setProposalSent] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  const tc     = useTranslations('classes');
-  const tp     = useTranslations('proposals');
-  const th     = useTranslations('history');
+  const tc = useTranslations('classes');
+  const tp = useTranslations('proposals');
+  const th = useTranslations('history');
   const locale = useLocale();
   const { user } = useAuth();
   const refreshSchedule = useContext(ScheduleRefreshContext);
@@ -126,22 +118,12 @@ export function SubjectPopover({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose, mode]);
 
-  // ── Type label & badge ──────────────────────────────────────────────────────
-  const TYPE_LABELS: Record<string, string> = {
-    'Teoría':   tc('typeTeoria'),
-    'Práctica': tc('typePractica'),
-    'Examen':   tc('typeExamen'),
-    'Otros':    tc('typeOtros'),
-  };
-  const typeLabel    = TYPE_LABELS[subject.type] ?? subject.type;
-  const typeBadgeCls = TYPE_BADGE_CLS[subject.type] ?? 'bg-accent-subtle text-accent';
-
   // ── Date formatting ─────────────────────────────────────────────────────────
   const formattedDate = new Intl.DateTimeFormat(locale, {
     weekday: 'short',
-    month:   'short',
-    day:     'numeric',
-    year:    'numeric',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(Date.UTC(
     subject.date.year,
@@ -198,10 +180,10 @@ export function SubjectPopover({
       aria-label={subject.name}
       style={{
         position: 'fixed',
-        top:      pos?.top ?? 0,
-        left:     pos?.left ?? 0,
-        width:    POPOVER_WIDTH,
-        zIndex:   50,
+        top: pos?.top ?? 0,
+        left: pos?.left ?? 0,
+        width: POPOVER_WIDTH,
+        zIndex: 50,
         visibility: pos ? 'visible' : 'hidden',
       }}
       className={[
@@ -249,14 +231,6 @@ export function SubjectPopover({
           activeTab === 'info' ? 'opacity-100' : 'opacity-0 hidden',
         ].join(' ')}
       >
-        {/* Type */}
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs text-secondary shrink-0">{tc('colType')}:</span>
-          <span className={`text-xs font-medium px-1.5 py-0.5 rounded-sm ${typeBadgeCls}`}>
-            {typeLabel}
-          </span>
-        </div>
-
         {/* Classroom */}
         <div className="flex items-center gap-1.5 mb-2">
           <MapPin size={12} className="text-tertiary shrink-0" aria-hidden />

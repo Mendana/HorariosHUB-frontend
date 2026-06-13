@@ -1,7 +1,6 @@
 import type {
   Class,
   ClassInput,
-  ClassType,
   ClassesFilter,
 } from "../types/classes";
 import { apiFetch } from "./apiFetch";
@@ -9,7 +8,7 @@ import { apiFetch } from "./apiFetch";
 interface BackendClass {
   id: string;
   subject: string;
-  subject_type: string;
+  group_id?: string;
   classroom?: string;
   start_time: string;
   end_time: string;
@@ -17,7 +16,7 @@ interface BackendClass {
 
 interface BackendClassInput {
   subject?: string;
-  subject_type?: string;
+  group_id?: string;
   classroom?: string;
   start_time?: string;
   end_time?: string;
@@ -36,7 +35,7 @@ function toIso(
 function toBackendInput(input: Partial<ClassInput>): BackendClassInput {
   const body: BackendClassInput = {};
   if (input.name) body.subject = input.name;
-  if (input.type) body.subject_type = input.type;
+  if (input.groupId) body.group_id = input.groupId;
   if ("classroom" in input) body.classroom = input.classroom;
   if (input.date && input.startTime && input.durationMinutes !== undefined) {
     body.start_time = toIso(input.date, input.startTime);
@@ -53,7 +52,7 @@ function fromBackend(c: BackendClass): Class {
   return {
     id: c.id,
     name: c.subject,
-    type: c.subject_type as ClassType,
+    groupId: c.group_id,
     classroom: c.classroom,
     date: {
       year: start.getUTCFullYear(),
@@ -71,7 +70,6 @@ export async function fetchClasses(
 ): Promise<{ classes: Class[]; total: number }> {
   const qs = new URLSearchParams();
   if (params.search) qs.set("search", params.search);
-  if (params.type) qs.set("type", params.type);
   if (params.week) qs.set("week", params.week);
   if (params.sort) qs.set("sort", params.sort);
   if (params.dir) qs.set("dir", params.dir);

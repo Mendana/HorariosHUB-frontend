@@ -13,7 +13,6 @@ import { getCurrentSemester } from '@/lib/utils/scheduleHelpers';
 import { StatCard } from '@/components/stats/StatCard';
 import { BarChart } from '@/components/stats/BarChart';
 import type { BarChartItem } from '@/components/stats/BarChart';
-import { TypeDistribution } from '@/components/stats/TypeDistribution';
 import { AutoInsight } from '@/components/stats/AutoInsight';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -240,19 +239,6 @@ export default function StatsPage() {
               showLessLabel={t('showLess')}
             />
           </section>
-
-          {/* By type */}
-          {stats.distribucionPorTipo.length > 0 && (
-            <section aria-labelledby="section-type">
-              <h2
-                id="section-type"
-                className="text-[17px] font-medium text-primary mb-4"
-              >
-                {t('sectionByType')}
-              </h2>
-              <TypeDistribution types={stats.distribucionPorTipo} />
-            </section>
-          )}
 
           {/* Auto insight */}
           <section aria-labelledby="section-insight">

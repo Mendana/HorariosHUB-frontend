@@ -12,7 +12,7 @@ import { SubjectCard } from './SubjectCard';
 
 export type ViewMode = 'list' | 'grid';
 type Filter = 'all' | 'selected' | 'unselected' | 'partial';
-type Sort   = 'name-asc' | 'name-desc' | 'code' | 'groups-desc';
+type Sort = 'name-asc' | 'name-desc' | 'code' | 'groups-desc';
 
 const SKELETON_COUNT = 7;
 
@@ -39,10 +39,10 @@ export function SubjectCatalog({
 }: SubjectCatalogProps) {
   const t = useTranslations('mySubjects');
 
-  const [query,    setQuery]    = useState('');
-  const [view,     setView]     = useState<ViewMode>('list');
-  const [filter,   setFilter]   = useState<Filter>('all');
-  const [sort,     setSort]     = useState<Sort>('name-asc');
+  const [query, setQuery] = useState('');
+  const [view, setView] = useState<ViewMode>('list');
+  const [filter, setFilter] = useState<Filter>('all');
+  const [sort, setSort] = useState<Sort>('name-asc');
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
@@ -63,27 +63,25 @@ export function SubjectCatalog({
     // Text search
     const q = query.trim().toLowerCase();
     if (q) {
-      result = result.filter(
-        (s) => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q),
-      );
+      result = result.filter((s) => s.code.toLowerCase().includes(q));
     }
 
     // Status filter
     if (filter !== 'all') {
       result = result.filter((s) => {
         const sel = s.groups.filter((g) => localSelection.has(g.id)).length;
-        if (filter === 'selected')   return sel === s.groups.length && s.groups.length > 0;
+        if (filter === 'selected') return sel === s.groups.length && s.groups.length > 0;
         if (filter === 'unselected') return sel === 0;
-        if (filter === 'partial')    return sel > 0 && sel < s.groups.length;
+        if (filter === 'partial') return sel > 0 && sel < s.groups.length;
         return true;
       });
     }
 
     // Sort
     return [...result].sort((a, b) => {
-      if (sort === 'name-asc')    return a.name.localeCompare(b.name, 'es');
-      if (sort === 'name-desc')   return b.name.localeCompare(a.name, 'es');
-      if (sort === 'code')        return a.code.localeCompare(b.code);
+      if (sort === 'name-asc') return a.code.localeCompare(b.code, 'es');
+      if (sort === 'name-desc') return b.code.localeCompare(a.code, 'es');
+      if (sort === 'code') return a.code.localeCompare(b.code);
       if (sort === 'groups-desc') return b.groups.length - a.groups.length;
       return 0;
     });
@@ -121,16 +119,16 @@ export function SubjectCatalog({
 
   // ── Toolbar data ─────────────────────────────────────────────────────────────
   const FILTER_OPTIONS: { key: Filter; label: string }[] = [
-    { key: 'all',        label: t('filterAll')        },
-    { key: 'selected',   label: t('filterSelected')   },
+    { key: 'all', label: t('filterAll') },
+    { key: 'selected', label: t('filterSelected') },
     { key: 'unselected', label: t('filterUnselected') },
-    { key: 'partial',    label: t('filterPartial')    },
+    { key: 'partial', label: t('filterPartial') },
   ];
 
   const SORT_OPTIONS: { key: Sort; label: string }[] = [
-    { key: 'name-asc',    label: t('sortNameAsc')    },
-    { key: 'name-desc',   label: t('sortNameDesc')   },
-    { key: 'code',        label: t('sortCodeAsc')    },
+    { key: 'name-asc', label: t('sortNameAsc') },
+    { key: 'name-desc', label: t('sortNameDesc') },
+    { key: 'code', label: t('sortCodeAsc') },
     { key: 'groups-desc', label: t('sortGroupsDesc') },
   ];
 

@@ -98,7 +98,6 @@ export function useSearch() {
 
     const matched = subjects.filter((s) =>
       normalize(s.name).includes(norm) ||
-      normalize(s.type).includes(norm) ||
       normalize(s.classroom).includes(norm),
     );
 

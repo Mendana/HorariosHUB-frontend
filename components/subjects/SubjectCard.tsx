@@ -21,7 +21,7 @@ export function SubjectCard({ subject, localSelection, onToggle, index = 0 }: Su
   const allSelected   = selectedCount === total && total > 0;
   const noneSelected  = selectedCount === 0;
 
-  const colorVars   = getSubjectColorVars(subject.name);
+  const colorVars   = getSubjectColorVars(subject.code);
   const borderColor = colorVars['--sb-border'];
 
   // Stagger: 25ms per card
@@ -56,12 +56,9 @@ export function SubjectCard({ subject, localSelection, onToggle, index = 0 }: Su
         {/* Header: name + code + status */}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="text-sm font-medium text-primary leading-snug line-clamp-2">
-              {subject.name}
-            </h3>
-            <span className="text-[11px] font-mono text-tertiary tracking-wide">
+            <h3 className="text-sm font-medium text-primary leading-snug font-mono tracking-wide">
               {subject.code}
-            </span>
+            </h3>
           </div>
 
           {/* Selected badge */}
