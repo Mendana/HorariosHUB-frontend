@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getCurrentWeek, getWeekDates, getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
 import { useSchedule, ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
+import { useScheduleMonth } from '@/lib/hooks/useScheduleMonth';
 import { setSearchSubjects, registerSearchNavigate } from '@/lib/hooks/useSearch';
 import { useEvents } from '@/lib/hooks/useEvents';
 import { useAuth } from '@/hooks/useAuth';
@@ -136,6 +137,13 @@ export default function SchedulePage() {
 
   const { subjects, isLoading, refreshSchedule } = useSchedule(identifier, weekStart);
 
+  const monthParam = `${viewMonthYear}-${String(viewMonth).padStart(2, '0')}`;
+  const { subjects: monthSubjects, isLoading: monthIsLoading } = useScheduleMonth(
+    identifier,
+    monthParam,
+    scheduleView === 'month',
+  );
+
   // Keep the global search store in sync with loaded subjects
   useEffect(() => {
     setSearchSubjects(subjects);
@@ -248,8 +256,8 @@ export default function SchedulePage() {
           />
         ) : (
           <MonthGrid
-            subjects={subjects}
-            isLoading={isLoading}
+            subjects={monthSubjects}
+            isLoading={monthIsLoading}
             year={viewMonthYear}
             month={viewMonth}
             onMonthChange={handleMonthChange}

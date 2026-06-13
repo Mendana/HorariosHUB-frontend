@@ -11,16 +11,8 @@ interface BackendSession {
   end_time: string;
 }
 
-export async function fetchSchedule(
-  identifier: string,
-  start?: string,
-): Promise<{ subjects: Subject[] }> {
-  const query = start ? `?start=${encodeURIComponent(start)}` : "";
-  const data = await apiFetch<{ sessions?: BackendSession[] }>(
-    `/schedule/${encodeURIComponent(identifier)}${query}`,
-  );
-
-  const subjects: Subject[] = (data.sessions ?? []).map((s) => {
+function mapSessions(sessions: BackendSession[]): Subject[] {
+  return sessions.map((s) => {
     const startDate = new Date(s.start_time);
     const endDate = new Date(s.end_time);
     return {
@@ -37,8 +29,29 @@ export async function fetchSchedule(
       endTime: `${String(endDate.getUTCHours()).padStart(2, "0")}:${String(endDate.getUTCMinutes()).padStart(2, "0")}`,
     };
   });
+}
 
-  return { subjects };
+export async function fetchSchedule(
+  identifier: string,
+  start?: string,
+): Promise<{ subjects: Subject[] }> {
+  const query = start ? `?start=${encodeURIComponent(start)}` : "";
+  const data = await apiFetch<{ sessions?: BackendSession[] }>(
+    `/schedule/${encodeURIComponent(identifier)}${query}`,
+  );
+  return { subjects: mapSessions(data.sessions ?? []) };
+}
+
+// Fetches all sessions for a full calendar month.
+// month format: "YYYY-MM" (e.g. "2026-06")
+export async function fetchScheduleForMonth(
+  identifier: string,
+  month: string,
+): Promise<{ subjects: Subject[] }> {
+  const data = await apiFetch<{ sessions?: BackendSession[] }>(
+    `/schedule/${encodeURIComponent(identifier)}?month=${encodeURIComponent(month)}`,
+  );
+  return { subjects: mapSessions(data.sessions ?? []) };
 }
 
 export function copySchedule(from: string): Promise<void> {
