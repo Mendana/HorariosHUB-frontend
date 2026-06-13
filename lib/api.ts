@@ -29,11 +29,3 @@ async function fetcher<T>(path: string, init?: RequestInit): Promise<T> {
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
-
-// ── Schedule ──────────────────────────────────────────────────
-
-export function scheduleCopy(from: string): Promise<void> {
-  return fetcher(`/schedule/copy?user=${encodeURIComponent(from)}`, {
-    method: 'POST',
-  });
-}

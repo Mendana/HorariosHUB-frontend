@@ -16,17 +16,17 @@ interface UserFiltersProps {
 }
 
 const ROLE_OPTIONS: { value: string; labelKey: string }[] = [
-  { value: '',          labelKey: 'filterRoleAll' },
-  { value: 'admin',     labelKey: 'filterRoleAdmin' },
-  { value: 'professor', labelKey: 'filterRoleProfessor' },
-  { value: 'user',      labelKey: 'filterRoleUser' },
+  { value: '',         labelKey: 'filterRoleAll' },
+  { value: 'admin',    labelKey: 'filterRoleAdmin' },
+  { value: 'profesor', labelKey: 'filterRoleProfessor' },
+  { value: 'student',  labelKey: 'filterRoleUser' },
 ];
 
 const ACTIVE_ROLE_CLS: Record<UserRole | '', string> = {
-  '':          'bg-accent-subtle text-accent border-accent/30',
-  admin:       'bg-accent-subtle text-accent border-accent/30',
-  professor:   'bg-warning-subtle text-warning border-warning/30',
-  user:        'bg-surface-raised text-primary border-strong/40',
+  '':        'bg-accent-subtle text-accent border-accent/30',
+  admin:     'bg-accent-subtle text-accent border-accent/30',
+  profesor:  'bg-warning-subtle text-warning border-warning/30',
+  student:   'bg-surface-raised text-primary border-strong/40',
 };
 
 export function UserFilters({

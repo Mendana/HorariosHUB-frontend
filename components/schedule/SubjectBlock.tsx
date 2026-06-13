@@ -48,7 +48,7 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
   const [blockState, setBlockState] = useState<BlockState>(null);
   const blockRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const canManage = user?.role === 'professor' || user?.role === 'admin';
+  const canManage = user?.role === 'profesor' || user?.role === 'admin';
 
   // Scroll into view and play the brightness-pulse animation when highlighted
   useEffect(() => {
