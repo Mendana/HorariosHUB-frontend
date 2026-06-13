@@ -280,7 +280,6 @@ export default function SchedulePage() {
         const prefill: Class = {
           id: '',
           name: '',
-          type: 'Teoría',
           date: { year: y, month: m, day: d },
           startTime: classFormCell.time,
           endTime: classFormCell.time,

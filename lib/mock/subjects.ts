@@ -12,7 +12,6 @@ import type { CatalogSubject } from '../types/subjects';
 export const MOCK_CATALOG: CatalogSubject[] = [
   {
     code: 'ALG',
-    name: 'Álgebra Lineal',
     groups: [
       { id: 'alg-g1', name: 'Grupo 1 — L 9-11, X 10-12', selected: true  },
       { id: 'alg-g2', name: 'Grupo 2 — M 11-13, J 9-11',  selected: false },
@@ -21,7 +20,6 @@ export const MOCK_CATALOG: CatalogSubject[] = [
   },
   {
     code: 'CDI',
-    name: 'Cálculo Diferencial e Integral',
     groups: [
       { id: 'cdi-g1', name: 'Grupo 1 — L 11-13, X 11-13', selected: true  },
       { id: 'cdi-g2', name: 'Grupo 2 — M 9-11, J 11-13',  selected: false },
@@ -29,7 +27,6 @@ export const MOCK_CATALOG: CatalogSubject[] = [
   },
   {
     code: 'GEO',
-    name: 'Geometría',
     groups: [
       { id: 'geo-g1', name: 'Grupo 1 — M 9-11, V 9-11',   selected: false },
       { id: 'geo-g2', name: 'Grupo 2 — X 15-17, V 15-17', selected: false },
@@ -37,7 +34,6 @@ export const MOCK_CATALOG: CatalogSubject[] = [
   },
   {
     code: 'PRG',
-    name: 'Programación',
     groups: [
       { id: 'prg-g1', name: 'Grupo 1 — L 9-11, M 15-17',  selected: true  },
       { id: 'prg-g2', name: 'Grupo 2 — X 9-11, J 15-17',  selected: false },
@@ -46,7 +42,6 @@ export const MOCK_CATALOG: CatalogSubject[] = [
   },
   {
     code: 'EDT',
-    name: 'Estructuras de Datos',
     groups: [
       { id: 'edt-g1', name: 'Grupo 1 — L 11-13, J 9-11',  selected: true },
       { id: 'edt-g2', name: 'Grupo 2 — M 15-17, V 9-11',  selected: true },
@@ -54,7 +49,6 @@ export const MOCK_CATALOG: CatalogSubject[] = [
   },
   {
     code: 'BDA',
-    name: 'Bases de Datos',
     groups: [
       { id: 'bda-g1', name: 'Grupo 1 — L 15-17, X 15-17', selected: false },
       { id: 'bda-g2', name: 'Grupo 2 — M 9-11, J 11-13',  selected: false },

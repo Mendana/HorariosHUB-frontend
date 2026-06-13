@@ -21,12 +21,6 @@ function formatResultDate(d: { year: number; month: number; day: number }): stri
   return `${DOW_SHORT[dow]} ${day} ${month}`;
 }
 
-// Semantic badge classes — consistent with SubjectBlock corner badges
-const TYPE_BADGE_CLS: Partial<Record<string, string>> = {
-  'Práctica': 'bg-warning-subtle text-warning',
-  'Examen':   'bg-error-subtle text-error',
-  'Otros':    'bg-surface-sunken text-tertiary',
-};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -66,18 +60,10 @@ export function SearchResultItem({ result, onSelect, highlighted = false }: Sear
       />
 
       <div className="flex-1 min-w-0">
-        {/* Name + type badge */}
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-[13px] font-medium text-primary leading-tight">
             {subject.name}
           </span>
-          {subject.type && subject.type !== 'Teoría' && (
-            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-sm leading-none ${
-              TYPE_BADGE_CLS[subject.type] ?? 'bg-surface-sunken text-secondary'
-            }`}>
-              {subject.type}
-            </span>
-          )}
         </div>
 
         {/* Day · time */}

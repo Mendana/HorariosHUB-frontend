@@ -25,8 +25,7 @@ export function SubjectItem({ subject, localSelection, onToggle, index = 0 }: Su
   const allSelected   = selectedCount === total && total > 0;
   const isIndeterminate = selectedCount > 0 && !allSelected;
 
-  // Color vars derived from subject name (matches schedule grid)
-  const colorVars  = getSubjectColorVars(subject.name);
+  const colorVars  = getSubjectColorVars(subject.code);
   const borderColor = colorVars['--sb-border'];
 
   const handleHeaderCheckboxChange = useCallback(() => {
@@ -76,17 +75,14 @@ export function SubjectItem({ subject, localSelection, onToggle, index = 0 }: Su
             checked={allSelected}
             indeterminate={isIndeterminate}
             onChange={handleHeaderCheckboxChange}
-            ariaLabel={subject.name}
+            ariaLabel={subject.code}
             size="sm"
           />
         </span>
 
         {/* Subject info */}
-        <div className="flex-1 min-w-0 flex items-baseline gap-2">
-          <span className="text-sm font-medium text-primary leading-snug truncate">
-            {subject.name}
-          </span>
-          <span className="text-[11px] text-tertiary font-mono shrink-0 tracking-wide">
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-medium text-primary leading-snug truncate font-mono tracking-wide">
             {subject.code}
           </span>
         </div>

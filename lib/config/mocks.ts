@@ -1,5 +1,4 @@
 export const MOCKS = {
-  subjects: true,
   users: true,
   events: true,
   notifications: true,

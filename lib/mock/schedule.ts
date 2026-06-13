@@ -9,7 +9,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'm1',
     name: 'ALG',
-    type: 'Teoría',
     classroom: 'Aula A01',
     date: { year: 2026, month: 3, day: 23 },
     startTime: '09:00',
@@ -18,7 +17,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'm2',
     name: 'CDI',
-    type: 'Práctica',
     classroom: 'Lab 203',
     date: { year: 2026, month: 3, day: 23 },
     startTime: '11:30',
@@ -27,7 +25,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'm3',
     name: 'PRG',
-    type: 'Teoría',
     classroom: 'Aula B02',
     date: { year: 2026, month: 3, day: 23 },
     startTime: '15:00',
@@ -39,7 +36,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 't1',
     name: 'FIS',
-    type: 'Teoría',
     classroom: 'Aula A01',
     date: { year: 2026, month: 3, day: 24 },
     startTime: '09:00',
@@ -48,7 +44,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 't2',
     name: 'GEO',
-    type: 'Teoría',
     classroom: 'Aula C03',
     date: { year: 2026, month: 3, day: 24 },
     startTime: '09:00',
@@ -57,7 +52,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 't3',
     name: 'EDC',
-    type: 'Práctica',
     classroom: 'Lab 101',
     date: { year: 2026, month: 3, day: 24 },
     startTime: '12:00',
@@ -68,7 +62,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'w1',
     name: 'MAT',
-    type: 'Teoría',
     classroom: 'Aula A02',
     date: { year: 2026, month: 3, day: 25 },
     startTime: '10:00',
@@ -77,7 +70,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'w2',
     name: 'ALG',
-    type: 'Práctica',
     classroom: 'Lab 201',
     date: { year: 2026, month: 3, day: 25 },
     startTime: '15:30',
@@ -88,7 +80,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'h1',
     name: 'CDI',
-    type: 'Teoría',
     classroom: 'Aula A01',
     date: { year: 2026, month: 3, day: 26 },
     startTime: '09:00',
@@ -97,7 +88,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'h2',
     name: 'PRG',
-    type: 'Examen',
     classroom: 'Aula E01',
     date: { year: 2026, month: 3, day: 26 },
     startTime: '11:30',
@@ -106,7 +96,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'h3',
     name: 'FIS',
-    type: 'Práctica',
     classroom: 'Lab FIS',
     date: { year: 2026, month: 3, day: 26 },
     startTime: '16:00',
@@ -117,7 +106,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'f1',
     name: 'MAT',
-    type: 'Teoría',
     classroom: 'Aula A01',
     date: { year: 2026, month: 3, day: 27 },
     startTime: '09:00',
@@ -126,7 +114,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'f2',
     name: 'GEO',
-    type: 'Práctica',
     classroom: 'Lab 101',
     date: { year: 2026, month: 3, day: 27 },
     startTime: '12:00',
@@ -135,7 +122,6 @@ export const MOCK_SUBJECTS: Subject[] = [
   {
     id: 'f3',
     name: 'EDC',
-    type: 'Teoría',
     classroom: 'Aula B01',
     date: { year: 2026, month: 3, day: 27 },
     startTime: '16:30',

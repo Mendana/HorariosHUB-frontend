@@ -43,7 +43,6 @@ export default function ManageClassesPage() {
 
   // Filter state
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
   const [weekFilter, setWeekFilter] = useState('');
 
   // Sort state
@@ -58,7 +57,6 @@ export default function ManageClassesPage() {
 
   const { classes, total, isLoading, error, refetch, createClass, updateClass, deleteClass } = useClasses({
     search,
-    type: typeFilter,
     week: weekFilter,
     sort: sortCol,
     dir: sortDir,
@@ -67,12 +65,11 @@ export default function ManageClassesPage() {
   });
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const hasActiveFilters = search !== '' || typeFilter !== '' || weekFilter !== '';
+  const hasActiveFilters = search !== '' || weekFilter !== '';
 
-  function handleSearchChange(v: string) { setSearch(v); setPage(1); }
-  function handleTypeChange(v: string) { setTypeFilter(v); setPage(1); }
-  function handleWeekChange(v: string) { setWeekFilter(v); setPage(1); }
-  function handleClearFilters() { setSearch(''); setTypeFilter(''); setWeekFilter(''); setPage(1); }
+  function handleSearchChange(v: string) { setSearch(v);     setPage(1); }
+  function handleWeekChange(v: string)   { setWeekFilter(v); setPage(1); }
+  function handleClearFilters()          { setSearch(''); setWeekFilter(''); setPage(1); }
 
   function handlePageSizeChange(size: number) {
     setPageSize(size);
@@ -147,11 +144,9 @@ export default function ManageClassesPage() {
         <>
           <ClassFilters
             search={search}
-            type={typeFilter}
             week={weekFilter}
             hasActiveFilters={hasActiveFilters}
             onSearchChange={handleSearchChange}
-            onTypeChange={handleTypeChange}
             onWeekChange={handleWeekChange}
             onClear={handleClearFilters}
           />
