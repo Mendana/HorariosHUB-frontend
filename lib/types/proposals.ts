@@ -1,26 +1,24 @@
-export type ProposalAction = 'create' | 'update' | 'delete';
+export type ProposalAction = 'create' | 'modify' | 'delete';
 export type ProposalStatus = 'pending' | 'approved' | 'rejected';
+export type ProposalStatusFilter = ProposalStatus | 'all';
 
 export interface ClassSnapshot {
-  name?: string;
-  type?: string;
+  subject?: string;
+  grp?: string;
+  startsAt?: string;  // ISO string
+  duration?: number;
   classroom?: string;
-  date?: { year: number; month: number; day: number };
-  startTime?: string;
-  endTime?: string;
-  durationMinutes?: number;
 }
 
 export interface Proposal {
   id: string;
   action: ProposalAction;
-  class_id: string;
+  classId?: string;
   old: ClassSnapshot | null;
   new: ClassSnapshot | null;
   status: ProposalStatus;
   author: string;
-  created_at: string;
-  reject_reason?: string;
+  createdAt: string;
 }
 
 export interface ProposalsResponse {
@@ -30,15 +28,45 @@ export interface ProposalsResponse {
   limit: number;
 }
 
+export interface GetProposalsParams {
+  status?: ProposalStatusFilter;
+  page?: number;
+  limit?: number;
+}
+
+export type CreateProposalInput =
+  | { changeType: 'create'; changes: CreateChanges }
+  | { changeType: 'modify'; changes: ModifyChanges }
+  | { changeType: 'delete'; changes: DeleteChanges };
+
+export interface CreateChanges {
+  subject: string;
+  grp: string;
+  newStartsAt: string;
+  newDuration: number;
+  newClassroom: string;
+}
+
+export interface ModifyChanges {
+  sessionId: string;
+  newStartsAt?: string;
+  newDuration?: number;
+  newClassroom?: string;
+}
+
+export interface DeleteChanges {
+  sessionId: string;
+}
+
 export interface ChangeRecord {
   id: string;
-  classId: string;
+  classId?: string;
   action: ProposalAction;
-  changes: {
-    old: ClassSnapshot | null;
-    new: ClassSnapshot | null;
-  };
-  approvedBy: string;
-  approvedAt: string;
+  old: ClassSnapshot | null;
+  new: ClassSnapshot | null;
+  status: ProposalStatus;
   author: string;
+  createdAt: string;
+  approvedBy?: string;
+  approvedAt?: string;
 }

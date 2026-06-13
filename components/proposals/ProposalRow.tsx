@@ -17,19 +17,19 @@ interface ProposalRowProps {
 
 const ACTION_VARIANT: Record<ProposalAction, BadgeVariant> = {
   create: 'success',
-  update: 'warning',
+  modify: 'warning',
   delete: 'error',
 };
 
 const STATUS_VARIANT: Record<ProposalStatus, BadgeVariant> = {
-  pending:  'warning',
+  pending: 'warning',
   approved: 'success',
   rejected: 'error',
 };
 
 const ACTION_BAR_COLOR: Record<ProposalAction, string> = {
   create: 'var(--color-success)',
-  update: 'var(--color-warning)',
+  modify: 'var(--color-warning)',
   delete: 'var(--color-error)',
 };
 
@@ -47,7 +47,7 @@ function relativeDate(
 
 function subjectLabel(proposal: Proposal): string {
   const snap = proposal.new ?? proposal.old;
-  return snap?.name ?? proposal.class_id;
+  return snap?.subject ?? proposal.classId ?? proposal.id;
 }
 
 export function ProposalRow({ proposal, showActions, onApprove, onReject }: ProposalRowProps) {
@@ -79,9 +79,9 @@ export function ProposalRow({ proposal, showActions, onApprove, onReject }: Prop
         </td>
         <td
           className="py-3 px-3 text-xs text-secondary tabular-nums"
-          title={new Date(proposal.created_at).toLocaleString('es-ES')}
+          title={new Date(proposal.createdAt).toLocaleString('es-ES')}
         >
-          {relativeDate(proposal.created_at, t)}
+          {relativeDate(proposal.createdAt, t)}
         </td>
         <td className="py-3 px-3">
           <Badge variant={STATUS_VARIANT[proposal.status]} size="sm">{t(statusLabelKey)}</Badge>
@@ -122,13 +122,6 @@ export function ProposalRow({ proposal, showActions, onApprove, onReject }: Prop
             <div className="overflow-hidden">
               <div className="px-4 py-3 bg-surface-sunken/30">
                 <ProposalDiff proposal={proposal} />
-
-                {proposal.status === 'rejected' && proposal.reject_reason && (
-                  <p className="mt-2 text-xs text-error flex items-start gap-1.5">
-                    <span className="font-medium shrink-0">{t('rejectReasonLabel')}:</span>
-                    {proposal.reject_reason}
-                  </p>
-                )}
 
                 {showActions && proposal.status === 'pending' && (
                   <div className="mt-3 flex justify-end" onClick={(e) => e.stopPropagation()}>
