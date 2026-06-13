@@ -18,19 +18,19 @@ interface ProposalCardProps {
 
 const ACTION_VARIANT: Record<ProposalAction, BadgeVariant> = {
   create: 'success',
-  update: 'warning',
+  modify: 'warning',
   delete: 'error',
 };
 
 const STATUS_VARIANT: Record<ProposalStatus, BadgeVariant> = {
-  pending:  'warning',
+  pending: 'warning',
   approved: 'success',
   rejected: 'error',
 };
 
 const ACTION_BAR_COLOR: Record<ProposalAction, string> = {
   create: 'var(--color-success)',
-  update: 'var(--color-warning)',
+  modify: 'var(--color-warning)',
   delete: 'var(--color-error)',
 };
 
@@ -48,7 +48,7 @@ function relativeDate(
 
 function subjectLabel(proposal: Proposal): string {
   const snap = proposal.new ?? proposal.old;
-  return snap?.name ?? proposal.class_id;
+  return snap?.subject ?? proposal.classId ?? proposal.id;
 }
 
 export function ProposalCard({
@@ -98,8 +98,8 @@ export function ProposalCard({
         <p className="text-xs text-secondary">
           <span className="font-mono">{proposal.author}</span>
           <span className="mx-1.5 text-tertiary" aria-hidden>·</span>
-          <span title={new Date(proposal.created_at).toLocaleString('es-ES')}>
-            {relativeDate(proposal.created_at, t)}
+          <span title={new Date(proposal.createdAt).toLocaleString('es-ES')}>
+            {relativeDate(proposal.createdAt, t)}
           </span>
         </p>
 
@@ -132,13 +132,6 @@ export function ProposalCard({
         <div className="overflow-hidden">
           <div className="pl-4 pr-3 pb-3 border-t border-subtle/60">
             <ProposalDiff proposal={proposal} />
-
-            {proposal.status === 'rejected' && proposal.reject_reason && (
-              <p className="mt-2 text-xs text-error flex items-start gap-1.5">
-                <span className="font-medium shrink-0">{t('rejectReasonLabel')}:</span>
-                {proposal.reject_reason}
-              </p>
-            )}
 
             {showActions && proposal.status === 'pending' && (
               <div className="mt-3 flex justify-end">

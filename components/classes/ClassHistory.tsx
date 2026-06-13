@@ -6,16 +6,14 @@ import { useTranslations, useLocale } from 'next-intl';
 import { MOCK_HISTORY } from '@/lib/mock/history';
 import type { ChangeRecord, ProposalAction, ClassSnapshot } from '@/lib/types/proposals';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 const ACTION_ICON: Record<ProposalAction, React.ElementType> = {
-  update: Edit2,
+  modify: Edit2,
   create: Plus,
   delete: Trash2,
 };
 
 const ACTION_COLOR: Record<ProposalAction, string> = {
-  update: 'text-accent bg-accent-subtle',
+  modify: 'text-accent bg-accent-subtle',
   create: 'text-success bg-success-subtle',
   delete: 'text-error bg-error-subtle',
 };
@@ -35,25 +33,26 @@ function formatDate(isoDate: string, locale: string): string {
 type FieldKey = keyof ClassSnapshot;
 
 const FIELD_LABELS: Record<FieldKey, string> = {
-  name:            'Asignatura',
-  type:            'Tipo',
-  classroom:       'Aula',
-  date:            'Fecha',
-  startTime:       'Inicio',
-  endTime:         'Fin',
-  durationMinutes: 'Duración (min)',
+  subject: 'Asignatura',
+  grp: 'Grupo',
+  startsAt: 'Inicio',
+  duration: 'Duración',
+  classroom: 'Aula',
 };
 
 function formatValue(key: FieldKey, value: ClassSnapshot[FieldKey]): string {
   if (value === undefined || value === null) return '—';
-  if (key === 'date' && typeof value === 'object' && 'year' in value) {
-    const d = value as { year: number; month: number; day: number };
-    return `${String(d.day).padStart(2, '0')}/${String(d.month).padStart(2, '0')}/${d.year}`;
+  if (key === 'startsAt' && typeof value === 'string') {
+    const d = new Date(value);
+    return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+  }
+  if (key === 'duration' && typeof value === 'number') {
+    const h = Math.floor(value / 60);
+    const m = value % 60;
+    return h > 0 ? (m > 0 ? `${h}h ${m}min` : `${h}h`) : `${m}min`;
   }
   return String(value);
 }
-
-// ── Skeleton ──────────────────────────────────────────────────────────────────
 
 function TableSkeleton() {
   return (
@@ -62,10 +61,7 @@ function TableSkeleton() {
         <tr key={i} className="border-b border-subtle">
           {[40, 24, 60, 60, 80].map((w, j) => (
             <td key={j} className="py-3 px-4">
-              <div
-                className="h-3 rounded-sm bg-surface-sunken animate-pulse"
-                style={{ width: `${w}%` }}
-              />
+              <div className="h-3 rounded-sm bg-surface-sunken animate-pulse" style={{ width: `${w}%` }} />
             </td>
           ))}
         </tr>
@@ -74,15 +70,14 @@ function TableSkeleton() {
   );
 }
 
-// ── Row component ─────────────────────────────────────────────────────────────
-
 function HistoryRow({ record, locale }: { record: ChangeRecord; locale: string }) {
   const t = useTranslations('history');
   const [expanded, setExpanded] = useState(false);
   const Icon = ACTION_ICON[record.action];
   const colorCls = ACTION_COLOR[record.action];
 
-  const { old: oldSnap, new: newSnap } = record.changes;
+  const oldSnap = record.old;
+  const newSnap = record.new;
   const changedFields = (Object.keys(FIELD_LABELS) as FieldKey[]).filter((key) => {
     if (record.action === 'create') return newSnap?.[key] !== undefined;
     if (record.action === 'delete') return oldSnap?.[key] !== undefined;
@@ -90,10 +85,12 @@ function HistoryRow({ record, locale }: { record: ChangeRecord; locale: string }
   });
 
   const actionLabel: Record<ProposalAction, string> = {
-    update: t('actionUpdate'),
+    modify: t('actionUpdate'),
     create: t('actionCreate'),
     delete: t('actionDelete'),
   };
+
+  const timestamp = record.approvedAt ?? record.createdAt;
 
   return (
     <>
@@ -102,7 +99,7 @@ function HistoryRow({ record, locale }: { record: ChangeRecord; locale: string }
         onClick={() => setExpanded((v) => !v)}
       >
         <td className="py-3 px-4 text-sm text-primary font-medium">
-          {record.classId}
+          {record.classId ?? '—'}
         </td>
         <td className="py-3 px-4">
           <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-sm ${colorCls}`}>
@@ -114,10 +111,10 @@ function HistoryRow({ record, locale }: { record: ChangeRecord; locale: string }
           {abbrevEmail(record.author)}
         </td>
         <td className="py-3 px-4 text-sm text-secondary">
-          {abbrevEmail(record.approvedBy)}
+          {record.approvedBy ? abbrevEmail(record.approvedBy) : '—'}
         </td>
         <td className="py-3 px-4 text-xs text-tertiary tabular-nums whitespace-nowrap">
-          {formatDate(record.approvedAt, locale)}
+          {formatDate(timestamp, locale)}
         </td>
       </tr>
 
@@ -131,7 +128,7 @@ function HistoryRow({ record, locale }: { record: ChangeRecord; locale: string }
                 return (
                   <p key={key} className="text-xs">
                     <span className="text-tertiary">{FIELD_LABELS[key]}: </span>
-                    {record.action === 'update' && (
+                    {record.action === 'modify' && (
                       <>
                         <span className="text-tertiary">{oldVal}</span>
                         <span className="text-tertiary mx-1">→</span>
@@ -155,8 +152,6 @@ function HistoryRow({ record, locale }: { record: ChangeRecord; locale: string }
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
-
 const PAGE_SIZE = 20;
 
 export function ClassHistory() {
@@ -168,13 +163,14 @@ export function ClassHistory() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setAllRecords([...MOCK_HISTORY].sort((a, b) => b.approvedAt.localeCompare(a.approvedAt)));
+      setAllRecords([...MOCK_HISTORY].sort((a, b) =>
+        (b.approvedAt ?? b.createdAt).localeCompare(a.approvedAt ?? a.createdAt)
+      ));
       setIsLoading(false);
     }, 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // ── Filters ──────────────────────────────────────────────────────────────
   const [subjectFilter, setSubjectFilter] = useState('');
   const [actionFilter, setActionFilter] = useState<ProposalAction | ''>('');
   const [dateFilter, setDateFilter] = useState('');
@@ -184,13 +180,13 @@ export function ClassHistory() {
     let result = allRecords;
     if (subjectFilter.trim()) {
       const q = subjectFilter.trim().toLowerCase();
-      result = result.filter((r) => r.classId.toLowerCase().includes(q));
+      result = result.filter((r) => (r.classId ?? '').toLowerCase().includes(q));
     }
     if (actionFilter) {
       result = result.filter((r) => r.action === actionFilter);
     }
     if (dateFilter) {
-      result = result.filter((r) => r.approvedAt.startsWith(dateFilter));
+      result = result.filter((r) => (r.approvedAt ?? r.createdAt).startsWith(dateFilter));
     }
     return result;
   }, [allRecords, subjectFilter, actionFilter, dateFilter]);
@@ -204,7 +200,6 @@ export function ClassHistory() {
 
   return (
     <div>
-      {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-4">
         <input
           type="text"
@@ -213,7 +208,6 @@ export function ClassHistory() {
           placeholder={t('filterSubjectPlaceholder')}
           className="bg-surface-sunken border border-subtle h-9 px-3 rounded-sm text-sm text-primary placeholder:text-tertiary outline-none transition-[border-color] transition-base hover:border-strong focus:border-accent w-48"
         />
-
         <select
           value={actionFilter}
           onChange={(e) => handleActionChange(e.target.value as ProposalAction | '')}
@@ -221,17 +215,15 @@ export function ClassHistory() {
         >
           <option value="">{t('filterActionAll')}</option>
           <option value="create">{t('actionCreate')}</option>
-          <option value="update">{t('actionUpdate')}</option>
+          <option value="modify">{t('actionUpdate')}</option>
           <option value="delete">{t('actionDelete')}</option>
         </select>
-
         <input
           type="date"
           value={dateFilter}
           onChange={(e) => handleDateChange(e.target.value)}
           className="bg-surface-sunken border border-subtle h-9 px-3 rounded-sm text-sm text-primary outline-none transition-[border-color] transition-base hover:border-strong focus:border-accent"
         />
-
         {(subjectFilter || actionFilter || dateFilter) && (
           <button
             onClick={() => { setSubjectFilter(''); setActionFilter(''); setDateFilter(''); setPage(1); }}
@@ -242,14 +234,12 @@ export function ClassHistory() {
         )}
       </div>
 
-      {/* Count */}
       {!isLoading && (
         <p className="mb-2 text-xs text-tertiary">
           {filtered.length} {filtered.length === 1 ? t('countOne') : t('countMany')}
         </p>
       )}
 
-      {/* Table */}
       <div className="rounded-md border border-subtle overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -267,9 +257,7 @@ export function ClassHistory() {
             ) : paginated.length === 0 ? (
               <tbody>
                 <tr>
-                  <td colSpan={5} className="py-10 text-center text-sm text-tertiary">
-                    {t('empty')}
-                  </td>
+                  <td colSpan={5} className="py-10 text-center text-sm text-tertiary">{t('empty')}</td>
                 </tr>
               </tbody>
             ) : (
@@ -283,7 +271,6 @@ export function ClassHistory() {
         </div>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-4 text-sm">
           <button
@@ -293,9 +280,7 @@ export function ClassHistory() {
           >
             {t('paginationPrev')}
           </button>
-          <span className="text-xs text-tertiary tabular-nums">
-            {page} {t('paginationOf')} {totalPages}
-          </span>
+          <span className="text-xs text-tertiary tabular-nums">{page} {t('paginationOf')} {totalPages}</span>
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
