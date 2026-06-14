@@ -9,13 +9,13 @@ import type { UserRole } from '@/lib/types/users';
 const ROLE_OPTIONS: UserRole[] = ['student', 'profesor', 'admin'];
 
 interface RoleSelectorProps {
-  email: string;
+  id: string;
   currentRole: UserRole;
   isSelf: boolean;
-  onChangeRole: (email: string, role: UserRole) => Promise<void>;
+  onChangeRole: (id: string, role: UserRole) => Promise<void>;
 }
 
-export function RoleSelector({ email, currentRole, isSelf, onChangeRole }: RoleSelectorProps) {
+export function RoleSelector({ id, currentRole, isSelf, onChangeRole }: RoleSelectorProps) {
   const t      = useTranslations('users');
   const tRoles = useTranslations('roles');
   const [isChanging, setIsChanging] = useState(false);
@@ -26,7 +26,7 @@ export function RoleSelector({ email, currentRole, isSelf, onChangeRole }: RoleS
     setIsChanging(true);
     setError(null);
     try {
-      await onChangeRole(email, newRole as UserRole);
+      await onChangeRole(id, newRole as UserRole);
     } catch {
       setError(t('errorSelfRole'));
     } finally {

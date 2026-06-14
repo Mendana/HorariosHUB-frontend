@@ -19,7 +19,7 @@ interface UserListProps {
   isLoading: boolean;
   error: string | null;
   currentUserEmail: string;
-  onChangeRole: (email: string, role: UserRole) => Promise<void>;
+  onChangeRole: (id: string, role: UserRole) => Promise<void>;
   onDelete: (user: User) => void;
   onRetry: () => void;
   page: number;
@@ -91,7 +91,7 @@ export function UserList({
         return (
           <>
             <RoleSelector
-              email={u.email}
+              id={u.id}
               currentRole={u.role}
               isSelf={isSelf}
               onChangeRole={onChangeRole}
@@ -119,7 +119,7 @@ export function UserList({
         <Table
           columns={columns}
           data={users}
-          rowKey={(u) => u.email}
+          rowKey={(u) => u.id}
           isLoading={isLoading}
           emptyMessage={t('empty')}
         />
@@ -143,7 +143,7 @@ export function UserList({
           users.map((u, i) => {
             const isSelf = u.email === currentUserEmail;
             return (
-              <div key={u.email} className="rounded-md border border-subtle bg-surface-raised p-3 flex flex-col gap-2 animate-block-in" style={{ animationDelay: `${Math.min(i * 30, 250)}ms` }}>
+              <div key={u.id} className="rounded-md border border-subtle bg-surface-raised p-3 flex flex-col gap-2 animate-block-in" style={{ animationDelay: `${Math.min(i * 30, 250)}ms` }}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-xs text-primary truncate font-mono">{u.email}</span>
@@ -155,7 +155,7 @@ export function UserList({
                 </div>
                 <div className="flex items-center gap-2">
                   <RoleSelector
-                    email={u.email}
+                    id={u.id}
                     currentRole={u.role}
                     isSelf={isSelf}
                     onChangeRole={onChangeRole}
