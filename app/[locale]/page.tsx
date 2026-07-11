@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getCurrentWeek, getWeekDates, getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
 import { useSchedule, ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
+import { useScheduleMonth } from '@/lib/hooks/useScheduleMonth';
 import { setSearchSubjects, registerSearchNavigate } from '@/lib/hooks/useSearch';
 import { useEvents } from '@/lib/hooks/useEvents';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,8 +21,12 @@ import type { Class, ClassInput } from '@/lib/types/classes';
 import { useSearchParams } from 'next/navigation';
 
 export default function SchedulePage() {
-  const [identifier, setIdentifier] = useState<string | null>(null);
-  const [importUo, setImportUo]     = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const uo = searchParams.get('uo')?.toLowerCase() ?? null;
+  const shouldImport = searchParams.get('import') === 'true';
+
+  const [identifier, setIdentifier] = useState<string | null>(uo);
+  const [importUo, setImportUo]     = useState<string | null>(shouldImport && uo ? uo : null);
   const [shareOpen, setShareOpen]   = useState(false);
 
   const initial = getCurrentWeek();
@@ -38,7 +43,15 @@ export default function SchedulePage() {
 
   // ── Auth ─────────────────────────────────────────────────────────────────────
   const { user } = useAuth();
-  const canCreate = user?.role === 'professor' || user?.role === 'admin';
+  const canCreate = user?.role === 'profesor' || user?.role === 'admin';
+
+  useEffect(() => {
+    if (user && !identifier) setIdentifier(user.email);
+  }, [user]);
+
+  function handleIdentifierChange(id: string) {
+    setIdentifier(id);
+  }
 
   // ── Class creation via cell click ─────────────────────────────────────────────
   const [ghostCell, setGhostCell]       = useState<{ date: string; time: string } | null>(null);
@@ -46,16 +59,6 @@ export default function SchedulePage() {
   const [creationHintVisible, setCreationHintVisible] = useState(true);
 
 
-
-const searchParams = useSearchParams();
-
-const uo = searchParams.get('uo')?.toLowerCase() ?? '';
-const shouldImport = searchParams.get('import') === 'true';
-
-if(uo) {
-  setIdentifier(uo)
-  if(shouldImport) setImportUo(uo)
-}
 
   useEffect(() => {
     const check = async () => {
@@ -129,7 +132,17 @@ if(uo) {
     }
   }, []);
 
-  const { subjects, isLoading, refreshSchedule } = useSchedule(identifier);
+  const weekDates = getWeekDates(selectedYear, selectedWeek);
+  const weekStart = weekDates[0].toISOString();
+
+  const { subjects, isLoading, refreshSchedule } = useSchedule(identifier, weekStart);
+
+  const monthParam = `${viewMonthYear}-${String(viewMonth).padStart(2, '0')}`;
+  const { subjects: monthSubjects, isLoading: monthIsLoading } = useScheduleMonth(
+    identifier,
+    monthParam,
+    scheduleView === 'month',
+  );
 
   // Keep the global search store in sync with loaded subjects
   useEffect(() => {
@@ -203,7 +216,7 @@ if(uo) {
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <ScheduleSearch
           identifier={identifier}
-          onIdentifierChange={setIdentifier}
+          onIdentifierChange={handleIdentifierChange}
           onShareClick={() => setShareOpen(true)}
           onCreateEvent={openCreateEvent}
           showCreationHint={canCreate && creationHintVisible && scheduleView === 'week'}
@@ -243,8 +256,8 @@ if(uo) {
           />
         ) : (
           <MonthGrid
-            subjects={subjects}
-            isLoading={isLoading}
+            subjects={monthSubjects}
+            isLoading={monthIsLoading}
             year={viewMonthYear}
             month={viewMonth}
             onMonthChange={handleMonthChange}
@@ -275,7 +288,6 @@ if(uo) {
         const prefill: Class = {
           id: '',
           name: '',
-          type: 'Teoría',
           date: { year: y, month: m, day: d },
           startTime: classFormCell.time,
           endTime: classFormCell.time,

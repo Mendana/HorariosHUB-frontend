@@ -2,19 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import { Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Class, ClassType } from '@/lib/types/classes';
+import type { Class } from '@/lib/types/classes';
 import { Table, type TableColumn } from '@/components/ui/Table';
 import { PageSizeSelector } from '@/components/ui/PageSizeSelector';
 
-export type SortCol = 'name' | 'type' | 'date';
+export type SortCol = 'name' | 'date';
 export type SortDir = 'asc' | 'desc';
-
-const TYPE_CLS: Record<ClassType, string> = {
-  'Teoría':   'bg-info-subtle text-info border border-info/30',
-  'Práctica': 'bg-warning-subtle text-warning border border-warning/30',
-  'Examen':   'bg-error-subtle text-error border border-error/30',
-  'Otros':    'bg-surface-sunken text-secondary border border-subtle',
-};
 
 function formatDate(d: { year: number; month: number; day: number }): string {
   return `${String(d.day).padStart(2, '0')}/${String(d.month).padStart(2, '0')}/${d.year}`;
@@ -73,17 +66,6 @@ export function ClassList({
       label: t('colSubject'),
       sortable: true,
       render: (cls) => <span className="font-medium text-primary">{cls.name}</span>,
-    },
-    {
-      key: 'type',
-      label: t('colType'),
-      sortable: true,
-      width: '110px',
-      render: (cls) => (
-        <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-sm ${TYPE_CLS[cls.type]}`}>
-          {cls.type}
-        </span>
-      ),
     },
     {
       key: 'date',
@@ -172,9 +154,6 @@ export function ClassList({
             <div key={cls.id} className="rounded-md border border-subtle bg-surface-raised p-3 flex flex-col gap-2 animate-block-in" style={{ animationDelay: `${Math.min(i * 30, 250)}ms` }}>
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-primary">{cls.name}</span>
-                <span className={`px-2 py-0.5 text-xs font-medium rounded-sm ${TYPE_CLS[cls.type]}`}>
-                  {cls.type}
-                </span>
               </div>
               <div className="flex items-center gap-3 text-xs text-secondary tabular-nums">
                 <span>{formatDate(cls.date)}</span>

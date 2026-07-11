@@ -1,4 +1,11 @@
-export type ClassType = 'Teoría' | 'Práctica' | 'Examen' | 'Otros';
+export interface ClassesFilter {
+  search?: string;
+  week?: string;
+  sort?: 'name' | 'date';
+  dir?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
 
 export interface ClassDate {
   year: number;
@@ -9,17 +16,17 @@ export interface ClassDate {
 export interface Class {
   id: string;
   name: string;
-  type: ClassType;
+  groupId?: string;
   classroom?: string;
   date: ClassDate;
-  startTime: string;   // "09:00"
-  endTime: string;     // "10:30"
+  startTime: string; // "09:00"
+  endTime: string; // "10:30"
   durationMinutes: number;
 }
 
 export interface ClassInput {
   name: string;
-  type: ClassType;
+  groupId?: string;
   classroom?: string;
   date: ClassDate;
   startTime: string;

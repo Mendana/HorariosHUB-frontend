@@ -9,6 +9,8 @@ import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 import { DatePicker } from '@/components/ui/DatePicker';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
 import { timeToMinutes } from '@/lib/utils/scheduleHelpers';
+import { createProposal } from '@/lib/api/proposals';
+import { getErrorMessage } from '@/lib/errors';
 
 // Time slots 08:00–21:00 in 30-min increments
 const TIME_SLOTS: string[] = [];
@@ -18,9 +20,9 @@ for (let h = 8; h <= 21; h++) {
 }
 
 const DURATIONS: { value: number; labelKey: string }[] = [
-  { value: 30,  labelKey: 'dur30' },
-  { value: 60,  labelKey: 'dur60' },
-  { value: 90,  labelKey: 'dur90' },
+  { value: 30, labelKey: 'dur30' },
+  { value: 60, labelKey: 'dur60' },
+  { value: 90, labelKey: 'dur90' },
   { value: 120, labelKey: 'dur120' },
   { value: 150, labelKey: 'dur150' },
   { value: 180, labelKey: 'dur180' },
@@ -30,7 +32,7 @@ function dateToStr(d: { year: number; month: number; day: number }): string {
   return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
 }
 
-type ProposalAction = 'update' | 'delete';
+type ProposalAction = 'modify' | 'delete';
 
 interface UpdateFields {
   classroom: string;
@@ -49,21 +51,21 @@ const inputCls = `${INPUT_FIELD_CLS} h-10 w-full px-3 text-sm`;
 const labelCls = 'block text-sm font-medium text-primary mb-1';
 
 export function ProposalForm({ subject, onClose, onSuccess }: ProposalFormProps) {
-  const t  = useTranslations('proposals');
+  const t = useTranslations('proposals');
   const tc = useTranslations('classes');
 
   const initDuration = timeToMinutes(subject.endTime) - timeToMinutes(subject.startTime);
 
-  const [action, setAction]           = useState<ProposalAction>('update');
-  const [fields, setFields]           = useState<UpdateFields>({
-    classroom:       subject.classroom ?? '',
-    date:            dateToStr(subject.date),
-    startTime:       subject.startTime,
+  const [action, setAction] = useState<ProposalAction>('modify');
+  const [fields, setFields] = useState<UpdateFields>({
+    classroom: subject.classroom ?? '',
+    date: dateToStr(subject.date),
+    startTime: subject.startTime,
     durationMinutes: initDuration,
   });
   const [deleteReason, setDeleteReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError]         = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   function setField(key: keyof UpdateFields) {
     return (val: string) =>
@@ -78,27 +80,35 @@ export function ProposalForm({ subject, onClose, onSuccess }: ProposalFormProps)
     setIsSubmitting(true);
     setApiError(null);
     try {
-      // Mock: simulate POST /api/proposals
-      // Real: await apiFetch('/api/proposals', {
-      //   method: 'POST',
-      //   body: {
-      //     action,
-      //     class_id: subject.id,
-      //     ...(action === 'update' && { changes: { classroom: fields.classroom, startTime: fields.startTime, durationMinutes: fields.durationMinutes } }),
-      //     ...(action === 'delete' && deleteReason && { reason: deleteReason }),
-      //   },
-      // });
-      await new Promise(res => setTimeout(res, 600));
+      if (action === 'modify') {
+        const [year, month, day] = fields.date.split('-').map(Number);
+        const [h, m] = fields.startTime.split(':').map(Number);
+        const newStartsAt = new Date(Date.UTC(year, month - 1, day, h, m)).toISOString();
+        await createProposal({
+          changeType: 'modify',
+          changes: {
+            sessionId: subject.id,
+            newStartsAt,
+            newDuration: fields.durationMinutes,
+            newClassroom: fields.classroom || undefined,
+          },
+        });
+      } else {
+        await createProposal({
+          changeType: 'delete',
+          changes: { sessionId: subject.id },
+        });
+      }
       onSuccess();
-    } catch {
-      setApiError(t('loadError'));
+    } catch (err) {
+      setApiError(getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   const actionOptions = [
-    { value: 'update', label: t('proposeUpdate') },
+    { value: 'modify', label: t('proposeUpdate') },
     { value: 'delete', label: t('proposeDelete') },
   ];
 
@@ -122,7 +132,7 @@ export function ProposalForm({ subject, onClose, onSuccess }: ProposalFormProps)
           </div>
 
           {/* Update fields */}
-          {action === 'update' && (
+          {action === 'modify' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
               <div>
                 <label htmlFor="proposal-classroom" className={labelCls}>{t('diffFieldClassroom')}</label>

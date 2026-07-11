@@ -7,10 +7,9 @@ import type { AuthUser, Role } from '@/hooks/useAuth';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 
 const ROLE_VARIANT: Record<Role, BadgeVariant> = {
-  visitor: 'default',
-  user: 'default',
-  professor: 'warning',
-  admin: 'accent',
+  student:  'default',
+  profesor: 'warning',
+  admin:    'accent',
 };
 
 /** Toma las dos primeras letras del username del email, en mayúsculas. */

@@ -106,9 +106,9 @@ export function MonthDayDrawer({ date, subjects, onClose }: MonthDayDrawerProps)
                 </span>
                 <div className="flex flex-col min-w-0">
                   <span className="text-sm font-medium text-primary truncate">{s.name}</span>
-                  <span className="text-xs text-secondary">
-                    {s.type}{s.classroom ? ` · ${s.classroom}` : ''}
-                  </span>
+                  {s.classroom && (
+                    <span className="text-xs text-secondary">{s.classroom}</span>
+                  )}
                 </div>
               </div>
             ))

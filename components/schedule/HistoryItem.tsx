@@ -4,8 +4,6 @@ import { Edit2, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ChangeRecord, ClassSnapshot, ProposalAction } from '@/lib/types/proposals';
 
-// ── Relative date ──────────────────────────────────────────────────────────────
-
 function formatRelative(isoDate: string, t: ReturnType<typeof useTranslations>): string {
   const diffMs = Date.now() - new Date(isoDate).getTime();
   const diffMins = Math.floor(diffMs / 60_000);
@@ -27,50 +25,45 @@ function formatFull(isoDate: string, locale: string): string {
   }).format(new Date(isoDate));
 }
 
-// ── Field formatting ───────────────────────────────────────────────────────────
-
 type FieldKey = keyof ClassSnapshot;
 
 const FIELD_LABELS: Record<FieldKey, string> = {
-  name:            'Asignatura',
-  type:            'Tipo',
-  classroom:       'Aula',
-  date:            'Fecha',
-  startTime:       'Inicio',
-  endTime:         'Fin',
-  durationMinutes: 'Duración (min)',
+  subject: 'Asignatura',
+  grp: 'Grupo',
+  startsAt: 'Inicio',
+  duration: 'Duración',
+  classroom: 'Aula',
 };
 
 function formatValue(key: FieldKey, value: ClassSnapshot[FieldKey]): string {
   if (value === undefined || value === null) return '—';
-  if (key === 'date' && typeof value === 'object' && 'year' in value) {
-    const d = value as { year: number; month: number; day: number };
-    return `${String(d.day).padStart(2, '0')}/${String(d.month).padStart(2, '0')}/${d.year}`;
+  if (key === 'startsAt' && typeof value === 'string') {
+    const d = new Date(value);
+    return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+  }
+  if (key === 'duration' && typeof value === 'number') {
+    const h = Math.floor(value / 60);
+    const m = value % 60;
+    return h > 0 ? (m > 0 ? `${h}h ${m}min` : `${h}h`) : `${m}min`;
   }
   return String(value);
 }
 
-// ── Icon & color by action ─────────────────────────────────────────────────────
-
 const ACTION_ICON: Record<ProposalAction, React.ElementType> = {
-  update: Edit2,
+  modify: Edit2,
   create: Plus,
   delete: Trash2,
 };
 
 const ACTION_COLOR: Record<ProposalAction, string> = {
-  update: 'text-accent',
+  modify: 'text-accent',
   create: 'text-success',
   delete: 'text-error',
 };
 
-// ── Author abbreviation ────────────────────────────────────────────────────────
-
 function abbrevEmail(email: string): string {
   return email.split('@')[0] ?? email;
 }
-
-// ── Component ─────────────────────────────────────────────────────────────────
 
 interface HistoryItemProps {
   record: ChangeRecord;
@@ -82,9 +75,9 @@ export function HistoryItem({ record, locale }: HistoryItemProps) {
   const Icon = ACTION_ICON[record.action];
   const iconColor = ACTION_COLOR[record.action];
 
-  const { old: oldSnap, new: newSnap } = record.changes;
+  const oldSnap = record.old;
+  const newSnap = record.new;
 
-  // Collect fields that changed
   const changedFields = (Object.keys(FIELD_LABELS) as FieldKey[]).filter((key) => {
     if (record.action === 'create') return newSnap?.[key] !== undefined;
     if (record.action === 'delete') return oldSnap?.[key] !== undefined;
@@ -93,26 +86,25 @@ export function HistoryItem({ record, locale }: HistoryItemProps) {
 
   return (
     <div className="py-2.5 border-b border-subtle last:border-0">
-      {/* Row 1: icon + relative date + author */}
       <div className="flex items-center gap-1.5 mb-1">
         <Icon size={11} className={`${iconColor} shrink-0`} aria-hidden />
         <span
           className="text-xs text-secondary tabular-nums"
-          title={formatFull(record.approvedAt, locale)}
+          title={formatFull(record.createdAt, locale)}
         >
-          {formatRelative(record.approvedAt, t)}
+          {formatRelative(record.createdAt, t)}
         </span>
         <span className="text-xs text-tertiary ml-auto truncate max-w-[90px]">
           {abbrevEmail(record.author)}
         </span>
       </div>
 
-      {/* Row 2: approved by */}
-      <p className="text-xs text-tertiary mb-1.5">
-        {t('approvedBy', { email: abbrevEmail(record.approvedBy) })}
-      </p>
+      {record.approvedBy && (
+        <p className="text-xs text-tertiary mb-1.5">
+          {t('approvedBy', { email: abbrevEmail(record.approvedBy) })}
+        </p>
+      )}
 
-      {/* Row 3: changes list */}
       <div className="space-y-0.5">
         {changedFields.map((key) => {
           const oldVal = formatValue(key, oldSnap?.[key]);
@@ -121,7 +113,7 @@ export function HistoryItem({ record, locale }: HistoryItemProps) {
           return (
             <p key={key} className="text-xs leading-tight">
               <span className="text-tertiary">{label}: </span>
-              {record.action === 'update' && (
+              {record.action === 'modify' && (
                 <>
                   <span className="text-tertiary">{oldVal}</span>
                   <span className="text-tertiary mx-1">→</span>

@@ -18,27 +18,27 @@ const NAV_ITEMS: NavItem[] = [
   {
     href: '/',
     labelKey: 'schedule',
-    roles: [null, 'visitor', 'user', 'professor', 'admin'],
+    roles: [null, 'student', 'profesor', 'admin'],
   },
   {
     href: '/my-subjects',
     labelKey: 'mySubjects',
-    roles: ['user', 'professor', 'admin'],
+    roles: ['student', 'profesor', 'admin'],
   },
   {
     href: '/stats',
     labelKey: 'stats',
-    roles: ['user', 'professor', 'admin'],
+    roles: ['student', 'profesor', 'admin'],
   },
   {
     href: '/proposals',
     labelKey: 'proposals',
-    roles: ['user', 'professor', 'admin'],
+    roles: ['student', 'profesor', 'admin'],
   },
   {
     href: '/manage/classes',
     labelKey: 'manage',
-    roles: ['professor', 'admin'],
+    roles: ['profesor', 'admin'],
   },
   {
     href: '/manage/users',

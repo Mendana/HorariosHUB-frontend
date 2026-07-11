@@ -4,9 +4,9 @@ export interface SubjectGroup {
   selected: boolean;
 }
 
+// Matches backend SubjectEntry (no name field — use code for display)
 export interface CatalogSubject {
   code: string;
-  name: string;
   groups: SubjectGroup[];
 }
 
@@ -14,7 +14,8 @@ export interface SubjectCatalogResponse {
   subjects: CatalogSubject[];
 }
 
-export interface AutoSelectStatus {
+// Matches backend AutoSelectStatusResponse (snake_case — no rename_all)
+export interface AutoSelectStatusResponse {
   job_id: string;
   status: 'processing' | 'completed' | 'failed';
   groups_selected?: number;

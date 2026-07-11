@@ -1,46 +1,15 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import type { Class, ClassInput, ClassType } from '@/lib/types/classes';
+import type { Class, ClassInput } from '@/lib/types/classes';
+import { fetchAllSubjects, fetchGroupsForSubject } from '@/lib/api/subjects';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { DatePicker } from '@/components/ui/DatePicker';
-
-// ── Subject list (hardcoded PCEO catalogue) ───────────────────────────────────
-
-export const PCEO_SUBJECTS: { code: string; name: string }[] = [
-  // Matemáticas — gama fría
-  { code: 'ALG',  name: 'Álgebra Lineal' },
-  { code: 'CDI',  name: 'Cálculo Diferencial e Integral' },
-  { code: 'GEO',  name: 'Geometría' },
-  { code: 'TOP',  name: 'Topología' },
-  { code: 'ANA',  name: 'Análisis Matemático' },
-  { code: 'ALB',  name: 'Álgebra' },
-  { code: 'EST',  name: 'Estadística y Probabilidad' },
-  { code: 'EDP',  name: 'Ecuaciones Diferenciales' },
-  { code: 'MN',   name: 'Métodos Numéricos' },
-  { code: 'TN',   name: 'Teoría de Números' },
-  { code: 'GDF',  name: 'Geometría Diferencial' },
-  { code: 'AMV',  name: 'Análisis en Varias Variables' },
-  // Informática — gama cálida
-  { code: 'PRG',  name: 'Programación' },
-  { code: 'EDT',  name: 'Estructuras de Datos' },
-  { code: 'BDA',  name: 'Bases de Datos' },
-  { code: 'SO',   name: 'Sistemas Operativos' },
-  { code: 'RS',   name: 'Redes de Computadores' },
-  { code: 'IA',   name: 'Inteligencia Artificial' },
-  { code: 'IS',   name: 'Ingeniería del Software' },
-  { code: 'ARC',  name: 'Arquitectura de Computadores' },
-  { code: 'CO',   name: 'Compiladores' },
-  { code: 'LP',   name: 'Lenguajes de Programación' },
-  { code: 'IHC',  name: 'Interacción Humano-Computadora' },
-  { code: 'TFG',  name: 'Trabajo Fin de Grado' },
-];
-
-const CLASS_TYPES: ClassType[] = ['Teoría', 'Práctica', 'Examen', 'Otros'];
 
 // Time slots 08:00–21:00 in 30-min increments
 const TIME_SLOTS: string[] = [];
@@ -80,8 +49,8 @@ function calcEndTime(startTime: string, durationMinutes: number): string | null 
 // ── Form state ────────────────────────────────────────────────────────────────
 
 interface FormState {
-  name: string;
-  type: string;
+  subjectCode: string;
+  groupId: string;
   date: string;       // YYYY-MM-DD
   startTime: string;
   durationMinutes: number;
@@ -89,18 +58,19 @@ interface FormState {
 }
 
 interface FormErrors {
-  name?: string;
-  type?: string;
+  subjectCode?: string;
   date?: string;
   startTime?: string;
   durationMinutes?: string;
 }
 
 function initState(initial?: Class): FormState {
-  if (!initial) return { name: '', type: '', date: '', startTime: '', durationMinutes: 60, classroom: '' };
+  if (!initial) {
+    return { subjectCode: '', groupId: '', date: '', startTime: '', durationMinutes: 60, classroom: '' };
+  }
   return {
-    name: initial.name,
-    type: initial.type,
+    subjectCode: initial.name,
+    groupId: initial.groupId ?? '',
     date: apiDateToStr(initial.date),
     startTime: initial.startTime,
     durationMinutes: initial.durationMinutes,
@@ -126,17 +96,41 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // For native <input> elements
-  const set = (field: 'classroom') =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setForm(prev => ({ ...prev, [field]: e.target.value }));
+  // ── Data fetching ─────────────────────────────────────────────────────────
 
-  // For Select components
+  const { data: subjectsData, isLoading: loadingSubjects } = useQuery({
+    queryKey: ['subjects-list'],
+    queryFn: fetchAllSubjects,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const { data: groupsData, isLoading: loadingGroups } = useQuery({
+    queryKey: ['subject-groups', form.subjectCode],
+    queryFn: () => fetchGroupsForSubject(form.subjectCode),
+    enabled: !!form.subjectCode,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // ── Derived options ───────────────────────────────────────────────────────
+
+  const subjectOptions = useMemo(
+    () => (subjectsData?.subjects ?? []).map((code) => ({ value: code, label: code })),
+    [subjectsData],
+  );
+
+  const groupOptions = useMemo(
+    () => (groupsData?.groups ?? []).map((g) => ({ value: g.id, label: g.name })),
+    [groupsData],
+  );
+
+  // ── Handlers ─────────────────────────────────────────────────────────────
+
   const setVal = (field: keyof FormState) => (val: string) =>
-    setForm(prev => ({
-      ...prev,
-      [field]: field === 'durationMinutes' ? Number(val) : val,
-    }));
+    setForm((prev) => ({ ...prev, [field]: field === 'durationMinutes' ? Number(val) : val }));
+
+  function handleSubjectChange(code: string) {
+    setForm((prev) => ({ ...prev, subjectCode: code, groupId: '' }));
+  }
 
   const endTime = useMemo(
     () => (form.startTime ? calcEndTime(form.startTime, form.durationMinutes) : null),
@@ -145,11 +139,10 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
 
   function validate(): boolean {
     const errs: FormErrors = {};
-    if (!form.name)          errs.name          = t('errorRequired');
-    if (!form.type)          errs.type          = t('errorRequired');
-    if (!form.date)          errs.date          = t('errorRequired');
-    if (!form.startTime)     errs.startTime     = t('errorRequired');
-    if (!form.durationMinutes) errs.durationMinutes = t('errorRequired');
+    if (!form.subjectCode)      errs.subjectCode     = t('errorRequired');
+    if (!form.date)             errs.date            = t('errorRequired');
+    if (!form.startTime)        errs.startTime       = t('errorRequired');
+    if (!form.durationMinutes)  errs.durationMinutes = t('errorRequired');
     if (form.startTime && endTime === null) errs.durationMinutes = t('endTimeExceeds');
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -161,8 +154,8 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
     setIsSaving(true);
     try {
       await onSubmit({
-        name: form.name,
-        type: form.type as ClassType,
+        name: form.subjectCode,
+        groupId: form.groupId || undefined,
         date: strToApiDate(form.date),
         startTime: form.startTime,
         durationMinutes: form.durationMinutes,
@@ -172,6 +165,8 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
       setIsSaving(false);
     }
   }
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <Modal onClose={onClose} size="max-w-2xl">
@@ -183,37 +178,43 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            {/* Subject — searchable (24 options) */}
+            {/* Subject */}
             <Select
               label={t('fieldSubject')}
-              value={form.name}
-              onChange={setVal('name')}
-              placeholder={t('selectSubject')}
-              options={PCEO_SUBJECTS.map(s => ({
-                value: s.code,
-                label: `${s.code} — ${s.name}`,
-              }))}
+              value={form.subjectCode}
+              onChange={handleSubjectChange}
+              placeholder={loadingSubjects ? t('loading') : t('selectSubject')}
+              options={subjectOptions}
               searchable
-              error={errors.name}
+              error={errors.subjectCode}
               size="lg"
+              disabled={loadingSubjects}
             />
 
-            {/* Type */}
+            {/* Group — only visible when a subject is selected */}
             <Select
-              label={t('fieldType')}
-              value={form.type}
-              onChange={setVal('type')}
-              placeholder={t('selectType')}
-              options={CLASS_TYPES.map(type => ({ value: type, label: type }))}
-              error={errors.type}
+              label={t('fieldGroup')}
+              value={form.groupId}
+              onChange={setVal('groupId')}
+              placeholder={
+                !form.subjectCode
+                  ? t('selectSubjectFirst')
+                  : loadingGroups
+                  ? t('loading')
+                  : groupOptions.length === 0
+                  ? t('noGroups')
+                  : t('selectGroup')
+              }
+              options={groupOptions}
               size="lg"
+              disabled={!form.subjectCode || loadingGroups || groupOptions.length === 0}
             />
 
             {/* Date */}
             <DatePicker
               label={t('fieldDate')}
               value={form.date}
-              onChange={val => setForm(prev => ({ ...prev, date: val }))}
+              onChange={(val) => setForm((prev) => ({ ...prev, date: val }))}
               error={errors.date}
             />
 
@@ -223,7 +224,7 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
               value={form.startTime}
               onChange={setVal('startTime')}
               placeholder={t('selectStartTime')}
-              options={TIME_SLOTS.map(slot => ({ value: slot, label: slot }))}
+              options={TIME_SLOTS.map((slot) => ({ value: slot, label: slot }))}
               error={errors.startTime}
               size="lg"
             />
@@ -234,7 +235,7 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
                 label={t('fieldDuration')}
                 value={String(form.durationMinutes)}
                 onChange={setVal('durationMinutes')}
-                options={DURATIONS.map(d => ({ value: String(d.value), label: t(d.labelKey) }))}
+                options={DURATIONS.map((d) => ({ value: String(d.value), label: t(d.labelKey) }))}
                 error={errors.durationMinutes}
                 size="lg"
               />
@@ -252,7 +253,7 @@ export function ClassForm({ initial, onSubmit, onClose }: ClassFormProps) {
                 id="class-form-classroom"
                 type="text"
                 value={form.classroom}
-                onChange={set('classroom')}
+                onChange={(e) => setForm((prev) => ({ ...prev, classroom: e.target.value }))}
                 placeholder={t('placeholderClassroom')}
                 className={inputClass}
               />

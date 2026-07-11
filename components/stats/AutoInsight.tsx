@@ -8,13 +8,6 @@ interface AutoInsightProps {
   stats: ScheduleStats;
 }
 
-const TYPE_KEY_MAP: Record<string, string> = {
-  'Teoría':   'typeTeoria',
-  'Práctica': 'typePractica',
-  'Examen':   'typeExamen',
-  'Otros':    'typeOtros',
-};
-
 export function AutoInsight({ stats }: AutoInsightProps) {
   const t = useTranslations('stats');
   const tSchedule = useTranslations('schedule');
@@ -29,18 +22,7 @@ export function AutoInsight({ stats }: AutoInsightProps) {
     }),
   );
 
-  // Insight 2 — most common class type
-  if (stats.tipoMasFrecuente) {
-    const typeKey = TYPE_KEY_MAP[stats.tipoMasFrecuente.type];
-    insights.push(
-      t('insightMainType', {
-        percent: stats.tipoMasFrecuente.percentage,
-        type: typeKey ? t(typeKey as Parameters<typeof t>[0]) : stats.tipoMasFrecuente.type,
-      }),
-    );
-  }
-
-  // Insight 3 — free afternoon (conditional)
+  // Insight 2 — free afternoon (conditional)
   if (stats.diaConTardeLibre) {
     insights.push(
       t('insightFreeAfternoon', {

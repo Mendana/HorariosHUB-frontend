@@ -2,18 +2,13 @@
 
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
-import type { ClassType } from '@/lib/types/classes';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
-
-const CLASS_TYPES: ClassType[] = ['Teoría', 'Práctica', 'Examen', 'Otros'];
 
 interface ClassFiltersProps {
   search: string;
-  type: string;
   week: string;
   hasActiveFilters: boolean;
   onSearchChange: (v: string) => void;
-  onTypeChange: (v: string) => void;
   onWeekChange: (v: string) => void;
   onClear: () => void;
 }
@@ -21,17 +16,10 @@ interface ClassFiltersProps {
 const inputCls = `${INPUT_FIELD_CLS} h-8 px-3 text-sm`;
 
 export function ClassFilters({
-  search, type, week, hasActiveFilters,
-  onSearchChange, onTypeChange, onWeekChange, onClear,
+  search, week, hasActiveFilters,
+  onSearchChange, onWeekChange, onClear,
 }: ClassFiltersProps) {
   const t = useTranslations('classes');
-
-  const TYPE_LABELS: Record<ClassType, string> = {
-    'Teoría':   t('typeTeoria'),
-    'Práctica': t('typePractica'),
-    'Examen':   t('typeExamen'),
-    'Otros':    t('typeOtros'),
-  };
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -50,18 +38,6 @@ export function ClassFilters({
           className={`${inputCls} pl-8 w-52`}
         />
       </div>
-
-      {/* Type */}
-      <select
-        value={type}
-        onChange={(e) => onTypeChange(e.target.value)}
-        className={`${inputCls} w-40`}
-      >
-        <option value="">{t('filterTypeAll')}</option>
-        {CLASS_TYPES.map((ct) => (
-          <option key={ct} value={ct}>{TYPE_LABELS[ct]}</option>
-        ))}
-      </select>
 
       {/* Week */}
       <input

@@ -5,7 +5,7 @@ import { MapPin } from 'lucide-react';
 import { getSubjectColorVars } from '@/lib/config/subjectColors';
 import { timeToMinutes, isCurrentlyOngoing } from '@/lib/utils/scheduleHelpers';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
-import type { Class, ClassType } from '@/lib/types/classes';
+import type { Class } from '@/lib/types/classes';
 import { useAuth } from '@/hooks/useAuth';
 import { SubjectPopover } from './SubjectPopover';
 import { ClassForm } from '@/components/classes/ClassForm';
@@ -13,27 +13,17 @@ import { ClassDeleteConfirm } from '@/components/classes/ClassDeleteConfirm';
 
 const GRID_START_MINS = 8 * 60; // 08:00
 
-// Visual indicator per class type. 'Teoría' is the base — no badge.
-// Labels are single-letter abbreviations, language-neutral in ES/EN.
-const TYPE_BADGES: Partial<Record<string, { label: string; cls: string }>> = {
-  'Práctica': { label: 'P', cls: 'bg-warning-subtle text-warning' },
-  'Examen':   { label: 'E', cls: 'bg-error-subtle text-error' },
-  'Otros':    { label: '?', cls: 'bg-surface-sunken text-tertiary border border-subtle' },
-};
-
 type BlockState = null | 'popover' | 'editing' | 'deleting';
 
 function subjectToClass(s: SubjectWithLayout): Class {
   const durationMinutes = timeToMinutes(s.endTime) - timeToMinutes(s.startTime);
   return {
-    id:              s.id,
-    // Extract the subject code from "CODE - Full Name" format expected by ClassForm
-    name:            s.name.split(' - ')[0].trim(),
-    type:            s.type as ClassType,
-    classroom:       s.classroom || undefined,
-    date:            s.date,
-    startTime:       s.startTime,
-    endTime:         s.endTime,
+    id: s.id,
+    name: s.name.split(' - ')[0].trim(),
+    classroom: s.classroom || undefined,
+    date: s.date,
+    startTime: s.startTime,
+    endTime: s.endTime,
     durationMinutes,
   };
 }
@@ -48,7 +38,7 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
   const [blockState, setBlockState] = useState<BlockState>(null);
   const blockRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const canManage = user?.role === 'professor' || user?.role === 'admin';
+  const canManage = user?.role === 'profesor' || user?.role === 'admin';
 
   // Scroll into view and play the brightness-pulse animation when highlighted
   useEffect(() => {
@@ -60,23 +50,21 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
   }, [highlighted]);
 
   const colorVars = getSubjectColorVars(subject.name);
-  const ongoing   = isCurrentlyOngoing(subject);
+  const ongoing = isCurrentlyOngoing(subject);
 
   // Layout calculations
-  const startMins    = timeToMinutes(subject.startTime);
-  const endMins      = timeToMinutes(subject.endTime);
+  const startMins = timeToMinutes(subject.startTime);
+  const endMins = timeToMinutes(subject.endTime);
   const durationSlots = (endMins - startMins) / 30;
-  const top    = ((startMins - GRID_START_MINS) / 30) * slotHeight;
+  const top = ((startMins - GRID_START_MINS) / 30) * slotHeight;
   const height = durationSlots * slotHeight;
 
   const colFraction = 1 / subject.totalCols;
-  const leftPct     = subject.col * colFraction * 100;
-  const widthCalc   = `calc(${colFraction * 100}% - ${subject.totalCols > 1 ? '3px' : '1px'})`;
+  const leftPct = subject.col * colFraction * 100;
+  const widthCalc = `calc(${colFraction * 100}% - ${subject.totalCols > 1 ? '3px' : '1px'})`;
 
   const isVeryShort = height < 50; // only name fits
-  const isShort     = height < 80; // name + classroom fit, no time
-
-  const badge = TYPE_BADGES[subject.type];
+  const isShort = height < 80; // name + classroom fit, no time
 
   // When the class is ongoing, swap in the more-intense background vars so that
   // [background-color:var(--sb-bg)] automatically picks up the active value.
@@ -106,8 +94,8 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
           ...effectiveVars,
           top,
           height,
-          left:            `${leftPct}%`,
-          width:           widthCalc,
+          left: `${leftPct}%`,
+          width: widthCalc,
           // Border-left uses the saturated color directly — same hue in both themes
           borderLeftColor: colorVars['--sb-border'],
           // Ongoing: widen the accent stripe to 4px; default 3px comes from the class
@@ -138,23 +126,13 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
           'animate-block-in',
         ].join(' ')}
       >
-        {/* ── Corner indicators (type badge + ongoing pulse) ──────────────── */}
-        {(badge || ongoing) && (
-          <div className="absolute top-1 right-1 flex flex-col items-end gap-0.5 pointer-events-none">
-            {badge && (
-              <span
-                aria-hidden
-                className={`text-[10px] font-medium leading-none px-1 py-0.5 rounded-[3px] ${badge.cls}`}
-              >
-                {badge.label}
-              </span>
-            )}
-            {ongoing && (
-              <span
-                className="size-1.5 rounded-full bg-accent animate-pulse"
-                aria-hidden
-              />
-            )}
+        {/* ── Corner indicators (ongoing pulse) ────────────────────────────── */}
+        {ongoing && (
+          <div className="absolute top-1 right-1 flex flex-col items-end pointer-events-none">
+            <span
+              className="size-1.5 rounded-full bg-accent animate-pulse"
+              aria-hidden
+            />
           </div>
         )}
 
@@ -185,7 +163,7 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
           subject={subject}
           anchorRef={blockRef}
           onClose={() => setBlockState(null)}
-          onEdit={canManage  ? () => setBlockState('editing')  : undefined}
+          onEdit={canManage ? () => setBlockState('editing') : undefined}
           onDelete={canManage ? () => setBlockState('deleting') : undefined}
         />
       )}

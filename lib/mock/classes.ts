@@ -5,7 +5,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-001',
     name: 'ALG',
-    type: 'Teoría',
     classroom: 'Aula 1',
     date: { year: 2026, month: 3, day: 23 },
     startTime: '09:00',
@@ -15,7 +14,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-002',
     name: 'ALG',
-    type: 'Práctica',
     classroom: 'Lab 1',
     date: { year: 2026, month: 3, day: 25 },
     startTime: '15:00',
@@ -25,7 +23,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-003',
     name: 'CDI',
-    type: 'Teoría',
     classroom: 'Aula 3',
     date: { year: 2026, month: 3, day: 24 },
     startTime: '11:00',
@@ -35,7 +32,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-004',
     name: 'PRG',
-    type: 'Práctica',
     classroom: 'Lab 2',
     date: { year: 2026, month: 3, day: 23 },
     startTime: '16:00',
@@ -45,7 +41,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-005',
     name: 'GEO',
-    type: 'Teoría',
     date: { year: 2026, month: 3, day: 26 },
     startTime: '10:00',
     endTime: '11:30',
@@ -54,7 +49,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-006',
     name: 'BDA',
-    type: 'Práctica',
     classroom: 'Lab 3',
     date: { year: 2026, month: 3, day: 27 },
     startTime: '09:00',
@@ -64,7 +58,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-007',
     name: 'EDT',
-    type: 'Teoría',
     classroom: 'Aula 5',
     date: { year: 2026, month: 3, day: 24 },
     startTime: '08:00',
@@ -74,7 +67,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-009',
     name: 'SO',
-    type: 'Teoría',
     classroom: 'Aula 2',
     date: { year: 2026, month: 3, day: 25 },
     startTime: '12:00',
@@ -84,7 +76,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-010',
     name: 'EST',
-    type: 'Práctica',
     date: { year: 2026, month: 3, day: 26 },
     startTime: '17:00',
     endTime: '18:30',
@@ -93,7 +84,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-013',
     name: 'PRG',
-    type: 'Teoría',
     classroom: 'Aula 4',
     date: { year: 2026, month: 3, day: 23 },
     startTime: '08:30',
@@ -103,7 +93,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-025',
     name: 'IHC',
-    type: 'Práctica',
     classroom: 'Lab 2',
     date: { year: 2026, month: 3, day: 27 },
     startTime: '14:00',
@@ -115,7 +104,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-020',
     name: 'ARC',
-    type: 'Teoría',
     classroom: 'Aula 6',
     date: { year: 2026, month: 3, day: 30 },
     startTime: '09:00',
@@ -125,7 +113,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-012',
     name: 'IA',
-    type: 'Otros',
     classroom: 'Sala Seminarios',
     date: { year: 2026, month: 4, day: 2 },
     startTime: '18:00',
@@ -135,7 +122,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-024',
     name: 'BDA',
-    type: 'Otros',
     classroom: 'Sala Seminarios',
     date: { year: 2026, month: 4, day: 1 },
     startTime: '17:00',
@@ -147,7 +133,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-014',
     name: 'TOP',
-    type: 'Teoría',
     date: { year: 2026, month: 4, day: 6 },
     startTime: '10:00',
     endTime: '11:30',
@@ -156,7 +141,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-015',
     name: 'ANA',
-    type: 'Práctica',
     classroom: 'Lab 4',
     date: { year: 2026, month: 4, day: 7 },
     startTime: '11:00',
@@ -166,7 +150,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-016',
     name: 'IS',
-    type: 'Teoría',
     classroom: 'Aula 3',
     date: { year: 2026, month: 4, day: 7 },
     startTime: '12:30',
@@ -176,7 +159,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-017',
     name: 'RS',
-    type: 'Práctica',
     classroom: 'Lab 1',
     date: { year: 2026, month: 4, day: 8 },
     startTime: '15:00',
@@ -188,7 +170,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-018',
     name: 'CDI',
-    type: 'Práctica',
     classroom: 'Lab 2',
     date: { year: 2026, month: 4, day: 13 },
     startTime: '09:00',
@@ -198,7 +179,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-019',
     name: 'ALB',
-    type: 'Teoría',
     classroom: 'Aula 1',
     date: { year: 2026, month: 4, day: 14 },
     startTime: '11:00',
@@ -208,7 +188,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-022',
     name: 'EDP',
-    type: 'Teoría',
     date: { year: 2026, month: 4, day: 14 },
     startTime: '15:30',
     endTime: '17:00',
@@ -217,7 +196,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-023',
     name: 'MN',
-    type: 'Práctica',
     classroom: 'Lab 3',
     date: { year: 2026, month: 4, day: 15 },
     startTime: '10:00',
@@ -229,7 +207,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-008',
     name: 'ALG',
-    type: 'Examen',
     classroom: 'Aula Magna',
     date: { year: 2026, month: 6, day: 10 },
     startTime: '09:00',
@@ -239,7 +216,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-011',
     name: 'CDI',
-    type: 'Examen',
     classroom: 'Aula 4',
     date: { year: 2026, month: 6, day: 15 },
     startTime: '09:00',
@@ -249,7 +225,6 @@ export const MOCK_CLASSES: Class[] = [
   {
     id: 'cls-021',
     name: 'CO',
-    type: 'Examen',
     classroom: 'Aula Magna',
     date: { year: 2026, month: 6, day: 17 },
     startTime: '09:00',

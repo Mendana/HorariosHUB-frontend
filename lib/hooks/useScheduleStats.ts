@@ -17,17 +17,10 @@ export interface DayStat {
   classes: number;
 }
 
-export interface TypeStat {
-  type: string;
-  count: number;
-  percentage: number;
-}
-
 export interface ScheduleStats {
   horasPorSemana: number;
   horasPorAsignatura: SubjectHourStat[];
   distribucionPorDia: DayStat[];
-  distribucionPorTipo: TypeStat[];
   /** i18n key, e.g. 'dayMon' */
   diaMasOcupado: string;
   /** i18n key, e.g. 'dayFri' — day with fewest (but > 0) hours */
@@ -42,8 +35,6 @@ export interface ScheduleStats {
   semanaActual: { hours: number; classes: number };
   /** Day key with afternoon free (classes before 14:00 but none after), or null */
   diaConTardeLibre: string | null;
-  /** Most common type */
-  tipoMasFrecuente: { type: string; percentage: number } | null;
 }
 
 const DAY_KEYS = ['dayMon', 'dayTue', 'dayWed', 'dayThu', 'dayFri'] as const;
@@ -68,7 +59,6 @@ const EMPTY: ScheduleStats = {
   horasPorSemana: 0,
   horasPorAsignatura: [],
   distribucionPorDia: DAY_KEYS.map((dayKey) => ({ dayKey, hours: 0, classes: 0 })),
-  distribucionPorTipo: [],
   diaMasOcupado: 'dayMon',
   diaMasLibre: 'dayFri',
   diaMasOcupadoHoras: 0,
@@ -79,7 +69,6 @@ const EMPTY: ScheduleStats = {
   totalHoras: 0,
   semanaActual: { hours: 0, classes: 0 },
   diaConTardeLibre: null,
-  tipoMasFrecuente: null,
 };
 
 export function useScheduleStats(subjects: Subject[], semester: 1 | 2): ScheduleStats {
@@ -153,24 +142,6 @@ export function useScheduleStats(subjects: Subject[], semester: 1 | 2): Schedule
     const diaConTardeLibre =
       DAY_KEYS.find((_, i) => dayMorning[i] && !dayAfternoon[i]) ?? null;
 
-    // ── by type ──────────────────────────────────────────────────────────────
-    const typeMap = new Map<string, number>();
-    for (const s of filtered) {
-      typeMap.set(s.type, (typeMap.get(s.type) ?? 0) + 1);
-    }
-    const distribucionPorTipo: TypeStat[] = Array.from(typeMap.entries())
-      .map(([type, count]) => ({
-        type,
-        count,
-        percentage: Math.round((count / totalClases) * 100),
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    const tipoMasFrecuente =
-      distribucionPorTipo.length > 0
-        ? { type: distribucionPorTipo[0].type, percentage: distribucionPorTipo[0].percentage }
-        : null;
-
     // ── time bounds ──────────────────────────────────────────────────────────
     let minTime = '23:59', maxTime = '00:00';
     for (const s of filtered) {
@@ -195,7 +166,6 @@ export function useScheduleStats(subjects: Subject[], semester: 1 | 2): Schedule
       horasPorSemana,
       horasPorAsignatura,
       distribucionPorDia,
-      distribucionPorTipo,
       diaMasOcupado: DAY_KEYS[maxIdx],
       diaMasLibre: minH === Infinity ? DAY_KEYS[4] : DAY_KEYS[minIdx],
       diaMasOcupadoHoras: Math.round(maxH * 10) / 10,
@@ -206,7 +176,6 @@ export function useScheduleStats(subjects: Subject[], semester: 1 | 2): Schedule
       totalHoras,
       semanaActual,
       diaConTardeLibre: diaConTardeLibre ?? null,
-      tipoMasFrecuente,
     };
   }, [subjects, semester]);
 }

@@ -69,7 +69,7 @@ export default function ManageUsersPage() {
 
   async function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    await deleteUser(deleteTarget.email);
+    await deleteUser(deleteTarget.id);
     setDeleteTarget(null);
   }
 
@@ -98,7 +98,7 @@ export default function ManageUsersPage() {
         isLoading={isLoading}
         error={error}
         currentUserEmail={currentUser.email}
-        onChangeRole={(email: string, role: UserRole) => changeRole(email, role)}
+        onChangeRole={(id: string, role: UserRole) => changeRole(id, role)}
         onDelete={(u) => setDeleteTarget(u)}
         onRetry={() => {}}
         page={page}

@@ -12,20 +12,23 @@ interface ProposalDiffProps {
 type FieldKey = keyof ClassSnapshot;
 
 const FIELDS: { key: FieldKey; labelKey: string }[] = [
-  { key: 'name',            labelKey: 'diffFieldName' },
-  { key: 'type',            labelKey: 'diffFieldType' },
-  { key: 'classroom',       labelKey: 'diffFieldClassroom' },
-  { key: 'date',            labelKey: 'diffFieldDate' },
-  { key: 'startTime',       labelKey: 'diffFieldStartTime' },
-  { key: 'endTime',         labelKey: 'diffFieldEndTime' },
-  { key: 'durationMinutes', labelKey: 'diffFieldDuration' },
+  { key: 'subject', labelKey: 'diffFieldName' },
+  { key: 'grp', labelKey: 'diffFieldGrp' },
+  { key: 'startsAt', labelKey: 'diffFieldStartTime' },
+  { key: 'duration', labelKey: 'diffFieldDuration' },
+  { key: 'classroom', labelKey: 'diffFieldClassroom' },
 ];
 
 function formatValue(key: FieldKey, value: ClassSnapshot[FieldKey]): string {
   if (value === undefined || value === null) return '—';
-  if (key === 'date' && typeof value === 'object' && 'year' in value) {
-    const d = value as { year: number; month: number; day: number };
-    return `${String(d.day).padStart(2, '0')}/${String(d.month).padStart(2, '0')}/${d.year}`;
+  if (key === 'startsAt' && typeof value === 'string') {
+    const d = new Date(value);
+    return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+  }
+  if (key === 'duration' && typeof value === 'number') {
+    const h = Math.floor(value / 60);
+    const m = value % 60;
+    return h > 0 ? (m > 0 ? `${h}h ${m}min` : `${h}h`) : `${m}min`;
   }
   return String(value);
 }
@@ -81,7 +84,7 @@ export function ProposalDiff({ proposal }: ProposalDiffProps) {
   }
 
   /* ── Update ─────────────────────────────────────────────────────────────── */
-  if (action === 'update' && oldSnap && newSnap) {
+  if (action === 'modify' && oldSnap && newSnap) {
     const changedFields = FIELDS.filter(
       ({ key }) => oldSnap[key] !== undefined || newSnap[key] !== undefined,
     );
