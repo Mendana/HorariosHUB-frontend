@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useContext } from 'react';
 import { createPortal } from 'react-dom';
-import { X, MapPin, Clock, Calendar, Pencil, Trash2, MessageSquare, CheckCircle } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, Pencil, Trash2, MessageSquare, CheckCircle, Tag } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
@@ -231,6 +231,16 @@ export function SubjectPopover({
           activeTab === 'info' ? 'opacity-100' : 'opacity-0 hidden',
         ].join(' ')}
       >
+        {/* Group */}
+        {subject.group && (
+          <div className="flex items-center gap-1.5 mb-2">
+            <Tag size={12} className="text-tertiary shrink-0" aria-hidden />
+            <span className="text-xs text-secondary font-medium">
+              {subject.group}
+            </span>
+          </div>
+        )}
+
         {/* Classroom */}
         <div className="flex items-center gap-1.5 mb-2">
           <MapPin size={12} className="text-tertiary shrink-0" aria-hidden />

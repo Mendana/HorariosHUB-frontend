@@ -18,6 +18,7 @@ function mapSessions(sessions: BackendSession[]): Subject[] {
     return {
       id: s.id,
       name: s.subject,
+      group: s.group ?? "",
       type: s.subject_type,
       classroom: s.classroom ?? "",
       date: {
