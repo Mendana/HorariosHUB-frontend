@@ -93,16 +93,17 @@ function MyProposalsView() {
 
 export default function ProposalsPage() {
   const t = useTranslations('proposals');
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (authLoading) return;
     if (user === null) router.push('/auth/login');
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   const [activeTab, setActiveTab] = useState<'review' | 'mine'>('review');
 
-  if (user === null) return null;
+  if (authLoading || user === null) return null;
 
   const isProfOrAdmin = user.role === 'profesor' || user.role === 'admin';
 

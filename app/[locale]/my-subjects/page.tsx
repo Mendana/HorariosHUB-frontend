@@ -11,15 +11,14 @@ import { SaveBar } from '@/components/subjects/SaveBar';
 
 export default function MySubjectsPage() {
   const t = useTranslations('mySubjects');
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   // Auth guard — redirect visitors to login
   useEffect(() => {
-    if (user === null) {
-      router.push('/auth/login');
-    }
-  }, [user, router]);
+    if (authLoading) return;
+    if (user === null) router.push('/auth/login');
+  }, [user, authLoading, router]);
 
   const { subjects, isLoading, error, reload, saveSelection, autoSelect } = useSubjects();
 
@@ -84,7 +83,7 @@ export default function MySubjectsPage() {
     setLocalSelection(new Set(groupIds));
   }, []);
 
-  if (user === null) return null;
+  if (authLoading || user === null) return null;
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 pb-28">
