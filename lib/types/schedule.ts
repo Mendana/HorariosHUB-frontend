@@ -8,6 +8,7 @@ export interface SubjectDate {
 export interface Subject {
   id: string;
   name: string;
+  group: string;
   classroom: string;
   date: SubjectDate;
   startTime: string; // "HH:MM"
