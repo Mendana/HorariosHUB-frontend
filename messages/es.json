@@ -263,6 +263,7 @@
     "diffOldLabel": "Anterior",
     "diffNewLabel": "Nuevo",
     "diffFieldName": "Asignatura",
+    "diffFieldGrp": "Grupo",
     "diffFieldType": "Tipo",
     "diffFieldClassroom": "Aula",
     "diffFieldDate": "Fecha",

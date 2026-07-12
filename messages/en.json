@@ -263,6 +263,7 @@
     "diffOldLabel": "Before",
     "diffNewLabel": "After",
     "diffFieldName": "Subject",
+    "diffFieldGrp": "Group",
     "diffFieldType": "Type",
     "diffFieldClassroom": "Room",
     "diffFieldDate": "Date",
