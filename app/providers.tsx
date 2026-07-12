@@ -2,6 +2,12 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const EasterEgg = dynamic(
+  () => import('@/components/easter-egg/EasterEgg').then((m) => m.EasterEgg),
+  { ssr: false },
+);
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -18,5 +24,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <EasterEgg />
+    </QueryClientProvider>
+  );
 }
