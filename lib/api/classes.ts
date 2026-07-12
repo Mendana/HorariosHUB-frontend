@@ -10,8 +10,8 @@ interface BackendClass {
   subject: string;
   group_id?: string;
   classroom?: string;
-  start_time: string;
-  end_time: string;
+  startTime: string;
+  endTime: string;
 }
 
 interface BackendClassInput {
@@ -47,8 +47,8 @@ function toBackendInput(input: Partial<ClassInput>): BackendClassInput {
 }
 
 function fromBackend(c: BackendClass): Class {
-  const start = new Date(c.start_time);
-  const end = new Date(c.end_time);
+  const start = new Date(c.startTime);
+  const end = new Date(c.endTime);
   return {
     id: c.id,
     name: c.subject,
