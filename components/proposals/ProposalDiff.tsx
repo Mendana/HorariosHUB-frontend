@@ -11,9 +11,17 @@ interface ProposalDiffProps {
 
 type FieldKey = keyof ClassSnapshot;
 
-const FIELDS: { key: FieldKey; labelKey: string }[] = [
+// All fields shown in create/delete snapshots
+const SNAPSHOT_FIELDS: { key: FieldKey; labelKey: string }[] = [
   { key: 'subject', labelKey: 'diffFieldName' },
   { key: 'grp', labelKey: 'diffFieldGrp' },
+  { key: 'startsAt', labelKey: 'diffFieldStartTime' },
+  { key: 'duration', labelKey: 'diffFieldDuration' },
+  { key: 'classroom', labelKey: 'diffFieldClassroom' },
+];
+
+// Fields that can actually be modified — subject/grp are immutable in modify proposals
+const MODIFY_FIELDS: { key: FieldKey; labelKey: string }[] = [
   { key: 'startsAt', labelKey: 'diffFieldStartTime' },
   { key: 'duration', labelKey: 'diffFieldDuration' },
   { key: 'classroom', labelKey: 'diffFieldClassroom' },
@@ -39,7 +47,7 @@ export function ProposalDiff({ proposal }: ProposalDiffProps) {
 
   /* ── Create ─────────────────────────────────────────────────────────────── */
   if (action === 'create' && newSnap) {
-    const fields = FIELDS.filter(({ key }) => newSnap[key] !== undefined);
+    const fields = SNAPSHOT_FIELDS.filter(({ key }) => newSnap[key] !== undefined);
     return (
       <div className="mt-2 rounded-sm border border-success/25 bg-success-subtle/40 px-3 py-2.5">
         <div className="flex items-center gap-1.5 mb-2.5">
@@ -62,7 +70,7 @@ export function ProposalDiff({ proposal }: ProposalDiffProps) {
 
   /* ── Delete ─────────────────────────────────────────────────────────────── */
   if (action === 'delete' && oldSnap) {
-    const fields = FIELDS.filter(({ key }) => oldSnap[key] !== undefined);
+    const fields = SNAPSHOT_FIELDS.filter(({ key }) => oldSnap[key] !== undefined);
     return (
       <div className="mt-2 rounded-sm border border-error/25 bg-error-subtle/40 px-3 py-2.5">
         <div className="flex items-center gap-1.5 mb-2.5">
@@ -85,11 +93,32 @@ export function ProposalDiff({ proposal }: ProposalDiffProps) {
 
   /* ── Update ─────────────────────────────────────────────────────────────── */
   if (action === 'modify' && oldSnap && newSnap) {
-    const changedFields = FIELDS.filter(
-      ({ key }) => oldSnap[key] !== undefined || newSnap[key] !== undefined,
-    );
+    // Only show fields that actually changed — backend sends full snapshots
+    const changedFields = MODIFY_FIELDS.filter(({ key }) => {
+      const o = oldSnap[key] ?? null;
+      const n = newSnap[key] ?? null;
+      return o !== n;
+    });
+    // Subject/grp come as null in old snapshot; take from new
+    const identitySubject = newSnap.subject ?? oldSnap.subject;
+    const identityGrp = newSnap.grp ?? oldSnap.grp;
     return (
       <div className="mt-2 rounded-sm border border-warning/25 bg-warning-subtle/40 px-3 py-2.5">
+        {/* Identity row: subject + group (immutable, shown as context) */}
+        {(identitySubject || identityGrp) && (
+          <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-warning/20">
+            {identitySubject && (
+              <span className="text-xs font-medium text-primary">{identitySubject}</span>
+            )}
+            {identitySubject && identityGrp && (
+              <span className="text-tertiary" aria-hidden>·</span>
+            )}
+            {identityGrp && (
+              <span className="text-xs text-secondary">{identityGrp}</span>
+            )}
+          </div>
+        )}
+
         {/* Column header row */}
         <div className="grid grid-cols-[auto_1fr_16px_1fr] gap-x-3 mb-2">
           <span />
@@ -102,22 +131,35 @@ export function ProposalDiff({ proposal }: ProposalDiffProps) {
           </span>
         </div>
         <dl className="grid grid-cols-[auto_1fr_16px_1fr] items-baseline gap-x-3 gap-y-1.5">
-          {changedFields.map(({ key, labelKey }) => (
-            <Fragment key={key}>
-              <dt className="text-xs text-tertiary whitespace-nowrap">{t(labelKey)}</dt>
-              <dd className="text-xs text-secondary line-through decoration-error/40">
-                {formatValue(key, oldSnap[key])}
-              </dd>
-              <ArrowRight
-                size={11}
-                className="text-tertiary self-center justify-self-center"
-                aria-hidden
-              />
-              <dd className="text-xs text-primary font-medium">
-                {formatValue(key, newSnap[key])}
-              </dd>
-            </Fragment>
-          ))}
+          {MODIFY_FIELDS.map(({ key, labelKey }) => {
+            const o = oldSnap[key] ?? null;
+            const n = newSnap[key] ?? null;
+            const changed = o !== n;
+            return (
+              <Fragment key={key}>
+                <dt className="text-xs text-tertiary whitespace-nowrap">{t(labelKey)}</dt>
+                {changed ? (
+                  <>
+                    <dd className="text-xs text-secondary line-through decoration-error/40">
+                      {formatValue(key, oldSnap[key])}
+                    </dd>
+                    <ArrowRight
+                      size={11}
+                      className="text-tertiary self-center justify-self-center"
+                      aria-hidden
+                    />
+                    <dd className="text-xs text-primary font-medium">
+                      {formatValue(key, newSnap[key])}
+                    </dd>
+                  </>
+                ) : (
+                  <dd className="text-xs text-tertiary col-span-3">
+                    {formatValue(key, oldSnap[key])}
+                  </dd>
+                )}
+              </Fragment>
+            );
+          })}
         </dl>
       </div>
     );
