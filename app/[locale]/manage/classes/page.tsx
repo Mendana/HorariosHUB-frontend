@@ -27,16 +27,17 @@ const DEFAULT_PAGE_SIZE = 10;
 export default function ManageClassesPage() {
   const t = useTranslations('classes');
   const th = useTranslations('history');
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (authLoading) return;
     if (user === null) {
       router.push('/auth/login');
     } else if (user.role === 'student') {
       router.push('/');
     }
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   const [modal, setModal] = useState<Modal>({ kind: 'none' });
   const [pageTab, setPageTab] = useState<PageTab>('classes');
@@ -102,7 +103,7 @@ export default function ManageClassesPage() {
     setModal({ kind: 'none' });
   }, [deleteClass]);
 
-  if (user === null || user.role === 'student') return null;
+  if (authLoading || user === null || user.role === 'student') return null;
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 pb-12">

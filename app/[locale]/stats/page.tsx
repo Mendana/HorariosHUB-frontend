@@ -58,13 +58,14 @@ function StatsSkeleton() {
 export default function StatsPage() {
   const t = useTranslations('stats');
   const tSchedule = useTranslations('schedule');
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   // Auth guard
   useEffect(() => {
+    if (authLoading) return;
     if (user === null) router.push('/auth/login');
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   // Identifier from localStorage — written by the schedule page
   const [identifier, setIdentifier] = useState<string | null>(null);
@@ -118,7 +119,7 @@ export default function StatsPage() {
     [stats.horasPorAsignatura],
   );
 
-  if (user === null) return null;
+  if (authLoading || user === null) return null;
 
   // ── no identifier state ──────────────────────────────────────────────────
   if (!identifier) {
