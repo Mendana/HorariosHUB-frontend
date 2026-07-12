@@ -165,8 +165,8 @@
   },
   "roles": {
     "visitor": "Visitante",
-    "user": "Estudiante",
-    "professor": "Profesor",
+    "student": "Estudiante",
+    "profesor": "Profesor",
     "admin": "Administrador"
   },
   "classes": {
