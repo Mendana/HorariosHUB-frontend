@@ -1,5 +1,5 @@
 /**
- * Visual System — PCEO Hub
+ * Visual System — Horarios Hub
  *
  * Direction: Linear meets tactile.
  * Dense, precise interfaces where every interactive element gives clear physical feedback.
@@ -25,7 +25,7 @@
  * Usage:  className="shadow-sm"
  *         style={{ boxShadow: 'var(--shadow-sm)' }}
  */
-export const SHADOW_SM = 'var(--shadow-sm)' as const;
+export const SHADOW_SM = "var(--shadow-sm)" as const;
 
 /**
  * --shadow-md
@@ -34,7 +34,7 @@ export const SHADOW_SM = 'var(--shadow-sm)' as const;
  *
  * Usage:  className="shadow-md"
  */
-export const SHADOW_MD = 'var(--shadow-md)' as const;
+export const SHADOW_MD = "var(--shadow-md)" as const;
 
 /**
  * --shadow-inset
@@ -45,7 +45,7 @@ export const SHADOW_MD = 'var(--shadow-md)' as const;
  * Usage:  className="shadow-inset"
  *         combined at rest+focus: className="shadow-inset focus:shadow-focus"
  */
-export const SHADOW_INSET = 'var(--shadow-inset)' as const;
+export const SHADOW_INSET = "var(--shadow-inset)" as const;
 
 /**
  * --shadow-focus
@@ -57,7 +57,7 @@ export const SHADOW_INSET = 'var(--shadow-inset)' as const;
  * Usage:  className="shadow-focus"     (manual, e.g. always-focused states)
  *         global rule in @layer base   (automatic on :focus-visible)
  */
-export const SHADOW_FOCUS = 'var(--shadow-focus)' as const;
+export const SHADOW_FOCUS = "var(--shadow-focus)" as const;
 
 /**
  * --shadow-focus-error
@@ -66,7 +66,7 @@ export const SHADOW_FOCUS = 'var(--shadow-focus)' as const;
  *
  * Usage:  style={{ boxShadow: 'var(--shadow-focus-error)' }}
  */
-export const SHADOW_FOCUS_ERROR = 'var(--shadow-focus-error)' as const;
+export const SHADOW_FOCUS_ERROR = "var(--shadow-focus-error)" as const;
 
 // ─── TRANSITIONS ─────────────────────────────────────────────────────────────
 //
@@ -83,7 +83,7 @@ export const SHADOW_FOCUS_ERROR = 'var(--shadow-focus-error)' as const;
  *
  * Tailwind:  className="transition-[transform] transition-fast"
  */
-export const TRANSITION_FAST = 'var(--transition-fast)' as const;
+export const TRANSITION_FAST = "var(--transition-fast)" as const;
 
 /**
  * --transition-base  →  150ms ease-out
@@ -93,7 +93,7 @@ export const TRANSITION_FAST = 'var(--transition-fast)' as const;
  * Tailwind:  className="transition-colors transition-base"
  *            className="transition-[border-color,background-color] transition-base"
  */
-export const TRANSITION_BASE = 'var(--transition-base)' as const;
+export const TRANSITION_BASE = "var(--transition-base)" as const;
 
 /**
  * --transition-smooth  →  250ms ease-in-out
@@ -102,14 +102,14 @@ export const TRANSITION_BASE = 'var(--transition-base)' as const;
  *
  * Tailwind:  className="transition-[opacity,transform] transition-smooth"
  */
-export const TRANSITION_SMOOTH = 'var(--transition-smooth)' as const;
+export const TRANSITION_SMOOTH = "var(--transition-smooth)" as const;
 
 /**
  * --transition-slow  →  350ms ease-in-out
  * Reserved for page transitions if ever added (CLAUDE.md rule 2: none currently).
  * Exists to complete the scale — do NOT use for interactive UI elements.
  */
-export const TRANSITION_SLOW = 'var(--transition-slow)' as const;
+export const TRANSITION_SLOW = "var(--transition-slow)" as const;
 
 // ─── HOVER SYSTEM ────────────────────────────────────────────────────────────
 
@@ -129,8 +129,8 @@ export const TRANSITION_SLOW = 'var(--transition-slow)' as const;
  *   className="transition-[filter] transition-base hover:brightness-[1.03]"   ← if already raised
  */
 export const HOVER_SURFACE = {
-  base:   'transition-colors transition-base hover:bg-surface-raised',
-  raised: 'transition-[filter] transition-base hover:brightness-[1.03]',
+  base: "transition-colors transition-base hover:bg-surface-raised",
+  raised: "transition-[filter] transition-base hover:brightness-[1.03]",
 } as const;
 
 /**
@@ -156,9 +156,12 @@ export const HOVER_SURFACE = {
  *              hover:border-strong hover:bg-surface-raised"
  */
 export const HOVER_BUTTON = {
-  primary:     'transition-[filter,box-shadow,transform] transition-base hover:brightness-[1.08]',
-  secondary:   'transition-[border-color,background-color] transition-base hover:border-strong hover:bg-surface-raised',
-  destructive: 'transition-[filter,box-shadow,transform] transition-base hover:brightness-[1.08]',
+  primary:
+    "transition-[filter,box-shadow,transform] transition-base hover:brightness-[1.08]",
+  secondary:
+    "transition-[border-color,background-color] transition-base hover:border-strong hover:bg-surface-raised",
+  destructive:
+    "transition-[filter,box-shadow,transform] transition-base hover:brightness-[1.08]",
 } as const;
 
 /**
@@ -171,7 +174,7 @@ export const HOVER_BUTTON = {
  *   className="rounded-sm transition-colors transition-fast hover:bg-accent-subtle"
  */
 export const HOVER_SMALL = {
-  base: 'rounded-sm transition-colors transition-fast hover:bg-accent-subtle',
+  base: "rounded-sm transition-colors transition-fast hover:bg-accent-subtle",
 } as const;
 
 // ─── ACTIVE / PRESSED STATE ──────────────────────────────────────────────────
@@ -194,8 +197,9 @@ export const HOVER_SMALL = {
  *   className="active:scale-[0.95] transition-[transform] transition-fast"
  */
 export const ACTIVE_PRESS = {
-  large: 'active:scale-[0.97] active:[box-shadow:var(--shadow-inset)] transition-[transform,box-shadow] transition-fast',
-  small: 'active:scale-[0.95] transition-[transform] transition-fast',
+  large:
+    "active:scale-[0.97] active:[box-shadow:var(--shadow-inset)] transition-[transform,box-shadow] transition-fast",
+  small: "active:scale-[0.95] transition-[transform] transition-fast",
 } as const;
 
 // ─── FOCUS VISIBLE ───────────────────────────────────────────────────────────
@@ -215,7 +219,7 @@ export const ACTIVE_PRESS = {
  *   (global rule sets only shadow-focus, overwriting the inset — merge manually)
  */
 export const FOCUS_VISIBLE = {
-  ring: 'focus-visible:outline-none focus-visible:[box-shadow:var(--shadow-focus)]',
+  ring: "focus-visible:outline-none focus-visible:[box-shadow:var(--shadow-focus)]",
 } as const;
 
 // ─── FORM STATES ─────────────────────────────────────────────────────────────
@@ -241,11 +245,12 @@ export const FOCUS_VISIBLE = {
  *    focus:border-accent focus:[box-shadow:var(--shadow-inset),var(--shadow-focus)]"
  */
 export const INPUT_STATES = {
-  base:       'bg-surface-sunken border border-subtle [box-shadow:var(--shadow-inset)] h-10 px-4 rounded-sm outline-none',
-  transition: 'transition-[border-color,box-shadow] transition-base',
-  hover:      'hover:border-strong',
-  focus:      'focus:border-accent focus:[box-shadow:var(--shadow-inset),var(--shadow-focus)]',
-  error:      'border-error [box-shadow:var(--shadow-focus-error)]',
+  base: "bg-surface-sunken border border-subtle [box-shadow:var(--shadow-inset)] h-10 px-4 rounded-sm outline-none",
+  transition: "transition-[border-color,box-shadow] transition-base",
+  hover: "hover:border-strong",
+  focus:
+    "focus:border-accent focus:[box-shadow:var(--shadow-inset),var(--shadow-focus)]",
+  error: "border-error [box-shadow:var(--shadow-focus-error)]",
 } as const;
 
 /**
@@ -264,8 +269,8 @@ export const INPUT_STATES = {
  *    data-[checked]:bg-accent data-[checked]:border-accent"
  */
 export const CHECKBOX_STATES = {
-  base:       'size-4 rounded-sm border border-strong bg-surface-sunken',
-  transition: 'transition-[border-color,background-color] transition-fast',
-  hover:      'hover:border-accent',
-  checked:    'data-[checked]:bg-accent data-[checked]:border-accent',
+  base: "size-4 rounded-sm border border-strong bg-surface-sunken",
+  transition: "transition-[border-color,background-color] transition-fast",
+  hover: "hover:border-accent",
+  checked: "data-[checked]:bg-accent data-[checked]:border-accent",
 } as const;

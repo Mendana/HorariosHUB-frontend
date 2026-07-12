@@ -1,5 +1,5 @@
-import { setRequestLocale } from 'next-intl/server';
-import Link from 'next/link';
+import { setRequestLocale } from "next-intl/server";
+import Link from "next/link";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -11,7 +11,10 @@ interface AuthLayoutProps {
  * Sin topbar. Logo centrado + formulario, como indica CLAUDE.md.
  * Rutas: /auth/login, /auth/register, /auth/verify, /auth/recover, /auth/reset-password.
  */
-export default async function AuthLayout({ children, params }: AuthLayoutProps) {
+export default async function AuthLayout({
+  children,
+  params,
+}: AuthLayoutProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -20,11 +23,15 @@ export default async function AuthLayout({ children, params }: AuthLayoutProps) 
       {/* Logo — centrado, enlaza a home */}
       <Link
         href="/"
-        aria-label="PCEO Hub"
+        aria-label="Horarios Hub"
         className="mb-10 transition-opacity transition-fast hover:opacity-75"
       >
-        <span className="text-2xl font-semibold text-primary tracking-tight">PCEO</span>
-        <span className="text-2xl font-normal text-accent tracking-tight">Hub</span>
+        <span className="text-2xl font-semibold text-primary tracking-tight">
+          Horarios
+        </span>
+        <span className="text-2xl font-normal text-accent tracking-tight">
+          Hub
+        </span>
       </Link>
 
       {children}

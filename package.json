@@ -1,5 +1,5 @@
 {
-  "name": "pceo-hub",
+  "name": "horarios-hub",
   "version": "0.1.1",
   "private": true,
   "packageManager": "pnpm@9.15.4",
@@ -32,3 +32,4 @@
     "typescript": "^5"
   }
 }
+
