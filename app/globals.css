@@ -22,10 +22,10 @@
   --text-secondary: oklch(50% 0.006 75);  /* Gris medio */
   --text-tertiary:  oklch(56% 0.005 75);  /* Gris medio (ajustado para contraste AA 4.5:1) */
 
-  /* Acento — índigo vivo (misma saturación en ambos temas) */
-  --accent:       oklch(52% 0.23 278);
-  --accent-subtle: oklch(52% 0.23 278 / 12%);
-  --accent-hover:  oklch(46% 0.23 278);
+  /* Acento — naranja vivo #FF9900 (misma saturación en ambos temas) */
+  --accent:        oklch(73% 0.188 65);
+  --accent-subtle: oklch(73% 0.188 65 / 12%);
+  --accent-hover:  oklch(65% 0.188 65);
 
   /* Semánticos */
   --error:          oklch(55% 0.22 22);
@@ -54,7 +54,7 @@
   --shadow-sm:          0 1px 2px oklch(0% 0 0 / 6%);
   --shadow-md:          0 4px 8px oklch(0% 0 0 / 8%), 0 1px 3px oklch(0% 0 0 / 6%);
   --shadow-inset:       inset 0 1px 2px oklch(0% 0 0 / 7%);
-  --shadow-focus:       0 0 0 2px var(--accent), 0 0 0 5px oklch(52% 0.23 278 / 20%);
+  --shadow-focus:       0 0 0 2px var(--accent), 0 0 0 5px oklch(73% 0.188 65 / 20%);
   --shadow-focus-error: 0 0 0 2px var(--error), 0 0 0 5px oklch(55% 0.22 22 / 20%);
 
   /* ── Sombras de input — tres capas que componen profundidad real:
@@ -74,7 +74,7 @@
     inset 0 1px 1px oklch(0% 0 0 / 3%),
     inset 0 -1px 0   oklch(100% 0 0 / 14%),
     0 0 0 2px var(--accent),
-    0 0 0 5px oklch(52% 0.23 278 / 18%);
+    0 0 0 5px oklch(73% 0.188 65 / 18%);
   /* Error: mantiene profundidad + anillo error */
   --shadow-input-error:
     inset 0 2px 3px oklch(0% 0 0 / 6%),
@@ -111,9 +111,9 @@
   --text-tertiary:  oklch(60% 0.010 250);  /* Ajustado para contraste AA 4.5:1 sobre fondo oscuro */
 
   /* Acento — MISMA saturación que light (regla 7) */
-  --accent:        oklch(52% 0.23 278);
-  --accent-subtle: oklch(52% 0.23 278 / 12%);
-  --accent-hover:  oklch(46% 0.23 278);
+  --accent:        oklch(73% 0.188 65);
+  --accent-subtle: oklch(73% 0.188 65 / 12%);
+  --accent-hover:  oklch(65% 0.188 65);
 
   /* Semánticos — ligeramente más luminosos para legibilidad sobre oscuro */
   --error:          oklch(62% 0.22 22);
@@ -131,7 +131,7 @@
   --shadow-sm:          0 1px 3px oklch(0% 0 0 / 30%);
   --shadow-md:          0 4px 16px oklch(0% 0 0 / 45%), 0 2px 4px oklch(0% 0 0 / 30%);
   --shadow-inset:       inset 0 1px 3px oklch(0% 0 0 / 40%);
-  --shadow-focus:       0 0 0 2px var(--accent), 0 0 0 5px oklch(52% 0.23 278 / 25%);
+  --shadow-focus:       0 0 0 2px var(--accent), 0 0 0 5px oklch(73% 0.188 65 / 25%);
   --shadow-focus-error: 0 0 0 2px var(--error), 0 0 0 5px oklch(62% 0.22 22 / 25%);
 
   /* Dark mode: sombras de input más pronunciadas (el color de superficie
@@ -147,7 +147,7 @@
     inset 0 1px 2px oklch(0% 0 0 / 16%),
     inset 0 -1px 0   oklch(100% 0 0 / 3%),
     0 0 0 2px var(--accent),
-    0 0 0 5px oklch(52% 0.23 278 / 22%);
+    0 0 0 5px oklch(73% 0.188 65 / 22%);
   --shadow-input-error:
     inset 0 2px 4px oklch(0% 0 0 / 38%),
     inset 0 -1px 0   oklch(100% 0 0 / 4%),

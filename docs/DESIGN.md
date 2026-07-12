@@ -1,6 +1,6 @@
-# DESIGN.md — Horarios PCEO
+# DESIGN.md — Horarios Hub
 
-Sistema de diseño y dirección visual para la aplicación de horarios universitarios del PCEO (Universidad de Oviedo).
+Sistema de diseño y dirección visual para la aplicación de horarios universitarios(Universidad de Oviedo).
 
 ---
 
@@ -36,14 +36,14 @@ El color se usa como herramienta de jerarquía y estado, no como decoración. La
 
 Se definen **6 niveles funcionales** de neutro, no valores de gris equidistantes. Cada nivel tiene un nombre semántico que describe su uso, no su luminosidad:
 
-| Token | Uso | Comportamiento light → dark |
-|---|---|---|
-| `surface-base` | Fondo de la app (el canvas) | Blanco cálido → gris muy oscuro (casi negro, con un toque de temperatura) |
-| `surface-raised` | Tarjetas, paneles, modales — cualquier superficie que "flota" sobre el canvas | Gris muy claro → gris oscuro |
-| `surface-sunken` | Fondos de input, áreas recesivas, zonas inactivas | Gris ligeramente más oscuro que base → negro puro o casi |
-| `border-subtle` | Separadores suaves, bordes de tarjeta | Gris claro, baja opacidad → gris medio, baja opacidad |
-| `border-strong` | Bordes de input con foco, separadores con peso | Gris medio → gris claro |
-| `surface-overlay` | Backdrop de modales y drawers | Negro al 40% opacidad → negro al 60% opacidad |
+| Token             | Uso                                                                           | Comportamiento light → dark                                               |
+| ----------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `surface-base`    | Fondo de la app (el canvas)                                                   | Blanco cálido → gris muy oscuro (casi negro, con un toque de temperatura) |
+| `surface-raised`  | Tarjetas, paneles, modales — cualquier superficie que "flota" sobre el canvas | Gris muy claro → gris oscuro                                              |
+| `surface-sunken`  | Fondos de input, áreas recesivas, zonas inactivas                             | Gris ligeramente más oscuro que base → negro puro o casi                  |
+| `border-subtle`   | Separadores suaves, bordes de tarjeta                                         | Gris claro, baja opacidad → gris medio, baja opacidad                     |
+| `border-strong`   | Bordes de input con foco, separadores con peso                                | Gris medio → gris claro                                                   |
+| `surface-overlay` | Backdrop de modales y drawers                                                 | Negro al 40% opacidad → negro al 60% opacidad                             |
 
 **Temperatura:** Los neutros no son grises puros. En light mode llevan una micro-dosis de calor (tono ligeramente hacia el amarillo/arena). En dark mode son fríos-neutros (ligeramente azulados). Esto evita que la interfaz se sienta clínica o plana.
 
@@ -51,11 +51,11 @@ Se definen **6 niveles funcionales** de neutro, no valores de gris equidistantes
 
 Tres niveles de contraste:
 
-| Token | Uso |
-|---|---|
-| `text-primary` | Títulos, contenido principal, valores importantes |
-| `text-secondary` | Labels, descripciones, metadatos |
-| `text-tertiary` | Placeholders, texto deshabilitado, hints |
+| Token            | Uso                                               |
+| ---------------- | ------------------------------------------------- |
+| `text-primary`   | Títulos, contenido principal, valores importantes |
+| `text-secondary` | Labels, descripciones, metadatos                  |
+| `text-tertiary`  | Placeholders, texto deshabilitado, hints          |
 
 En dark mode, `text-primary` no es blanco puro (#fff) sino un blanco rebajado para evitar fatiga visual. En light mode, `text-primary` no es negro puro sino un gris muy oscuro.
 
@@ -76,6 +76,7 @@ El acento se usa con moderación: botón primario, links de navegación activos,
 La cuadrícula de horario usa **un mapa de colores propio** independiente de la paleta de la app. Cada asignatura tiene asignado un color que se aplica al borde izquierdo o al fondo del bloque.
 
 Reglas para la paleta de asignaturas:
+
 - Los colores deben ser distinguibles entre sí pero no competir con el color de acento de la interfaz.
 - En light mode: colores de fondo pastel (baja saturación, alta luminosidad) con borde lateral en el color saturado.
 - En dark mode: colores de fondo muy oscuros y desaturados con borde lateral en el color medio.
@@ -85,18 +86,19 @@ Reglas para la paleta de asignaturas:
 
 Cuatro colores semánticos, cada uno con dos variantes (fuerte para texto/icono, sutil para fondo):
 
-| Estado | Uso principal en la app |
-|---|---|
-| **Error / destructivo** (rojo) | Errores de formulario, acción de eliminar, propuesta rechazada |
-| **Warning / atención** (ámbar/naranja) | Propuesta pendiente de revisión, operaciones lentas, sesión a punto de expirar |
-| **Success / confirmación** (verde) | Propuesta aprobada, guardado exitoso, verificación completada |
-| **Info / neutro** (azul claro o el propio acento en variante sutil) | Tooltips informativos, mensajes de ayuda |
+| Estado                                                              | Uso principal en la app                                                        |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **Error / destructivo** (rojo)                                      | Errores de formulario, acción de eliminar, propuesta rechazada                 |
+| **Warning / atención** (ámbar/naranja)                              | Propuesta pendiente de revisión, operaciones lentas, sesión a punto de expirar |
+| **Success / confirmación** (verde)                                  | Propuesta aprobada, guardado exitoso, verificación completada                  |
+| **Info / neutro** (azul claro o el propio acento en variante sutil) | Tooltips informativos, mensajes de ayuda                                       |
 
 Los colores semánticos **nunca se usan para decorar**. Solo aparecen cuando hay un estado que comunicar.
 
 ### Regla de inversión dark/light
 
 El dark mode no es "invertir colores". Las decisiones clave:
+
 - Las superficies se oscurecen, pero los colores de acento y semánticos mantienen su saturación (se ajusta la luminosidad, no la saturación).
 - Los bordes se vuelven más sutiles en dark mode (menor opacidad), no más brillantes.
 - Los colores de asignatura se oscurecen significativamente en dark mode para no crear bloques brillantes que compitan con el contenido.
@@ -110,6 +112,7 @@ El dark mode no es "invertir colores". Las decisiones clave:
 **Una sola familia** con suficiente rango de pesos. No se mezclan dos familias.
 
 La familia elegida debe cumplir:
+
 - Excelente legibilidad en tamaños pequeños (los bloques de la cuadrícula muestran texto de 12-13px).
 - Caracteres con proporciones modernas (no condensada, no extendida).
 - Soporte completo de acentos y caracteres españoles (ñ, tildes, diéresis).
@@ -122,16 +125,17 @@ La familia elegida debe cumplir:
 
 Se define una escala de **6 tamaños funcionales**, no una rampa lineal. Cada tamaño tiene un uso concreto:
 
-| Token | Tamaño aprox. | Peso | Uso |
-|---|---|---|---|
-| `heading-page` | 22-24px | Semibold (600) | Título de la página actual ("Horario", "Mis Asignaturas", "Propuestas") |
-| `heading-section` | 17-18px | Medium (500) | Título de sección dentro de una página ("Propuestas pendientes", "Lunes 12") |
-| `body` | 14-15px | Regular (400) | Texto general, contenido de formularios, descripciones |
-| `body-strong` | 14-15px | Medium (500) | Labels de formulario, nombre de asignatura en listas, datos destacados |
-| `small` | 12-13px | Regular (400) | Texto dentro de los bloques de la cuadrícula, metadatos, timestamps |
-| `small-strong` | 12-13px | Medium (500) | Labels en los bloques (tipo de clase, aula), badges |
+| Token             | Tamaño aprox. | Peso           | Uso                                                                          |
+| ----------------- | ------------- | -------------- | ---------------------------------------------------------------------------- |
+| `heading-page`    | 22-24px       | Semibold (600) | Título de la página actual ("Horario", "Mis Asignaturas", "Propuestas")      |
+| `heading-section` | 17-18px       | Medium (500)   | Título de sección dentro de una página ("Propuestas pendientes", "Lunes 12") |
+| `body`            | 14-15px       | Regular (400)  | Texto general, contenido de formularios, descripciones                       |
+| `body-strong`     | 14-15px       | Medium (500)   | Labels de formulario, nombre de asignatura en listas, datos destacados       |
+| `small`           | 12-13px       | Regular (400)  | Texto dentro de los bloques de la cuadrícula, metadatos, timestamps          |
+| `small-strong`    | 12-13px       | Medium (500)   | Labels en los bloques (tipo de clase, aula), badges                          |
 
 **Reglas de uso del peso:**
+
 - `regular` es el default. La mayoría del texto es regular.
 - `medium` se usa para enfatizar dentro de un contexto: el nombre de una asignatura en una lista, el label de un campo de formulario, el día de la semana en la cabecera de la cuadrícula.
 - `semibold` se reserva exclusivamente para títulos de página. Nada más.
@@ -163,17 +167,17 @@ Los números en la cuadrícula (horas, números de aula) usan **tabular figures*
 
 **4px** como unidad atómica. Todo el espaciado es múltiplo de 4:
 
-| Token | Valor | Uso típico |
-|---|---|---|
-| `space-1` | 4px | Separación entre icono y texto, gap mínimo |
-| `space-2` | 8px | Padding interno de badges, gap entre elementos inline |
-| `space-3` | 12px | Padding de bloques en la cuadrícula, gap en listas compactas |
-| `space-4` | 16px | Padding de inputs, gap entre campos de formulario |
-| `space-5` | 20px | Margen entre secciones dentro de un panel |
-| `space-6` | 24px | Padding de tarjetas y paneles |
-| `space-8` | 32px | Separación entre secciones de página |
-| `space-10` | 40px | Margen superior de página, separaciones mayores |
-| `space-12` | 48px | Padding lateral del layout principal en desktop |
+| Token      | Valor | Uso típico                                                   |
+| ---------- | ----- | ------------------------------------------------------------ |
+| `space-1`  | 4px   | Separación entre icono y texto, gap mínimo                   |
+| `space-2`  | 8px   | Padding interno de badges, gap entre elementos inline        |
+| `space-3`  | 12px  | Padding de bloques en la cuadrícula, gap en listas compactas |
+| `space-4`  | 16px  | Padding de inputs, gap entre campos de formulario            |
+| `space-5`  | 20px  | Margen entre secciones dentro de un panel                    |
+| `space-6`  | 24px  | Padding de tarjetas y paneles                                |
+| `space-8`  | 32px  | Separación entre secciones de página                         |
+| `space-10` | 40px  | Margen superior de página, separaciones mayores              |
+| `space-12` | 48px  | Padding lateral del layout principal en desktop              |
 
 ### Bordes y radios
 
@@ -197,12 +201,14 @@ Uso mínimo de sombras. La jerarquía de superficies se comunica principalmente 
 El bloque es el componente más importante de la app. Se ve decenas de veces por pantalla y contiene información densa.
 
 **Estructura:**
+
 - Borde izquierdo de 3-4px en el color de la asignatura (el color sólido, saturado).
 - Fondo en la variante pastel/oscura del mismo color.
 - Contenido: nombre corto de la asignatura (primera línea, `small-strong`), tipo y aula (segunda línea, `small`, `text-secondary`).
 - Si el bloque es demasiado corto verticalmente (clases de 30 min), el contenido se recorta con ellipsis. Al hacer hover o tap, se muestra un tooltip con la información completa.
 
 **Comportamiento visual:**
+
 - En reposo: fondo sutil, borde de color.
 - En hover: el fondo se intensifica ligeramente (aumento de opacidad).
 - Si la clase está en curso ahora: el borde izquierdo se ensancha o se añade un indicador sutil (punto o pulso).
@@ -234,11 +240,13 @@ La lista de propuestas es una tabla simplificada o una lista de tarjetas (según
 ### 5.4 Navegación principal y navegación temporal
 
 **Navegación principal** (ver sección 6 para el layout completo):
+
 - Los items de navegación son texto plano con el item activo diferenciado por peso (`body-strong`) y color (`accent` o `text-primary` vs `text-secondary`).
 - No se usa fondo coloreado ni pill para marcar el item activo, solo peso tipográfico y color.
 - El icono acompaña al texto pero no lo reemplaza (excepto en móvil donde se puede usar solo icono + label corto).
 
 **Navegación temporal (semanas y semestres):**
+
 - Se ubica inmediatamente encima de la cuadrícula de horario, como parte del header del contenido, no en la navegación principal.
 - **Selector de semestre:** dos botones (o tabs) para "1º Semestre" / "2º Semestre". El activo se marca con fondo `accent-subtle` y texto `accent`.
 - **Navegador de semanas:** flechas izquierda/derecha con el rango de fechas de la semana actual centrado entre ellas (ej: "17 – 21 Mar 2025"). Flechas como botones icon-only. La semana actual se puede volver a seleccionar con un botón "Hoy" que aparece solo cuando el usuario no está viendo la semana actual.
@@ -247,16 +255,19 @@ La lista de propuestas es una tabla simplificada o una lista de tarjetas (según
 ### 5.5 Estados vacíos y de carga
 
 **Estado de carga (loading):**
+
 - La cuadrícula de horario muestra un skeleton: bloques rectangulares grises que pulsan suavemente en las posiciones donde irían las asignaturas. No un spinner centrado.
 - Las listas muestran filas skeleton (3-5 filas de barras grises con diferente ancho).
 - Los formularios no tienen estado de carga propio; el botón de submit muestra un spinner inline pequeño y se deshabilita.
 
 **Estado vacío (sin datos):**
+
 - La cuadrícula vacía muestra la estructura horaria (filas de hora, columnas de día) pero sin bloques. En el centro, un mensaje corto: "No hay clases esta semana" o "Introduce tu UO para ver tu horario". Texto `text-secondary`, tamaño `body`.
 - No se usan ilustraciones ni emojis en estados vacíos. Solo texto.
 - Las listas vacías muestran un mensaje centrado con la misma lógica: "No hay propuestas pendientes".
 
 **Estado de error:**
+
 - Si falla una petición al backend, se muestra un banner inline (no un toast) en la zona del contenido afectado: fondo `error-subtle`, borde `error`, texto `error` con el mensaje de error. Un botón de "Reintentar" al final.
 - Los errores de autenticación (sesión expirada) redirigen a la página de login con un mensaje informativo.
 
@@ -269,7 +280,8 @@ La lista de propuestas es una tabla simplificada o una lista de tarjetas (según
 **Topbar fija + contenido fluido.** No sidebar.
 
 La topbar contiene:
-- **Logo/nombre de la app** a la izquierda (ej: "Horarios PCEO" en `body-strong`).
+
+- **Logo/nombre de la app** a la izquierda (ej: "Horarios Hub" en `body-strong`).
 - **Selector de titulación** a continuación del logo (dropdown compacto o grupo de chips).
 - **Navegación principal** centrada o a la derecha: links a las secciones disponibles según el rol del usuario.
 - **Acciones de usuario** al extremo derecho: botón de tema (sol/luna), y si está autenticado, campana de notificaciones + menú de perfil (dropdown con email, rol, cerrar sesión).
@@ -279,6 +291,7 @@ La topbar tiene altura fija (56-64px), fondo `surface-base` con `border-subtle` 
 ### Zona pública vs zona autenticada
 
 No hay una separación visual drástica. La topbar es la misma. Lo que cambia es:
+
 - **Visitante:** ve en la nav solo "Horario". El selector de titulación y la entrada de UO/curso están visibles. Aparece un botón de "Iniciar sesión" en la zona de acciones.
 - **Autenticado:** ve en la nav "Horario" + "Mis Asignaturas" + "Propuestas". El botón de login se reemplaza por el menú de perfil.
 - **Profesor/Admin:** ve adicionalmente "Gestión" (o un subnav dentro del dropdown de perfil) con acceso a creación de clases, revisión de propuestas y (solo admin) gestión de usuarios.
@@ -288,6 +301,7 @@ Las páginas de autenticación (login, registro, verificación, reset) son rutas
 ### Input de UO y selector de curso
 
 El input de UO y los botones de curso no viven en la topbar. Están en la propia página de horario, entre la topbar y la cuadrícula:
+
 - El input de UO es un campo de texto con placeholder ("UO123456") y un botón de buscar.
 - Los botones de curso (Primero, Segundo… Quinto) son un grupo de tabs o chips horizontales junto al input.
 - En conjunto, forman una barra de "selección de horario" que es parte del contenido de la página, no de la navegación global.
@@ -302,15 +316,16 @@ En mobile, la app se simplifica sin perder funcionalidad. La cuadrícula semanal
 
 ### Breakpoints
 
-| Nombre | Rango | Comportamiento |
-|---|---|---|
-| `mobile` | < 640px | Layout de una columna, vista diaria por defecto |
-| `tablet` | 640px – 1023px | Layout adaptado, cuadrícula semanal comprimida |
-| `desktop` | ≥ 1024px | Layout completo |
+| Nombre    | Rango          | Comportamiento                                  |
+| --------- | -------------- | ----------------------------------------------- |
+| `mobile`  | < 640px        | Layout de una columna, vista diaria por defecto |
+| `tablet`  | 640px – 1023px | Layout adaptado, cuadrícula semanal comprimida  |
+| `desktop` | ≥ 1024px       | Layout completo                                 |
 
 ### Cuadrícula de horario en mobile
 
 La vista semanal no funciona en pantallas <640px. El fallback es **vista diaria**:
+
 - Se muestra un solo día con su columna de horas.
 - La navegación entre días se hace con swipe horizontal o con tabs para cada día de la semana en la parte superior.
 - El día actual se preselecciona automáticamente.
@@ -319,6 +334,7 @@ La vista semanal no funciona en pantallas <640px. El fallback es **vista diaria*
 ### Topbar en mobile
 
 La topbar se convierte en:
+
 - Logo a la izquierda.
 - Botón de menú hamburguesa a la derecha que abre un drawer lateral o un menú full-screen con: navegación principal, selector de titulación, toggle de tema, perfil/login.
 - La campana de notificaciones se mueve dentro del menú.
@@ -378,7 +394,7 @@ La dirección es un azul eléctrico/índigo, pero el valor exacto afecta toda la
 
 ### 9.3 Nombre y branding de la app
 
-El documento de arquitectura usa "Horarios PCEO" como nombre de trabajo. ¿Es el nombre definitivo? ¿Hay un logo, o se usa solo texto? Esto afecta a la topbar y a las páginas de auth. Respuesta: el nombre será "PCEO Hub" aunque puede ser que vuelva a "Horarios PCEO" si el branding se complica. Por ahora no hay ningún logo, ya se incluirá en un futuro si se decide que es necesario.
+El documento de arquitectura usa "Horarios Hub" como nombre de trabajo. ¿Es el nombre definitivo? ¿Hay un logo, o se usa solo texto? Esto afecta a la topbar y a las páginas de auth. Respuesta: el nombre será "PCEO Hub" aunque puede ser que vuelva a "Horarios PCEO" si el branding se complica. Por ahora no hay ningún logo, ya se incluirá en un futuro si se decide que es necesario.
 
 ### 9.4 Iconos: set y formato
 

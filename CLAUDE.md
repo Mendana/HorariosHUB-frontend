@@ -1,4 +1,4 @@
-# CLAUDE.md — PCEO Hub
+# CLAUDE.md — Horarios Hub
 
 Documento de referencia para el desarrollo del frontend. Lee esto antes de generar cualquier componente, página o hook. No es negociable salvo que el usuario lo indique explícitamente.
 
@@ -6,9 +6,9 @@ Documento de referencia para el desarrollo del frontend. Lee esto antes de gener
 
 ## 1. Qué es esta app
 
-Aplicación web de consulta y gestión de horarios universitarios para los grados del PCEO (Universidad de Oviedo). Combina una vista pública de horarios (sin login) con un panel de gestión protegido por roles.
+Aplicación web de consulta y gestión de horarios universitarios para los grados y PCEO (Universidad de Oviedo). Combina una vista pública de horarios (sin login) con un panel de gestión protegido por roles.
 
-**Nombre:** PCEO Hub  
+**Nombre:** Horarios Hub  
 **Stack:** Next.js (App Router + SSR) · React 19 · Tailwind CSS · TanStack Query · JWT en cookie `httpOnly`  
 **i18n:** `next-intl`. Español por defecto si el navegador no indica otro idioma. Switch en menú de perfil. Todos los textos visibles deben ir en archivos de traducción desde el primer componente — nunca strings literales en JSX.  
 **Iconos:** Lucide React para navegación, acciones y estados.  
@@ -19,19 +19,19 @@ Aplicación web de consulta y gestión de horarios universitarios para los grado
 
 ## 2. Roles y permisos
 
-| Capacidad | Visitante | Autenticado | Profesor | Admin |
-|---|:---:|:---:|:---:|:---:|
-| Consultar horario por titulación/curso | ✓ | ✓ | ✓ | ✓ |
-| Consultar horario personal (por UO) | ✓ | ✓ | ✓ | ✓ |
-| Navegar semanas/semestres | ✓ | ✓ | ✓ | ✓ |
-| Cambiar tema claro/oscuro | ✓ | ✓ | ✓ | ✓ |
-| Seleccionar grupos de asignaturas | ✗ | ✓ | ✓ | ✓ |
-| Autoselección de grupos | ✗ | ✓ | ✓ | ✓ |
-| Copiar horario de otro usuario | ✗ | ✓ | ✓ | ✓ |
-| Proponer cambios de horario | ✗ | ✓ | ✓ | ✓ |
-| Crear/editar/eliminar clases directamente | ✗ | ✗ | ✓ | ✓ |
-| Aprobar/rechazar propuestas | ✗ | ✗ | ✓ | ✓ |
-| Gestionar usuarios (roles, eliminar) | ✗ | ✗ | ✗ | ✓ |
+| Capacidad                                 | Visitante | Autenticado | Profesor | Admin |
+| ----------------------------------------- | :-------: | :---------: | :------: | :---: |
+| Consultar horario por titulación/curso    |     ✓     |      ✓      |    ✓     |   ✓   |
+| Consultar horario personal (por UO)       |     ✓     |      ✓      |    ✓     |   ✓   |
+| Navegar semanas/semestres                 |     ✓     |      ✓      |    ✓     |   ✓   |
+| Cambiar tema claro/oscuro                 |     ✓     |      ✓      |    ✓     |   ✓   |
+| Seleccionar grupos de asignaturas         |     ✗     |      ✓      |    ✓     |   ✓   |
+| Autoselección de grupos                   |     ✗     |      ✓      |    ✓     |   ✓   |
+| Copiar horario de otro usuario            |     ✗     |      ✓      |    ✓     |   ✓   |
+| Proponer cambios de horario               |     ✗     |      ✓      |    ✓     |   ✓   |
+| Crear/editar/eliminar clases directamente |     ✗     |      ✗      |    ✓     |   ✓   |
+| Aprobar/rechazar propuestas               |     ✗     |      ✗      |    ✓     |   ✓   |
+| Gestionar usuarios (roles, eliminar)      |     ✗     |      ✗      |    ✗     |   ✓   |
 
 Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesores se aprueban automáticamente en backend — el frontend no necesita tratarlo de forma especial, simplemente refleja el estado que devuelve la API.
 
@@ -40,21 +40,25 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 ## 3. Rutas y navegación
 
 ### Layout general
+
 - **Topbar fija** (56–64px) en todas las páginas excepto auth.
 - **Sin sidebar.** Navegación exclusivamente horizontal.
 - Fondo `surface-base` con `border-subtle` inferior. Opaca en scroll, sin blur.
 
 ### Contenido de la topbar
-- Izquierda: nombre "PCEO Hub" en `body-strong`. Sin logo por ahora.
+
+- Izquierda: nombre "Horarios Hub" en `body-strong`. Sin logo por ahora.
 - Centro-derecha: links de navegación según rol (ver abajo).
 - Extremo derecho: toggle tema (Lucide `Sun`/`Moon`) · campana notificaciones (solo autenticados) · botón "Iniciar sesión" o menú de perfil (dropdown: email, rol, switch idioma, cerrar sesión).
 
 ### Links de navegación por rol
+
 - **Visitante:** Horario
 - **Autenticado:** Horario · Mis Asignaturas · Propuestas
 - **Profesor/Admin:** Horario · Mis Asignaturas · Propuestas · Gestión
 
 ### Rutas
+
 ```
 /                          → Horario (público)
 /auth/login
@@ -70,10 +74,12 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 ```
 
 ### Mobile
+
 - Topbar: solo logo + hamburguesa. Abre drawer con navegación completa, selector titulación, toggle tema, perfil/login.
 - Breakpoints: `mobile < 640px` · `tablet 640–1023px` · `desktop ≥ 1024px`
 
 ### Páginas de auth
+
 - Layout minimalista: logo centrado + formulario. Sin topbar completa.
 
 ---
@@ -83,20 +89,22 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 ### Base URL: `/api` · Auth: cookie `httpOnly` · Errores: `{ error, message }`
 
 #### Autenticación
-| Método | Endpoint | Trigger |
-|---|---|---|
-| POST | `/api/auth/login` | Submit formulario login |
-| POST | `/api/auth/register` | Submit formulario registro |
-| GET | `/api/auth/verify?token=` | Cargar página verify |
-| POST | `/api/auth/recover` | Submit recuperación |
-| POST | `/api/auth/reset-password` | Submit nueva contraseña (token en body, no query param) |
-| POST | `/api/auth/logout` | Click cerrar sesión |
-| GET | `/api/auth/me` | Al cargar cualquier página protegida |
+
+| Método | Endpoint                   | Trigger                                                 |
+| ------ | -------------------------- | ------------------------------------------------------- |
+| POST   | `/api/auth/login`          | Submit formulario login                                 |
+| POST   | `/api/auth/register`       | Submit formulario registro                              |
+| GET    | `/api/auth/verify?token=`  | Cargar página verify                                    |
+| POST   | `/api/auth/recover`        | Submit recuperación                                     |
+| POST   | `/api/auth/reset-password` | Submit nueva contraseña (token en body, no query param) |
+| POST   | `/api/auth/logout`         | Click cerrar sesión                                     |
+| GET    | `/api/auth/me`             | Al cargar cualquier página protegida                    |
 
 #### Horario (público)
-| Método | Endpoint | Trigger |
-|---|---|---|
-| GET | `/api/schedule/{identifier}` | Enter en input UO o click en botón de curso |
+
+| Método | Endpoint                     | Trigger                                     |
+| ------ | ---------------------------- | ------------------------------------------- |
+| GET    | `/api/schedule/{identifier}` | Enter en input UO o click en botón de curso |
 
 - `identifier` es un UO (`uo123456`) o código de curso (`infmatprimero`).
 - Devuelve array plano de `subjects`. La agrupación Year/Week/Day la hace el frontend.
@@ -105,40 +113,45 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 - `400` = identificador inválido.
 
 #### Clases (profesor/admin)
-| Método | Endpoint | Trigger |
-|---|---|---|
-| POST | `/api/classes` | Crear clase |
-| PATCH | `/api/classes/{id}` | Editar clase |
+
+| Método | Endpoint            | Trigger        |
+| ------ | ------------------- | -------------- |
+| POST   | `/api/classes`      | Crear clase    |
+| PATCH  | `/api/classes/{id}` | Editar clase   |
 | DELETE | `/api/classes/{id}` | Eliminar clase |
 
 #### Propuestas
-| Método | Endpoint | Trigger |
-|---|---|---|
-| POST | `/api/proposals` | Enviar propuesta |
-| GET | `/api/proposals?status=pending&page=1&limit=10` | Vista de revisión (profesor/admin) |
-| GET | `/api/proposals/mine?page=1&limit=10` | Vista mis propuestas |
-| PATCH | `/api/proposals/{id}/approve` | Aprobar |
-| PATCH | `/api/proposals/{id}/reject` | Rechazar (body opcional: `{ reason }`) |
+
+| Método | Endpoint                                        | Trigger                                |
+| ------ | ----------------------------------------------- | -------------------------------------- |
+| POST   | `/api/proposals`                                | Enviar propuesta                       |
+| GET    | `/api/proposals?status=pending&page=1&limit=10` | Vista de revisión (profesor/admin)     |
+| GET    | `/api/proposals/mine?page=1&limit=10`           | Vista mis propuestas                   |
+| PATCH  | `/api/proposals/{id}/approve`                   | Aprobar                                |
+| PATCH  | `/api/proposals/{id}/reject`                    | Rechazar (body opcional: `{ reason }`) |
 
 #### Selección de grupos
-| Método | Endpoint | Trigger |
-|---|---|---|
-| GET | `/api/subjects/catalog` | Cargar vista Mis Asignaturas |
-| POST | `/api/subjects/selection` | Guardar selección |
-| POST | `/api/subjects/auto-select` | Iniciar autoselección |
-| GET | `/api/subjects/auto-select/status` | Polling cada 5s hasta completed/failed |
+
+| Método | Endpoint                           | Trigger                                |
+| ------ | ---------------------------------- | -------------------------------------- |
+| GET    | `/api/subjects/catalog`            | Cargar vista Mis Asignaturas           |
+| POST   | `/api/subjects/selection`          | Guardar selección                      |
+| POST   | `/api/subjects/auto-select`        | Iniciar autoselección                  |
+| GET    | `/api/subjects/auto-select/status` | Polling cada 5s hasta completed/failed |
 
 #### Usuarios (admin)
-| Método | Endpoint | Trigger |
-|---|---|---|
-| GET | `/api/users?search=&role=&page=1&limit=20` | Cargar lista |
-| PATCH | `/api/users/{email}/role` | Cambiar rol (body: `{ role }`) |
-| DELETE | `/api/users/{email}` | Eliminar usuario |
+
+| Método | Endpoint                                   | Trigger                        |
+| ------ | ------------------------------------------ | ------------------------------ |
+| GET    | `/api/users?search=&role=&page=1&limit=20` | Cargar lista                   |
+| PATCH  | `/api/users/{email}/role`                  | Cambiar rol (body: `{ role }`) |
+| DELETE | `/api/users/{email}`                       | Eliminar usuario               |
 
 #### Copiar horario
-| Método | Endpoint | Trigger |
-|---|---|---|
-| POST | `/api/schedule/copy` | Confirmar copia (body: `{ from, to }`) |
+
+| Método | Endpoint             | Trigger                                |
+| ------ | -------------------- | -------------------------------------- |
+| POST   | `/api/schedule/copy` | Confirmar copia (body: `{ from, to }`) |
 
 ---
 
@@ -164,30 +177,33 @@ El componente más importante de la app.
 - **Fuera de período lectivo (1 jul – 31 ago):** selector de semestre deshabilitado, mensaje informativo.
 
 ### Navegación temporal (encima de la cuadrícula, no en topbar)
+
 - Selector de semestre: tabs "1º Semestre" / "2º Semestre". Activo: fondo `accent-subtle`, texto `accent`.
 - Navegador de semanas: `‹` fecha-inicio – fecha-fin `›`. Botón "Hoy" solo si no estás en la semana actual.
 - Persistencia en `localStorage`: `selectedSemester`, `selectedWeek`.
 - Validar que la semana guardada pertenece al semestre activo al cargar.
 
 ### Selector de horario (entre topbar y cuadrícula)
+
 - Input UO con placeholder "UO123456" + botón buscar.
 - Chips/tabs horizontales: Primero · Segundo · Tercero · Cuarto · Quinto.
 - Titulaciones hardcodeadas (candidatas a migrar al backend en el futuro):
 
-| Titulación | Prefijo |
-|---|---|
-| Matemáticas | `mat` |
-| Informática | `inf` |
-| Física | `fis` |
+| Titulación                | Prefijo  |
+| ------------------------- | -------- |
+| Matemáticas               | `mat`    |
+| Informática               | `inf`    |
+| Física                    | `fis`    |
 | Informática + Matemáticas | `infmat` |
-| Física + Matemáticas | `fismat` |
-| Matemáticas + Física | `matfis` |
+| Física + Matemáticas      | `fismat` |
+| Matemáticas + Física      | `matfis` |
 
 ---
 
 ## 6. Colores de asignatura
 
 Pool de 14–16 colores asignados cíclicamente, **no** un mapa de 72 entradas. Agrupados por titulación:
+
 - **Matemáticas** (24 códigos conocidos): gama fría — azules, púrpuras, teales.
 - **Informática** (resto): gama cálida — naranjas, verdes, rosas.
 
@@ -198,50 +214,56 @@ Cada color tiene dos variantes: fondo pastel (light) y fondo oscuro+desaturado (
 ## 7. Sistema de diseño
 
 ### Tokens de color
-| Token | Light | Dark |
-|---|---|---|
-| `surface-base` | Blanco cálido | Gris muy oscuro (frío) |
-| `surface-raised` | Gris muy claro | Gris oscuro |
-| `surface-sunken` | Gris claro | Negro o casi negro |
-| `border-subtle` | Gris claro baja opacidad | Gris medio baja opacidad |
-| `border-strong` | Gris medio | Gris claro |
-| `text-primary` | Gris muy oscuro (no negro puro) | Blanco rebajado (no #fff) |
-| `text-secondary` | Gris medio | Gris claro |
-| `text-tertiary` | Gris claro | Gris medio oscuro |
-| `accent` | Índigo vivo | Índigo vivo (misma saturación) |
-| `accent-subtle` | Índigo 10–15% opacidad | Índigo 10–15% opacidad |
-| `accent-hover` | Índigo más oscuro | Índigo más oscuro |
+
+| Token            | Light                           | Dark                           |
+| ---------------- | ------------------------------- | ------------------------------ |
+| `surface-base`   | Blanco cálido                   | Gris muy oscuro (frío)         |
+| `surface-raised` | Gris muy claro                  | Gris oscuro                    |
+| `surface-sunken` | Gris claro                      | Negro o casi negro             |
+| `border-subtle`  | Gris claro baja opacidad        | Gris medio baja opacidad       |
+| `border-strong`  | Gris medio                      | Gris claro                     |
+| `text-primary`   | Gris muy oscuro (no negro puro) | Blanco rebajado (no #fff)      |
+| `text-secondary` | Gris medio                      | Gris claro                     |
+| `text-tertiary`  | Gris claro                      | Gris medio oscuro              |
+| `accent`         | Índigo vivo                     | Índigo vivo (misma saturación) |
+| `accent-subtle`  | Índigo 10–15% opacidad          | Índigo 10–15% opacidad         |
+| `accent-hover`   | Índigo más oscuro               | Índigo más oscuro              |
 
 **Temperatura:** neutros cálidos en light (micro-dosis amarillo/arena), neutros fríos en dark (micro-dosis azul). No grises puros.
 
 ### Colores semánticos (solo para comunicar estado, nunca decorativos)
-| Token | Color | Usos |
-|---|---|---|
-| `error` / `error-subtle` | Rojo | Errores formulario, eliminar, propuesta rechazada |
-| `warning` / `warning-subtle` | Ámbar | Propuesta pendiente, operación lenta |
-| `success` / `success-subtle` | Verde | Propuesta aprobada, guardado OK |
-| `info` / `info-subtle` | Azul claro | Mensajes informativos |
+
+| Token                        | Color      | Usos                                              |
+| ---------------------------- | ---------- | ------------------------------------------------- |
+| `error` / `error-subtle`     | Rojo       | Errores formulario, eliminar, propuesta rechazada |
+| `warning` / `warning-subtle` | Ámbar      | Propuesta pendiente, operación lenta              |
+| `success` / `success-subtle` | Verde      | Propuesta aprobada, guardado OK                   |
+| `info` / `info-subtle`       | Azul claro | Mensajes informativos                             |
 
 ### Tipografía (Geist)
-| Token | Tamaño | Peso | Uso |
-|---|---|---|---|
-| `heading-page` | 22–24px | 600 | Título de página |
-| `heading-section` | 17–18px | 500 | Título de sección |
-| `body` | 14–15px | 400 | Texto general |
-| `body-strong` | 14–15px | 500 | Labels formulario, datos destacados |
-| `small` | 12–13px | 400 | Texto en bloques cuadrícula, metadatos |
-| `small-strong` | 12–13px | 500 | Labels en bloques, badges |
+
+| Token             | Tamaño  | Peso | Uso                                    |
+| ----------------- | ------- | ---- | -------------------------------------- |
+| `heading-page`    | 22–24px | 600  | Título de página                       |
+| `heading-section` | 17–18px | 500  | Título de sección                      |
+| `body`            | 14–15px | 400  | Texto general                          |
+| `body-strong`     | 14–15px | 500  | Labels formulario, datos destacados    |
+| `small`           | 12–13px | 400  | Texto en bloques cuadrícula, metadatos |
+| `small-strong`    | 12–13px | 500  | Labels en bloques, badges              |
 
 Semibold (600) solo para `heading-page`. Números en cuadrícula: `font-variant-numeric: tabular-nums`.
 
 ### Espaciado (base 4px)
+
 `space-1` 4px · `space-2` 8px · `space-3` 12px · `space-4` 16px · `space-5` 20px · `space-6` 24px · `space-8` 32px · `space-10` 40px · `space-12` 48px
 
 ### Radios
+
 - `radius-sm` 4px — badges, inputs, botones
 - `radius-md` 8px — tarjetas, modales, paneles
 
 ### Sombras
+
 Mínimas. Solo en elementos que flotan genuinamente (dropdowns, tooltips, modales). En dark mode casi invisibles — la jerarquía se comunica por diferencia de `surface-*`, no por sombra.
 
 ---
@@ -249,6 +271,7 @@ Mínimas. Solo en elementos que flotan genuinamente (dropdowns, tooltips, modale
 ## 8. Patrones de componentes
 
 ### Formularios
+
 - Labels siempre encima del campo. Peso `body-strong`. Nunca flotantes.
 - Inputs: fondo `surface-sunken`, borde `border-subtle`, foco: `border-strong` + anillo `accent`. Altura 40px, padding `space-4`.
 - Botón primario: fondo `accent`, texto blanco, `radius-sm`, alineado derecha.
@@ -257,6 +280,7 @@ Mínimas. Solo en elementos que flotan genuinamente (dropdowns, tooltips, modale
 - Submit en loading: botón deshabilitado con spinner inline. No estado de carga separado.
 
 ### Listas y tablas
+
 - Desktop (≥1024px): tabla con separadores `border-subtle`.
 - Mobile: tarjetas apiladas.
 - Paginación explícita (no scroll infinito). Server-side para propuestas y usuarios.
@@ -264,11 +288,13 @@ Mínimas. Solo en elementos que flotan genuinamente (dropdowns, tooltips, modale
 - Estado vacío: mensaje centrado en `text-secondary`. Sin ilustraciones.
 
 ### Errores de API
+
 - Banner inline en la zona afectada: fondo `error-subtle`, borde `error`, botón "Reintentar".
 - No toast para errores de fetch. Toast solo para eventos asíncronos (notificación aprobada/rechazada, error de servidor inesperado).
 - Sesión expirada: redirect a `/auth/login` con mensaje informativo.
 
 ### Notificaciones in-app
+
 - Campana en topbar (solo autenticados). Badge con contador de no leídas.
 - Dropdown al hacer click: últimas 20 notificaciones. Máximo almacenado: 50.
 - Las notificaciones **no** se marcan como leídas al abrir el dropdown. El usuario las descarta manualmente.
@@ -278,14 +304,14 @@ Mínimas. Solo en elementos que flotan genuinamente (dropdowns, tooltips, modale
 
 ## 9. Persistencia en cliente
 
-| Dato | Storage |
-|---|---|
-| Titulación seleccionada | `localStorage` |
-| Semestre seleccionado | `localStorage` |
-| Semana seleccionada | `localStorage` |
-| Tema (light/dark) | `localStorage` |
-| Idioma preferido (si el usuario lo cambió) | `localStorage` |
-| Token JWT | cookie `httpOnly` (gestionada por backend) |
+| Dato                                       | Storage                                    |
+| ------------------------------------------ | ------------------------------------------ |
+| Titulación seleccionada                    | `localStorage`                             |
+| Semestre seleccionado                      | `localStorage`                             |
+| Semana seleccionada                        | `localStorage`                             |
+| Tema (light/dark)                          | `localStorage`                             |
+| Idioma preferido (si el usuario lo cambió) | `localStorage`                             |
+| Token JWT                                  | cookie `httpOnly` (gestionada por backend) |
 
 ---
 
