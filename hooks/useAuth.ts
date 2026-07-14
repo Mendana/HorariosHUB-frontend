@@ -4,8 +4,8 @@ import { authLogout } from "@/lib/api/auth";
 import { apiFetch } from "@/lib/api/apiFetch";
 import { isApiError } from "@/lib/errors";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter, usePathname } from "@/i18n/navigation";
-import { useCallback, useEffect } from "react";
+import { useRouter } from "@/i18n/navigation";
+import { useCallback } from "react";
 
 export type Role = 'student' | 'profesor' | 'admin';
 
@@ -16,13 +16,13 @@ export interface AuthUser {
 
 export function useAuth(): {
   user: AuthUser | null;
+  isLoading: boolean;
   logout: () => Promise<void>;
 } {
   const router = useRouter();
-  const pathname = usePathname();
   const queryClient = useQueryClient();
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['me'],
     queryFn: async () => {
       try {
@@ -37,15 +37,11 @@ export function useAuth(): {
     staleTime: 5 * 60 * 1000,
   });
 
-  useEffect(() => {
-    if (data === null && !pathname.startsWith('/auth/')) router.push('/auth/login');
-  }, [data, router, pathname]);
-
   const logout = useCallback(async () => {
     await authLogout();
     queryClient.setQueryData(['me'], null);
     router.push('/auth/login');
   }, [queryClient, router]);
 
-  return { user: data ?? null, logout };
+  return { user: data ?? null, isLoading, logout };
 }

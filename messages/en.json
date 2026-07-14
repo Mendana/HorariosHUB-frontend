@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "PCEO Hub",
+    "appName": "Horarios Hub",
     "pageSizeShow": "Show",
     "pageSizePerPage": "per page",
     "pageSizeAriaLabel": "Items per page"
@@ -165,8 +165,8 @@
   },
   "roles": {
     "visitor": "Visitor",
-    "user": "Student",
-    "professor": "Professor",
+    "student": "Student",
+    "profesor": "Professor",
     "admin": "Admin"
   },
   "classes": {
@@ -248,7 +248,7 @@
     "colStatus": "Status",
     "colActions": "Actions",
     "actionCreate": "Create",
-    "actionUpdate": "Edit",
+    "actionModify": "Edit",
     "actionDelete": "Delete",
     "statusPending": "Pending",
     "statusApproved": "Approved",
@@ -263,6 +263,7 @@
     "diffOldLabel": "Before",
     "diffNewLabel": "After",
     "diffFieldName": "Subject",
+    "diffFieldGrp": "Group",
     "diffFieldType": "Type",
     "diffFieldClassroom": "Room",
     "diffFieldDate": "Date",
@@ -369,10 +370,10 @@
     "relativeDays": "{d} days ago"
   },
   "about": {
-    "title": "About PCEO Hub",
+    "title": "About Horarios Hub",
     "subtitle": "An open source tool created by students of the PCEO at the University of Oviedo to manage and view academic schedules in a simple and modern way.",
     "whatIs": {
-      "title": "What is PCEO Hub?"
+      "title": "What is Horarios Hub?"
     },
     "features": {
       "0": {
@@ -402,7 +403,7 @@
     "openInNewTab": "opens in new tab",
     "contribute": {
       "title": "Contribute",
-      "description": "PCEO Hub is an open source project. If you find a bug, have an idea, or want to contribute code, the repository is open on GitHub.",
+      "description": "Horarios Hub is an open source project. If you find a bug, have an idea, or want to contribute code, the repository is open on GitHub.",
       "viewRepo": "View repository",
       "reportIssue": "Report an issue"
     }
@@ -451,7 +452,7 @@
     "colApprovedBy": "Approved by",
     "colDate": "Date",
     "actionCreate": "Create",
-    "actionUpdate": "Edit",
+    "actionModify": "Edit",
     "actionDelete": "Delete",
     "filterSubjectPlaceholder": "Filter by class...",
     "filterActionAll": "All types",
@@ -479,7 +480,7 @@
     "mainContent": "Main content"
   },
   "footer": {
-    "copyright": "© 2025 PCEO Hub · University of Oviedo",
+    "copyright": "© 2026 Horarios Hub · APP developed by students with no affiliation to UNIOVI",
     "about": "About us"
   },
   "contact": {
@@ -504,5 +505,13 @@
     "successMessage": "Thank you for contacting us. We will reply to the provided email within 48 hours.",
     "retryButton": "Send another message",
     "errorBanner": "Could not send message. Please try again."
+  },
+  "welcome_modal": {
+    "title": "👋 Welcome",
+    "body_1": "This platform is an initiative developed by ",
+    "body_2": "students",
+    "body_3": ", non-profit, whose only relationship with the University of Oviedo is the loan of infrastructure.",
+    "body_4": "We created it to make it easier for other students to check their schedules.",
+    "accept": "GOT IT"
   }
 }

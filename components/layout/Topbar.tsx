@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Menu, Moon, Search, Sun } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import Link from "next/link";
@@ -115,15 +116,18 @@ export function Topbar() {
           {/* ── Zona izquierda: Logo ───────────────────────── */}
           <Link
             href="/"
-            aria-label="PCEO Hub"
+            aria-label="Horarios Hub"
             className="shrink-0 transition-opacity transition-fast hover:opacity-80"
           >
-            <span className="text-[15px] font-semibold text-primary tracking-tight">
-              PCEO
-            </span>
-            <span className="text-[15px] font-normal text-accent tracking-tight">
-              Hub
-            </span>
+            <Image
+              src="/main-logo.svg"
+              alt="Horarios Hub"
+              height={28}
+              width={140}
+              className="h-7 w-auto"
+              unoptimized
+              priority
+            />
           </Link>
 
           {/* Separador logo / nav — bg-strong para visibilidad en dark mode */}

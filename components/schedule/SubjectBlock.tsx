@@ -142,7 +142,15 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
         </p>
 
         {!isVeryShort && (
-          <div className="flex items-center gap-1 mt-0.5">
+          <div className="flex items-center gap-1 mt-0.5 min-w-0">
+            {subject.group && (
+              <span className="text-xs font-medium text-secondary leading-tight shrink-0">
+                {subject.group}
+              </span>
+            )}
+            {subject.group && (
+              <span className="text-tertiary leading-tight" aria-hidden>·</span>
+            )}
             <MapPin size={10} className="text-tertiary shrink-0" aria-hidden />
             <p className="text-xs text-secondary leading-tight truncate">
               {subject.classroom || '—'}

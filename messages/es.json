@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "PCEO Hub",
+    "appName": "Horarios Hub",
     "pageSizeShow": "Mostrar",
     "pageSizePerPage": "por página",
     "pageSizeAriaLabel": "Elementos por página"
@@ -165,8 +165,8 @@
   },
   "roles": {
     "visitor": "Visitante",
-    "user": "Estudiante",
-    "professor": "Profesor",
+    "student": "Estudiante",
+    "profesor": "Profesor",
     "admin": "Administrador"
   },
   "classes": {
@@ -248,7 +248,7 @@
     "colStatus": "Estado",
     "colActions": "Acciones",
     "actionCreate": "Crear",
-    "actionUpdate": "Editar",
+    "actionModify": "Editar",
     "actionDelete": "Eliminar",
     "statusPending": "Pendiente",
     "statusApproved": "Aprobada",
@@ -263,6 +263,7 @@
     "diffOldLabel": "Anterior",
     "diffNewLabel": "Nuevo",
     "diffFieldName": "Asignatura",
+    "diffFieldGrp": "Grupo",
     "diffFieldType": "Tipo",
     "diffFieldClassroom": "Aula",
     "diffFieldDate": "Fecha",
@@ -369,15 +370,15 @@
     "relativeDays": "hace {d} días"
   },
   "about": {
-    "title": "Sobre PCEO Hub",
+    "title": "Sobre Horarios Hub",
     "subtitle": "Una herramienta open source creada por estudiantes del PCEO de la Universidad de Oviedo para gestionar y consultar horarios académicos de forma sencilla y moderna.",
     "whatIs": {
-      "title": "¿Qué es PCEO Hub?"
+      "title": "¿Qué es HOrarios Hub?"
     },
     "features": {
       "0": {
         "title": "Consulta tu horario",
-        "description": "Accede a tu horario personal o al de cualquier curso del PCEO sin necesidad de cuenta."
+        "description": "Accede a tu horario personal o al de cualquier curso sin necesidad de cuenta."
       },
       "1": {
         "title": "Gestión colaborativa",
@@ -402,7 +403,7 @@
     "openInNewTab": "abre en nueva pestaña",
     "contribute": {
       "title": "Contribuir",
-      "description": "PCEO Hub es un proyecto open source. Si encuentras un bug, tienes una idea o quieres contribuir con código, el repositorio está abierto en GitHub.",
+      "description": "Horarios Hub es un proyecto open source. Si encuentras un bug, tienes una idea o quieres contribuir con código, el repositorio está abierto en GitHub.",
       "viewRepo": "Ver repositorio",
       "reportIssue": "Reportar un problema"
     }
@@ -451,7 +452,7 @@
     "colApprovedBy": "Aprobado por",
     "colDate": "Fecha",
     "actionCreate": "Crear",
-    "actionUpdate": "Editar",
+    "actionModify": "Editar",
     "actionDelete": "Eliminar",
     "filterSubjectPlaceholder": "Filtrar por clase...",
     "filterActionAll": "Todos los tipos",
@@ -479,7 +480,7 @@
     "mainContent": "Contenido principal"
   },
   "footer": {
-    "copyright": "© 2025 PCEO Hub · Universidad de Oviedo",
+    "copyright": "© 2026 Horarios Hub · APP desarrollada por alumnos sin vinculación con UNIOVI",
     "about": "Sobre nosotros"
   },
   "contact": {
@@ -504,5 +505,13 @@
     "successMessage": "Gracias por contactarnos. Te responderemos en el email proporcionado en menos de 48 horas.",
     "retryButton": "Enviar otro mensaje",
     "errorBanner": "No se pudo enviar el mensaje. Inténtalo de nuevo."
+  },
+  "welcome_modal": {
+    "title": "👋 Bienvenido",
+    "body_1": "Esta plataforma es una iniciativa desarrollada por ",
+    "body_2": "alumnos",
+    "body_3": ", sin ánimo de lucro y cuya única relación con la Universidad de Oviedo es el préstamo de la infrastructura.",
+    "body_4": "La hemos creado para facilitar la consulta de horarios a otros estudiantes.",
+    "accept": "ENTENDIDO"
   }
 }

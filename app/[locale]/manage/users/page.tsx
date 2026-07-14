@@ -14,17 +14,18 @@ const DEFAULT_PAGE_SIZE = 20;
 
 export default function ManageUsersPage() {
   const t = useTranslations('users');
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   // Auth + role guard (admin only)
   useEffect(() => {
+    if (authLoading) return;
     if (currentUser === null) {
       router.push('/auth/login');
     } else if (currentUser.role !== 'admin') {
       router.push('/');
     }
-  }, [currentUser, router]);
+  }, [currentUser, authLoading, router]);
 
   const { users, isLoading, error, changeRole, deleteUser } = useUsers();
 
@@ -74,7 +75,7 @@ export default function ManageUsersPage() {
   }
 
   // Prevent rendering while redirecting
-  if (currentUser === null || currentUser.role !== 'admin') return null;
+  if (authLoading || currentUser === null || currentUser.role !== 'admin') return null;
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 pb-12">
