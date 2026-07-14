@@ -480,7 +480,7 @@
     "mainContent": "Contenido principal"
   },
   "footer": {
-    "copyright": "© 2026 Horarios Hub · Universidad de Oviedo",
+    "copyright": "© 2026 Horarios Hub · APP desarrollada por alumnos sin vinculación con UNIOVI",
     "about": "Sobre nosotros"
   },
   "contact": {
@@ -505,5 +505,13 @@
     "successMessage": "Gracias por contactarnos. Te responderemos en el email proporcionado en menos de 48 horas.",
     "retryButton": "Enviar otro mensaje",
     "errorBanner": "No se pudo enviar el mensaje. Inténtalo de nuevo."
+  },
+  "welcome_modal": {
+    "title": "👋 Bienvenido",
+    "body_1": "Esta plataforma es una iniciativa desarrollada por ",
+    "body_2": "alumnos",
+    "body_3": ", sin ánimo de lucro y cuya única relación con la Universidad de Oviedo es el préstamo de la infrastructura.",
+    "body_4": "La hemos creado para facilitar la consulta de horarios a otros estudiantes.",
+    "accept": "ENTENDIDO"
   }
 }

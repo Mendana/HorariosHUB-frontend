@@ -480,7 +480,7 @@
     "mainContent": "Main content"
   },
   "footer": {
-    "copyright": "© 2026 Horarios Hub · University of Oviedo",
+    "copyright": "© 2026 Horarios Hub · APP developed by students with no affiliation to UNIOVI",
     "about": "About us"
   },
   "contact": {
@@ -505,5 +505,13 @@
     "successMessage": "Thank you for contacting us. We will reply to the provided email within 48 hours.",
     "retryButton": "Send another message",
     "errorBanner": "Could not send message. Please try again."
+  },
+  "welcome_modal": {
+    "title": "👋 Welcome",
+    "body_1": "This platform is an initiative developed by ",
+    "body_2": "students",
+    "body_3": ", non-profit, whose only relationship with the University of Oviedo is the loan of infrastructure.",
+    "body_4": "We created it to make it easier for other students to check their schedules.",
+    "accept": "GOT IT"
   }
 }

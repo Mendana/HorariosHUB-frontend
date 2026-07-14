@@ -9,7 +9,7 @@ export function Footer() {
   const locale = useLocale();
 
   return (
-    <footer className="border-t border-subtle bg-surface-raised mt-auto">
+    <footer className="border-t border-subtle bg-surface-raised mt-5">
       <div className="max-w-full px-4 py-4">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-xs text-tertiary">
           <p>{t('footer.copyright')}</p>

@@ -19,6 +19,7 @@ import { ClassForm } from '@/components/classes/ClassForm';
 import type { UserEvent, NewEventData } from '@/lib/types/events';
 import type { Class, ClassInput } from '@/lib/types/classes';
 import { useSearchParams } from 'next/navigation';
+import { WelcomeModal } from '@/components/modal/WelcomeModal';
 
 export default function SchedulePage() {
   const searchParams = useSearchParams();
@@ -206,6 +207,21 @@ export default function SchedulePage() {
   // Only load events for authenticated users
   const effectiveEvents = user ? events : [];
 
+  // MODALS
+  const [welcomeModalOpen, setWelcomeModalOpen] = useState(false);
+
+  useEffect(() => {
+    const seen = localStorage.getItem('hasSeenWelcomeModal');
+    if (!seen) {
+      setWelcomeModalOpen(true);
+    }
+  }, []);
+
+  const handleCloseWelcomeModal = () => {
+    setWelcomeModalOpen(false);
+    localStorage.setItem('hasSeenWelcomeModal', 'true');
+  }
+
   return (
     <ScheduleRefreshContext.Provider value={refreshSchedule}>
       {/* Import banner — full-width, between topbar and search */}
@@ -269,6 +285,10 @@ export default function SchedulePage() {
       </div>
 
       {/* Share modal */}
+      {welcomeModalOpen && (
+        <WelcomeModal onClose={handleCloseWelcomeModal} />
+      )}
+
       {shareOpen && identifier && (
         <ShareModal identifier={identifier} onClose={() => setShareOpen(false)} />
       )}
