@@ -431,9 +431,14 @@
     "insightFreeAfternoon": "Tienes las tardes del {day} libres.",
     "insightEarlyStart": "Tu hora de entrada más temprana es a las {time}.",
     "typeTeoria": "Teoría",
+    "typeLaboratorio": "Laboratorio",
     "typePractica": "Práctica",
+    "typeTutoria": "Tutoría",
+    "typeOtros": "Otros",
     "typeExamen": "Examen",
-    "typeOtros": "Otros"
+    "cardCompleted": "clases completadas",
+    "cardRemaining": "clases restantes",
+    "retry": "Reintentar"
   },
   "history": {
     "tabInfo": "Información",

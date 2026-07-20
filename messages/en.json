@@ -431,9 +431,14 @@
     "insightFreeAfternoon": "You have free afternoons on {day}.",
     "insightEarlyStart": "Your earliest start time is {time}.",
     "typeTeoria": "Theory",
+    "typeLaboratorio": "Lab",
     "typePractica": "Practice",
+    "typeTutoria": "Tutorial",
+    "typeOtros": "Other",
     "typeExamen": "Exam",
-    "typeOtros": "Other"
+    "cardCompleted": "completed classes",
+    "cardRemaining": "remaining classes",
+    "retry": "Retry"
   },
   "history": {
     "tabInfo": "Information",
