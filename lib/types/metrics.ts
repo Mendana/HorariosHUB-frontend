@@ -1,5 +1,16 @@
 export type SessionType = 'teoria' | 'laboratorio' | 'practica' | 'tutoria' | 'otros';
 
+export interface WeeklyMetric {
+  iso_year: number;
+  iso_week: number;
+  week_start: string;
+  week_end: string;
+  total_hours: number;
+  class_count: number;
+  completed_classes: number;
+  remaining_classes: number;
+}
+
 export interface WeekStat {
   iso_year: number;
   iso_week: number;
