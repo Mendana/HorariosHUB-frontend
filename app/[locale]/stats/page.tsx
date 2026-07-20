@@ -5,12 +5,13 @@ import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { Clock, TrendingUp, Sunrise, Sunset, CalendarDays, CheckCircle, BookOpen, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserMetrics } from '@/lib/hooks/useUserMetrics';
+import { useUserMetrics, useUserMetricsWeekly } from '@/lib/hooks/useUserMetrics';
 import { getSubjectColorVars } from '@/lib/config/subjectColors';
 import { getCurrentSemester } from '@/lib/utils/scheduleHelpers';
 import { StatCard } from '@/components/stats/StatCard';
 import { BarChart } from '@/components/stats/BarChart';
 import type { BarChartItem } from '@/components/stats/BarChart';
+import { WeeklyChart } from '@/components/stats/WeeklyChart';
 import { AutoInsight } from '@/components/stats/AutoInsight';
 import type { SessionType } from '@/lib/types/metrics';
 
@@ -89,6 +90,7 @@ export default function StatsPage() {
   }, []);
 
   const { metrics, isLoading, isError, refetch } = useUserMetrics(semester);
+  const { weeks } = useUserMetricsWeekly(semester);
 
   // ── bar chart: by day ────────────────────────────────────────────────────
   const dayItems: BarChartItem[] = useMemo(() => {
@@ -284,6 +286,20 @@ export default function StatsPage() {
               label={t('cardRemaining')}
             />
           </div>
+
+          {/* Weekly evolution */}
+          {weeks.length > 0 && (
+            <section aria-labelledby="section-weekly">
+              <h2 id="section-weekly" className="text-[17px] font-medium text-primary mb-4">
+                {t('sectionWeekly')}
+              </h2>
+              <WeeklyChart
+                items={weeks}
+                completedLabel={t('weeklyCompleted')}
+                remainingLabel={t('weeklyRemaining')}
+              />
+            </section>
+          )}
 
           {/* By day */}
           <section aria-labelledby="section-day">
