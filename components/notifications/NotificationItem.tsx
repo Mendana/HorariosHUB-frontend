@@ -2,7 +2,16 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, XCircle, Clock, Calendar, X } from 'lucide-react';
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  Calendar,
+  CalendarX,
+  BookOpen,
+  AlertTriangle,
+  X,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Notification, NotificationType } from '@/lib/types/notifications';
 
@@ -14,11 +23,19 @@ interface TypeConfig {
 }
 
 const TYPE_CONFIG: Record<NotificationType, TypeConfig> = {
-  proposal_approved: { Icon: CheckCircle, iconClass: 'text-success' },
-  proposal_rejected: { Icon: XCircle,     iconClass: 'text-error' },
-  proposal_pending:  { Icon: Clock,       iconClass: 'text-warning' },
-  class_modified:    { Icon: Calendar,    iconClass: 'text-accent' },
+  session_modified:  { Icon: Calendar,       iconClass: 'text-accent' },
+  session_deleted:   { Icon: CalendarX,      iconClass: 'text-error' },
+  exam_added:        { Icon: BookOpen,       iconClass: 'text-warning' },
+  proposal_approved: { Icon: CheckCircle,    iconClass: 'text-success' },
+  proposal_rejected: { Icon: XCircle,        iconClass: 'text-error' },
+  new_proposal:      { Icon: Clock,          iconClass: 'text-warning' },
+  scraper_conflict:  { Icon: AlertTriangle,  iconClass: 'text-warning' },
 };
+
+function linkForNotification(n: Notification): string | undefined {
+  if (n.proposalId) return '/proposals';
+  return undefined;
+}
 
 interface NotificationItemProps {
   notification: Notification;
@@ -33,6 +50,7 @@ export function NotificationItem({
   const t = useTranslations('notifications');
   const router = useRouter();
   const { Icon, iconClass } = TYPE_CONFIG[notification.type];
+  const link = linkForNotification(notification);
 
   function relativeDate(): string {
     const diff = Date.now() - new Date(notification.createdAt).getTime();
@@ -48,9 +66,8 @@ export function NotificationItem({
 
   function handleClick() {
     if (!notification.read) onMarkAsRead(notification.id);
-    if (notification.link) {
-      const link = notification.link;
-      onClose(); // triggers animated close
+    if (link) {
+      onClose();
       setTimeout(() => router.push(link), DURATION_MS);
     }
   }
@@ -64,7 +81,7 @@ export function NotificationItem({
     'group relative flex items-start gap-3 px-4 py-3 border-b border-subtle last:border-b-0',
     'transition-[background-color,filter] transition-base',
     notification.read ? '' : 'bg-accent-subtle',
-    notification.link
+    link
       ? [
           'cursor-pointer active:brightness-[0.96]',
           notification.read
@@ -76,30 +93,27 @@ export function NotificationItem({
 
   return (
     <div
-      role={notification.link ? 'button' : undefined}
-      tabIndex={notification.link ? 0 : undefined}
-      aria-label={notification.link ? notification.title : undefined}
+      role={link ? 'button' : undefined}
+      tabIndex={link ? 0 : undefined}
+      aria-label={link ? notification.title : undefined}
       className={itemCls}
-      onClick={notification.link ? handleClick : undefined}
-      onKeyDown={notification.link ? (e) => {
+      onClick={link ? handleClick : undefined}
+      onKeyDown={link ? (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); }
       } : undefined}
     >
-      {/* Type icon */}
       <div className="shrink-0 mt-0.5">
         <Icon size={16} className={iconClass} aria-hidden />
       </div>
 
-      {/* Content */}
       <div className="flex-1 min-w-0 pr-4">
         <p className={`text-sm ${notification.read ? 'text-primary' : 'font-medium text-primary'}`}>
           {notification.title}
         </p>
-        <p className="text-xs text-secondary mt-0.5">{notification.message}</p>
+        <p className="text-xs text-secondary mt-0.5">{notification.body}</p>
         <p className="text-xs text-tertiary mt-1">{relativeDate()}</p>
       </div>
 
-      {/* Dismiss button — revealed on item hover */}
       <button
         type="button"
         onClick={handleDismiss}

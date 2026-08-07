@@ -514,6 +514,11 @@
     "retryButton": "Send another message",
     "errorBanner": "Could not send message. Please try again."
   },
+  "userMenu": {
+    "notifPrefsTitle": "Notifications",
+    "notifInApp": "In-app",
+    "notifEmail": "Email"
+  },
   "welcome_modal": {
     "title": "👋 Welcome",
     "body_1": "This platform is an initiative developed by ",

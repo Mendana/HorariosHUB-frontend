@@ -1,6 +1,6 @@
 export const MOCKS = {
   events: true,
-  notifications: true,
+  notifications: false,
   contact: true,
 } as const;
 

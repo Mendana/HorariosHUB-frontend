@@ -1,13 +1,19 @@
- 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { MOCK_NOTIFICATIONS } from '@/lib/mock/notifications';
-import type { Notification } from '@/lib/types/notifications';
-import { MOCKS } from '@/lib/config/mocks';
+import { useCallback, useEffect, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  fetchNotifications,
+  fetchUnreadCount,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification,
+} from '../api/notifications';
+import type { Notification, PaginatedNotifications } from '../types/notifications';
 
 const MAX_STORED = 50;
 const MAX_DISPLAYED = 20;
+const POLL_INTERVAL_MS = 60_000;
 
 export function useNotifications(): {
   notifications: Notification[];
@@ -17,90 +23,105 @@ export function useNotifications(): {
   markAllAsRead: () => void;
   dismiss: (id: string) => void;
 } {
-  if (MOCKS.notifications) {
-    const [all, setAll] = useState<Notification[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-    // Simulate GET /api/notifications
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setAll(MOCK_NOTIFICATIONS.slice(0, MAX_STORED));
-        setIsLoading(false);
-      }, 200);
-      return () => clearTimeout(timer);
-    }, []);
+  const { data, isLoading } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => fetchNotifications({ limit: MAX_STORED, page: 1 }),
+  });
 
-    const markAsRead = useCallback((id: string) => {
-      setAll((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-    }, []);
+  // Polls every 60s for unread count; if changed → refetch full list
+  const { data: countData } = useQuery({
+    queryKey: ['notifications-unread-count'],
+    queryFn: fetchUnreadCount,
+    refetchInterval: POLL_INTERVAL_MS,
+    select: (d) => d.unreadCount,
+  });
 
-    const markAllAsRead = useCallback(() => {
-      setAll((prev) => prev.map((n) => ({ ...n, read: true })));
-    }, []);
+  const prevCountRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (countData === undefined) return;
+    if (prevCountRef.current !== null && prevCountRef.current !== countData) {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+    prevCountRef.current = countData;
+  }, [countData, queryClient]);
 
-    const dismiss = useCallback((id: string) => {
-      setAll((prev) => prev.filter((n) => n.id !== id));
-    }, []);
+  const markReadMutation = useMutation({
+    mutationFn: markNotificationRead,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+      const prev = queryClient.getQueryData<PaginatedNotifications>(['notifications']);
+      queryClient.setQueryData<PaginatedNotifications>(['notifications'], (old) =>
+        old
+          ? { ...old, data: old.data.map((n) => (n.id === id ? { ...n, read: true } : n)) }
+          : old,
+      );
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['notifications'], ctx.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
+    },
+  });
 
-    // Max 20 shown in dropdown; unread count from the full stored list
-    const notifications = all.slice(0, MAX_DISPLAYED);
-    const unreadCount = all.filter((n) => !n.read).length;
+  const markAllMutation = useMutation({
+    mutationFn: markAllNotificationsRead,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+      const prev = queryClient.getQueryData<PaginatedNotifications>(['notifications']);
+      queryClient.setQueryData<PaginatedNotifications>(['notifications'], (old) =>
+        old ? { ...old, data: old.data.map((n) => ({ ...n, read: true })) } : old,
+      );
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['notifications'], ctx.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
+    },
+  });
 
-    return { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, dismiss };
-  }
+  const deleteMutation = useMutation({
+    mutationFn: deleteNotification,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+      const prev = queryClient.getQueryData<PaginatedNotifications>(['notifications']);
+      queryClient.setQueryData<PaginatedNotifications>(['notifications'], (old) =>
+        old ? { ...old, data: old.data.filter((n) => n.id !== id) } : old,
+      );
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['notifications'], ctx.prev);
+    },
+  });
 
-  // ── Real implementation — descomentar cuando MOCKS.notifications = false ───
-  // import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-  // import { apiFetch } from '@/lib/apiFetch';
-  //
-  // const queryClient = useQueryClient();
-  // const { data, isLoading } = useQuery({
-  //   queryKey: ['notifications'],
-  //   queryFn: () => apiFetch<Notification[]>('/api/notifications?limit=50'),
-  //   refetchInterval: 30_000, // poll every 30 s for new notifications
-  // });
-  //
-  // const markAsReadMutation = useMutation({
-  //   mutationFn: (id: string) =>
-  //     apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' }),
-  //   onMutate: async (id) => {
-  //     await queryClient.cancelQueries({ queryKey: ['notifications'] });
-  //     const previous = queryClient.getQueryData<Notification[]>(['notifications']);
-  //     queryClient.setQueryData<Notification[]>(['notifications'], (old = []) =>
-  //       old.map((n) => (n.id === id ? { ...n, read: true } : n)),
-  //     );
-  //     return { previous };
-  //   },
-  //   onError: (_err, _vars, ctx) => {
-  //     if (ctx?.previous) queryClient.setQueryData(['notifications'], ctx.previous);
-  //   },
-  // });
-  //
-  // const dismissMutation = useMutation({
-  //   mutationFn: (id: string) =>
-  //     apiFetch(`/api/notifications/${id}`, { method: 'DELETE' }),
-  //   onMutate: async (id) => {
-  //     await queryClient.cancelQueries({ queryKey: ['notifications'] });
-  //     const previous = queryClient.getQueryData<Notification[]>(['notifications']);
-  //     queryClient.setQueryData<Notification[]>(['notifications'], (old = []) =>
-  //       old.filter((n) => n.id !== id),
-  //     );
-  //     return { previous };
-  //   },
-  //   onError: (_err, _vars, ctx) => {
-  //     if (ctx?.previous) queryClient.setQueryData(['notifications'], ctx.previous);
-  //   },
-  // });
-  //
-  // const storedAll = (data ?? []).slice(0, MAX_STORED);
-  // return {
-  //   notifications: storedAll.slice(0, MAX_DISPLAYED),
-  //   unreadCount: storedAll.filter((n) => !n.read).length,
-  //   isLoading,
-  //   markAsRead: (id) => markAsReadMutation.mutate(id),
-  //   markAllAsRead: () => storedAll.forEach((n) => !n.read && markAsReadMutation.mutate(n.id)),
-  //   dismiss: (id) => dismissMutation.mutate(id),
-  // };
+  const allItems = data?.data ?? [];
+  const unreadCount = countData ?? allItems.filter((n) => !n.read).length;
 
-  throw new Error('MOCKS.notifications is false pero la implementación real no está conectada. Ver docs/CONNECTING_BACKEND.md');
+  const markAsRead = useCallback(
+    (id: string) => { markReadMutation.mutate(id); },
+    [markReadMutation],
+  );
+  const markAllAsRead = useCallback(
+    () => { markAllMutation.mutate(); },
+    [markAllMutation],
+  );
+  const dismiss = useCallback(
+    (id: string) => { deleteMutation.mutate(id); },
+    [deleteMutation],
+  );
+
+  return {
+    notifications: allItems.slice(0, MAX_DISPLAYED),
+    unreadCount,
+    isLoading,
+    markAsRead,
+    markAllAsRead,
+    dismiss,
+  };
 }
