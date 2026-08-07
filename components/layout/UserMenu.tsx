@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { AuthUser, Role } from '@/hooks/useAuth';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
+import { useNotificationPreferences } from '@/lib/hooks/useNotificationPreferences';
 
 const ROLE_VARIANT: Record<Role, BadgeVariant> = {
   student:  'default',
@@ -12,10 +13,42 @@ const ROLE_VARIANT: Record<Role, BadgeVariant> = {
   admin:    'accent',
 };
 
-/** Toma las dos primeras letras del username del email, en mayúsculas. */
 function getInitials(email: string): string {
   const username = email.split('@')[0] ?? email;
   return username.slice(0, 2).toUpperCase();
+}
+
+interface ToggleProps {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  label: string;
+  disabled?: boolean;
+}
+
+function Toggle({ checked, onChange, label, disabled }: ToggleProps) {
+  return (
+    <button
+      role="switch"
+      type="button"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={[
+        'relative inline-flex h-4 w-7 shrink-0 rounded-full border transition-colors transition-fast',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+        checked ? 'bg-accent border-accent' : 'bg-surface-sunken border-strong',
+      ].join(' ')}
+    >
+      <span
+        className={[
+          'pointer-events-none absolute top-0.5 inline-block h-3 w-3 rounded-full bg-white shadow-sm transition-transform transition-fast',
+          checked ? 'translate-x-3.5' : 'translate-x-0.5',
+        ].join(' ')}
+      />
+    </button>
+  );
 }
 
 interface UserMenuProps {
@@ -27,8 +60,8 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { preferences, isLoading: prefsLoading, update } = useNotificationPreferences();
 
-  // Cerrar al hacer clic fuera del menú
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
@@ -40,7 +73,6 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [open]);
 
-  // Cerrar con Escape
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -52,7 +84,6 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
 
   return (
     <div ref={ref} className="relative">
-      {/* Trigger: avatar con iniciales */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -74,13 +105,12 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
         </span>
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div
           role="menu"
-          className="animate-dropdown absolute right-0 top-full mt-1.5 w-50 bg-surface-raised border border-subtle rounded-md shadow-md z-50"
+          className="animate-dropdown absolute right-0 top-full mt-1.5 w-56 bg-surface-raised border border-subtle rounded-md shadow-md z-50"
         >
-          {/* Cabecera: email + rol */}
+          {/* Email + rol */}
           <div className="px-3 py-3 border-b border-subtle">
             <p className="text-[12px] text-secondary truncate leading-none mb-1.5">
               {user.email}
@@ -90,7 +120,34 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
             </Badge>
           </div>
 
-          {/* Acciones */}
+          {/* Preferencias de notificación */}
+          <div className="px-3 py-2.5 border-b border-subtle">
+            <p className="text-[11px] font-medium text-tertiary uppercase tracking-wide mb-2">
+              {t('userMenu.notifPrefsTitle')}
+            </p>
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center justify-between gap-2 cursor-pointer">
+                <span className="text-[13px] text-secondary">{t('userMenu.notifInApp')}</span>
+                <Toggle
+                  checked={preferences?.inApp ?? true}
+                  onChange={(v) => update({ inApp: v })}
+                  label={t('userMenu.notifInApp')}
+                  disabled={prefsLoading || preferences === null}
+                />
+              </label>
+              <label className="flex items-center justify-between gap-2 cursor-pointer">
+                <span className="text-[13px] text-secondary">{t('userMenu.notifEmail')}</span>
+                <Toggle
+                  checked={preferences?.email ?? false}
+                  onChange={(v) => update({ email: v })}
+                  label={t('userMenu.notifEmail')}
+                  disabled={prefsLoading || preferences === null}
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Logout */}
           <div className="py-1">
             <button
               role="menuitem"
