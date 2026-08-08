@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
+import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authLogin } from '@/lib/api/auth';
@@ -19,6 +20,7 @@ function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -90,13 +92,24 @@ function LoginForm() {
         />
         <Input
           id="password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           label={t('passwordLabel')}
           placeholder={t('passwordPlaceholder')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
           autoComplete="current-password"
+          rightAction={
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+              onClick={() => setShowPassword((v) => !v)}
+              className="text-tertiary hover:text-secondary transition-colors transition-fast"
+            >
+              {showPassword ? <EyeOff size={15} aria-hidden /> : <Eye size={15} aria-hidden />}
+            </button>
+          }
         />
 
         {apiError && (
