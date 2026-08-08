@@ -8,6 +8,10 @@ interface AutoInsightProps {
   stats: ScheduleStats;
 }
 
+function fh(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
 export function AutoInsight({ stats }: AutoInsightProps) {
   const t = useTranslations('stats');
   const tSchedule = useTranslations('schedule');
@@ -18,7 +22,7 @@ export function AutoInsight({ stats }: AutoInsightProps) {
   insights.push(
     t('insightBusiestDay', {
       day: tSchedule(stats.diaMasOcupado as Parameters<typeof tSchedule>[0]),
-      hours: stats.diaMasOcupadoHoras,
+      hours: fh(stats.diaMasOcupadoHoras),
     }),
   );
 
