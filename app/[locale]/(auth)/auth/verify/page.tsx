@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { authVerify } from '@/lib/api/auth';
+import { isApiError } from '@/lib/errors';
 
 type Status = 'loading' | 'success' | 'error';
 
@@ -14,6 +15,7 @@ function VerifyContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<Status>('loading');
   const [errorMsg, setErrorMsg] = useState('');
+  const [errorCode, setErrorCode] = useState('');
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -29,6 +31,7 @@ function VerifyContent() {
         setStatus('success');
       } catch (err: unknown) {
         setErrorMsg(err instanceof Error ? err.message : t('verifyError'));
+        setErrorCode(isApiError(err) ? err.code : '');
         setStatus('error');
       }
     };
@@ -65,6 +68,17 @@ function VerifyContent() {
     <div className="flex flex-col items-center gap-4">
       <XCircle size={40} className="text-error" aria-hidden />
       <p className="text-sm text-error">{errorMsg || t('verifyError')}</p>
+      {errorCode === 'token_expired' && (
+        <p className="text-sm text-secondary">
+          {t('verifyTokenExpiredHint')}{' '}
+          <Link
+            href="/auth/register"
+            className="text-accent hover:text-accent-hover font-medium"
+          >
+            {t('verifyRegisterAgain')}
+          </Link>
+        </p>
+      )}
       <Link
         href="/auth/login"
         className="text-sm text-accent hover:text-accent-hover font-medium"

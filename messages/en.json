@@ -53,7 +53,11 @@
     "errorPasswordNumber": "Must contain at least one number",
     "errorPasswordMatch": "Passwords do not match",
     "errorNoToken": "No token found in the URL",
-    "errorGeneric": "An error occurred. Please try again."
+    "errorGeneric": "An error occurred. Please try again.",
+    "errorEmailConflict": "This email is already registered",
+    "verifyTokenExpiredHint": "Register again to receive a new verification link.",
+    "verifyRegisterAgain": "Register again",
+    "resetRequestNewLink": "Request a new link"
   },
   "schedule": {
     "empty": "Select a course or enter your UO to view the schedule",

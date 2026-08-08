@@ -9,6 +9,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authResetPassword } from '@/lib/api/auth';
+import { isApiError } from '@/lib/errors';
 
 function ResetForm() {
   const t = useTranslations('auth');
@@ -22,6 +23,7 @@ function ResetForm() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState<{ password?: string; confirm?: string }>({});
   const [apiError, setApiError] = useState('');
+  const [tokenExpired, setTokenExpired] = useState(false);
   const [loading, setLoading] = useState(false);
 
   function validate() {
@@ -57,7 +59,12 @@ function ResetForm() {
       await authResetPassword(token, password);
       router.push('/auth/login?reset=1');
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : t('errorGeneric'));
+      if (isApiError(err) && err.code === 'weak_password') {
+        setErrors((prev) => ({ ...prev, password: err.message }));
+      } else {
+        setTokenExpired(isApiError(err) && err.code === 'token_expired');
+        setApiError(err instanceof Error ? err.message : t('errorGeneric'));
+      }
     } finally {
       setLoading(false);
     }
@@ -119,6 +126,14 @@ function ResetForm() {
             className="text-sm text-error bg-error-subtle border border-error rounded-sm px-3 py-2"
           >
             {apiError}
+            {tokenExpired && (
+              <Link
+                href="/auth/recover"
+                className="block mt-1 underline text-error hover:opacity-80"
+              >
+                {t('resetRequestNewLink')}
+              </Link>
+            )}
           </div>
         )}
 

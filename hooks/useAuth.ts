@@ -28,7 +28,7 @@ export function useAuth(): {
       try {
         return await apiFetch<AuthUser>('/auth/me');
       } catch (err) {
-        if (isApiError(err) && err.status === 401) return null;
+        if (isApiError(err) && (err.status === 401 || err.code === 'email_not_verified')) return null;
         throw err;
       }
     },

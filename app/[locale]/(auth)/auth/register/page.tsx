@@ -7,6 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authRegister } from '@/lib/api/auth';
+import { isApiError } from '@/lib/errors';
 
 export default function RegisterPage() {
   const t = useTranslations('auth');
@@ -55,7 +56,11 @@ export default function RegisterPage() {
       await authRegister(email, password);
       setSuccess(true);
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : t('errorGeneric'));
+      if (isApiError(err) && err.code === 'conflict') {
+        setErrors((prev) => ({ ...prev, email: t('errorEmailConflict') }));
+      } else {
+        setApiError(err instanceof Error ? err.message : t('errorGeneric'));
+      }
     } finally {
       setLoading(false);
     }
