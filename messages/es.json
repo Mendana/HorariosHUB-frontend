@@ -37,6 +37,8 @@
     "noAccount": "¿No tienes cuenta?",
     "hasAccount": "¿Ya tienes cuenta?",
     "forgotPassword": "¿Olvidaste tu contraseña?",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
     "backToLogin": "Volver al inicio de sesión",
     "registerSuccess": "Revisa tu email para verificar tu cuenta",
     "recoverSent": "Si el email existe, recibirás un enlace en breve",

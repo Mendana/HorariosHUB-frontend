@@ -6,13 +6,14 @@ import type { LucideIcon } from 'lucide-react';
 type Size = 'sm' | 'md' | 'lg';
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  id:         string;
-  label?:     string;
-  hint?:      string;
-  error?:     string;
-  size?:      Size;
-  iconLeft?:  LucideIcon;
-  iconRight?: LucideIcon;
+  id:           string;
+  label?:       string;
+  hint?:        string;
+  error?:       string;
+  size?:        Size;
+  iconLeft?:    LucideIcon;
+  iconRight?:   LucideIcon;
+  rightAction?: React.ReactNode;
 }
 
 // ─── Clase base compartida ───────────────────────────────────────────────────
@@ -52,9 +53,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     hint,
     error,
     size       = 'md',
-    iconLeft:  IconLeft,
-    iconRight: IconRight,
-    className  = '',
+    iconLeft:    IconLeft,
+    iconRight:   IconRight,
+    rightAction,
+    className    = '',
     ...rest
   }, ref) => {
     const { input: sizeCls, icon: iconSize, plIcon, prIcon } = sizeMap[size];
@@ -94,8 +96,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
       // Icon padding — compensates for the icon so text never overlaps it.
       // Icons sit at left/right-2.5 (10px); padding = 10px + icon + gap.
-      IconLeft  && plIcon,
-      IconRight && prIcon,
+      IconLeft                    && plIcon,
+      (IconRight || rightAction)  && prIcon,
 
       className,
     ].filter(Boolean).join(' ');
@@ -132,12 +134,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...rest}
           />
 
-          {IconRight && (
+          {IconRight && !rightAction && (
             <span
               className="absolute top-1/2 right-2.5 -translate-y-1/2 pointer-events-none text-tertiary"
               aria-hidden="true"
             >
               <IconRight size={iconSize} />
+            </span>
+          )}
+
+          {rightAction && (
+            <span className="absolute top-1/2 right-2.5 -translate-y-1/2 flex items-center">
+              {rightAction}
             </span>
           )}
         </div>

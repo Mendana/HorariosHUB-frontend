@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authRegister } from '@/lib/api/auth';
@@ -13,6 +14,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -95,23 +98,45 @@ export default function RegisterPage() {
         />
         <Input
           id="password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           label={t('passwordLabel')}
           placeholder={t('passwordPlaceholder')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
           autoComplete="new-password"
+          rightAction={
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+              onClick={() => setShowPassword((v) => !v)}
+              className="text-tertiary hover:text-secondary transition-colors transition-fast"
+            >
+              {showPassword ? <EyeOff size={15} aria-hidden /> : <Eye size={15} aria-hidden />}
+            </button>
+          }
         />
         <Input
           id="confirm"
-          type="password"
+          type={showConfirm ? 'text' : 'password'}
           label={t('confirmPasswordLabel')}
           placeholder={t('confirmPasswordPlaceholder')}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           error={errors.confirm}
           autoComplete="new-password"
+          rightAction={
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label={showConfirm ? t('hidePassword') : t('showPassword')}
+              onClick={() => setShowConfirm((v) => !v)}
+              className="text-tertiary hover:text-secondary transition-colors transition-fast"
+            >
+              {showConfirm ? <EyeOff size={15} aria-hidden /> : <Eye size={15} aria-hidden />}
+            </button>
+          }
         />
 
         {apiError && (
