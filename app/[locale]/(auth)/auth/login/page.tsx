@@ -10,6 +10,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authLogin } from '@/lib/api/auth';
+import { isApiError } from '@/lib/errors';
 
 function LoginForm() {
   const t = useTranslations('auth');
@@ -23,6 +24,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [apiError, setApiError] = useState('');
+  const [apiErrorKind, setApiErrorKind] = useState<'error' | 'warning' | 'info'>('error');
   const [loading, setLoading] = useState(false);
 
   function validate() {
@@ -58,7 +60,15 @@ function LoginForm() {
       }
       router.push(redirectTo);
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : t('errorGeneric'));
+      const msg = err instanceof Error ? err.message : t('errorGeneric');
+      if (isApiError(err) && err.code === 'email_not_verified') {
+        setApiErrorKind('info');
+      } else if (isApiError(err) && err.code === 'too_many_requests') {
+        setApiErrorKind('warning');
+      } else {
+        setApiErrorKind('error');
+      }
+      setApiError(msg);
     } finally {
       setLoading(false);
     }
@@ -115,7 +125,14 @@ function LoginForm() {
         {apiError && (
           <div
             role="alert"
-            className="text-sm text-error bg-error-subtle border border-error rounded-sm px-3 py-2"
+            className={[
+              'text-sm rounded-sm px-3 py-2',
+              apiErrorKind === 'info'
+                ? 'text-info bg-info-subtle border border-info'
+                : apiErrorKind === 'warning'
+                  ? 'text-warning bg-warning-subtle border border-warning'
+                  : 'text-error bg-error-subtle border border-error',
+            ].join(' ')}
           >
             {apiError}
           </div>
