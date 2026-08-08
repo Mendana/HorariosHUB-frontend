@@ -126,13 +126,13 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
               {t('userMenu.notifPrefsTitle')}
             </p>
             <div className="flex flex-col gap-2">
-              <label className="flex items-center justify-between gap-2 cursor-pointer">
-                <span className="text-[13px] text-secondary">{t('userMenu.notifInApp')}</span>
+              <label className="flex items-center justify-between gap-2 cursor-default">
+                <span className="text-[13px] text-tertiary">{t('userMenu.notifInApp')}</span>
                 <Toggle
                   checked={preferences?.inApp ?? true}
-                  onChange={(v) => update({ inApp: v })}
+                  onChange={() => undefined}
                   label={t('userMenu.notifInApp')}
-                  disabled={prefsLoading || preferences === null}
+                  disabled
                 />
               </label>
               <label className="flex items-center justify-between gap-2 cursor-pointer">

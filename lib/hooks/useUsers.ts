@@ -11,8 +11,8 @@ export function useUsers(): {
   users: User[];
   isLoading: boolean;
   error: string | null;
-  changeRole: (id: string, role: UserRole) => Promise<void>;
-  deleteUser: (id: string) => Promise<void>;
+  changeRole: (email: string, role: UserRole) => Promise<void>;
+  deleteUser: (email: string) => Promise<void>;
 } {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -24,12 +24,12 @@ export function useUsers(): {
   });
 
   const changeRoleMutation = useMutation({
-    mutationFn: ({ id, role }: { id: string; role: UserRole }) => changeUserRole(id, role),
-    onMutate: async ({ id, role }) => {
+    mutationFn: ({ email, role }: { email: string; role: UserRole }) => changeUserRole(email, role),
+    onMutate: async ({ email, role }) => {
       await queryClient.cancelQueries({ queryKey: ['users'] });
       const previous = queryClient.getQueryData<User[]>(['users']);
       queryClient.setQueryData<User[]>(['users'], (old = []) =>
-        old.map((u) => (u.id === id ? { ...u, role } : u)),
+        old.map((u) => (u.email === email ? { ...u, role } : u)),
       );
       return { previous };
     },
@@ -41,12 +41,12 @@ export function useUsers(): {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiDeleteUser(id),
-    onMutate: async (id) => {
+    mutationFn: (email: string) => apiDeleteUser(email),
+    onMutate: async (email) => {
       await queryClient.cancelQueries({ queryKey: ['users'] });
       const previous = queryClient.getQueryData<User[]>(['users']);
       queryClient.setQueryData<User[]>(['users'], (old = []) =>
-        old.filter((u) => u.id !== id),
+        old.filter((u) => u.email !== email),
       );
       return { previous };
     },
@@ -58,12 +58,12 @@ export function useUsers(): {
   });
 
   const changeRole = useCallback(
-    (id: string, role: UserRole) => changeRoleMutation.mutateAsync({ id, role }),
+    (email: string, role: UserRole) => changeRoleMutation.mutateAsync({ email, role }),
     [changeRoleMutation],
   );
 
   const deleteUser = useCallback(
-    (id: string) => deleteMutation.mutateAsync(id),
+    (email: string) => deleteMutation.mutateAsync(email),
     [deleteMutation],
   );
 

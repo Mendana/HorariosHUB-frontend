@@ -35,6 +35,11 @@ function trimTime(t: string | null): string {
   return t.slice(0, 5); // "09:00:00" → "09:00"
 }
 
+/** Round to 1 decimal, drop trailing zero (2.6666… → 2.7, 4.0 → 4) */
+function fh(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
 function readStorage<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
@@ -102,7 +107,7 @@ export default function StatsPage() {
         label: tSchedule(key as Parameters<typeof tSchedule>[0]),
         value: d?.hours ?? 0,
         subtitle: d
-          ? t('hoursClasses', { hours: d.hours, classes: d.class_count })
+          ? t('hoursClasses', { hours: fh(d.hours), classes: d.class_count })
           : t('hoursClasses', { hours: 0, classes: 0 }),
         isHighlighted: !!(d && d.hours > 0 && d.hours === Math.max(...(metrics?.by_weekday.map((x) => x.hours) ?? [0]))),
       };
@@ -121,7 +126,7 @@ export default function StatsPage() {
         id: s.subject,
         label: s.subject,
         value: s.hours,
-        subtitle: t('hoursClasses', { hours: s.hours, classes: `${Math.round(s.percentage)}%` }),
+        subtitle: t('hoursClasses', { hours: fh(s.hours), classes: `${Math.round(s.percentage)}%` }),
         colorVars: getSubjectColorVars(s.subject),
       })),
     [metrics, t],
@@ -139,7 +144,7 @@ export default function StatsPage() {
         id: item.session_type,
         label: t(typeKey(item.session_type) as Parameters<typeof t>[0]),
         value: item.hours,
-        subtitle: t('hoursClasses', { hours: item.hours, classes: item.class_count }),
+        subtitle: t('hoursClasses', { hours: fh(item.hours), classes: item.class_count }),
       })),
     [metrics, t],
   );
@@ -215,7 +220,7 @@ export default function StatsPage() {
           <p className="text-[13px] text-secondary">
             {t('subtitle', {
               classes: (metrics?.completed_classes ?? 0) + (metrics?.remaining_classes ?? 0),
-              hours: metrics?.total_hours ?? 0,
+              hours: fh(metrics?.total_hours ?? 0),
             })}
           </p>
         )}
@@ -254,14 +259,14 @@ export default function StatsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <StatCard
               icon={Clock}
-              value={`${metrics?.weekly_average_hours ?? 0} h`}
+              value={`${fh(metrics?.weekly_average_hours ?? 0)} h`}
               label={t('cardWeeklyHours')}
             />
             <StatCard
               icon={TrendingUp}
               value={tSchedule(insightStats.diaMasOcupado as Parameters<typeof tSchedule>[0])}
               label={t('cardBusiestDay', {
-                hours: insightStats.diaMasOcupadoHoras,
+                hours: fh(insightStats.diaMasOcupadoHoras),
                 classes: insightStats.diaMasOcupadoClases,
               })}
             />
