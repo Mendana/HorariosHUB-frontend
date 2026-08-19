@@ -20,6 +20,8 @@ interface BarChartProps {
   visibleLimit?: number;
   showAllLabel?: string;
   showLessLabel?: string;
+  /** Tailwind width class for the label column (default: w-10) */
+  labelWidth?: string;
 }
 
 export function BarChart({
@@ -28,6 +30,7 @@ export function BarChart({
   visibleLimit,
   showAllLabel,
   showLessLabel,
+  labelWidth = 'w-10',
 }: BarChartProps) {
   const [animated, setAnimated] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -53,7 +56,7 @@ export function BarChart({
         return (
           <div key={item.id} className="flex items-center gap-3">
             {/* Day / subject label */}
-            <span className="w-10 shrink-0 text-[13px] font-medium text-primary text-right">
+            <span className={`${labelWidth} shrink-0 text-[13px] font-medium text-primary text-right`}>
               {item.label}
             </span>
 

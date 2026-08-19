@@ -37,6 +37,8 @@
     "noAccount": "¿No tienes cuenta?",
     "hasAccount": "¿Ya tienes cuenta?",
     "forgotPassword": "¿Olvidaste tu contraseña?",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
     "backToLogin": "Volver al inicio de sesión",
     "registerSuccess": "Revisa tu email para verificar tu cuenta",
     "recoverSent": "Si el email existe, recibirás un enlace en breve",
@@ -51,7 +53,11 @@
     "errorPasswordNumber": "Debe contener al menos un número",
     "errorPasswordMatch": "Las contraseñas no coinciden",
     "errorNoToken": "No se encontró el token en la URL",
-    "errorGeneric": "Ha ocurrido un error. Inténtalo de nuevo."
+    "errorGeneric": "Ha ocurrido un error. Inténtalo de nuevo.",
+    "errorEmailConflict": "Este email ya está registrado",
+    "verifyTokenExpiredHint": "Vuelve a registrarte para recibir un nuevo enlace de verificación.",
+    "verifyRegisterAgain": "Registrarse de nuevo",
+    "resetRequestNewLink": "Solicitar nuevo enlace"
   },
   "schedule": {
     "empty": "Selecciona un curso o introduce tu UO para ver el horario",
@@ -419,6 +425,9 @@
     "cardBusiestDay": "con {hours} h y {classes} clases",
     "cardFirstClass": "es tu hora más temprana",
     "cardLastClass": "es tu hora más tardía",
+    "sectionWeekly": "Evolución semanal",
+    "weeklyCompleted": "Completadas",
+    "weeklyRemaining": "Pendientes",
     "sectionByDay": "Carga por día",
     "sectionBySubject": "Horas por asignatura",
     "sectionByType": "Tipos de clase",
@@ -431,9 +440,14 @@
     "insightFreeAfternoon": "Tienes las tardes del {day} libres.",
     "insightEarlyStart": "Tu hora de entrada más temprana es a las {time}.",
     "typeTeoria": "Teoría",
+    "typeLaboratorio": "Laboratorio",
     "typePractica": "Práctica",
+    "typeTutoria": "Tutoría",
+    "typeOtros": "Otros",
     "typeExamen": "Examen",
-    "typeOtros": "Otros"
+    "cardCompleted": "clases completadas",
+    "cardRemaining": "clases restantes",
+    "retry": "Reintentar"
   },
   "history": {
     "tabInfo": "Información",
@@ -505,6 +519,11 @@
     "successMessage": "Gracias por contactarnos. Te responderemos en el email proporcionado en menos de 48 horas.",
     "retryButton": "Enviar otro mensaje",
     "errorBanner": "No se pudo enviar el mensaje. Inténtalo de nuevo."
+  },
+  "userMenu": {
+    "notifPrefsTitle": "Notificaciones",
+    "notifInApp": "In-app",
+    "notifEmail": "Email"
   },
   "welcome_modal": {
     "title": "👋 Bienvenido",

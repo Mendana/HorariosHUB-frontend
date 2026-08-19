@@ -5,9 +5,11 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authResetPassword } from '@/lib/api/auth';
+import { isApiError } from '@/lib/errors';
 
 function ResetForm() {
   const t = useTranslations('auth');
@@ -17,8 +19,11 @@ function ResetForm() {
 
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState<{ password?: string; confirm?: string }>({});
   const [apiError, setApiError] = useState('');
+  const [tokenExpired, setTokenExpired] = useState(false);
   const [loading, setLoading] = useState(false);
 
   function validate() {
@@ -54,7 +59,12 @@ function ResetForm() {
       await authResetPassword(token, password);
       router.push('/auth/login?reset=1');
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : t('errorGeneric'));
+      if (isApiError(err) && err.code === 'weak_password') {
+        setErrors((prev) => ({ ...prev, password: err.message }));
+      } else {
+        setTokenExpired(isApiError(err) && err.code === 'token_expired');
+        setApiError(err instanceof Error ? err.message : t('errorGeneric'));
+      }
     } finally {
       setLoading(false);
     }
@@ -69,23 +79,45 @@ function ResetForm() {
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <Input
           id="password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           label={t('newPasswordLabel')}
           placeholder={t('passwordPlaceholder')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
           autoComplete="new-password"
+          rightAction={
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+              onClick={() => setShowPassword((v) => !v)}
+              className="text-tertiary hover:text-secondary transition-colors transition-fast"
+            >
+              {showPassword ? <EyeOff size={15} aria-hidden /> : <Eye size={15} aria-hidden />}
+            </button>
+          }
         />
         <Input
           id="confirm"
-          type="password"
+          type={showConfirm ? 'text' : 'password'}
           label={t('confirmPasswordLabel')}
           placeholder={t('confirmPasswordPlaceholder')}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           error={errors.confirm}
           autoComplete="new-password"
+          rightAction={
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label={showConfirm ? t('hidePassword') : t('showPassword')}
+              onClick={() => setShowConfirm((v) => !v)}
+              className="text-tertiary hover:text-secondary transition-colors transition-fast"
+            >
+              {showConfirm ? <EyeOff size={15} aria-hidden /> : <Eye size={15} aria-hidden />}
+            </button>
+          }
         />
 
         {apiError && (
@@ -94,6 +126,14 @@ function ResetForm() {
             className="text-sm text-error bg-error-subtle border border-error rounded-sm px-3 py-2"
           >
             {apiError}
+            {tokenExpired && (
+              <Link
+                href="/auth/recover"
+                className="block mt-1 underline text-error hover:opacity-80"
+              >
+                {t('resetRequestNewLink')}
+              </Link>
+            )}
           </div>
         )}
 
