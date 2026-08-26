@@ -1,15 +1,34 @@
 export type NotificationType =
+  | 'session_modified'
+  | 'session_deleted'
+  | 'exam_added'
   | 'proposal_approved'
   | 'proposal_rejected'
-  | 'proposal_pending'
-  | 'class_modified';
+  | 'new_proposal'
+  | 'scraper_conflict';
 
 export interface Notification {
   id: string;
   type: NotificationType;
   title: string;
-  message: string;
+  body: string;
+  sessionId: string | null;
+  proposalId: string | null;
   read: boolean;
-  createdAt: string; // ISO 8601
-  link?: string;
+  createdAt: string;
+}
+
+export interface PaginatedNotifications {
+  data: Notification[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface NotificationPreferences {
+  inApp: boolean;
+  email: boolean;
 }

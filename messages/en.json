@@ -37,6 +37,8 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "forgotPassword": "Forgot your password?",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "backToLogin": "Back to sign in",
     "registerSuccess": "Check your email to verify your account",
     "recoverSent": "If the email exists, you'll receive a link shortly",
@@ -51,7 +53,11 @@
     "errorPasswordNumber": "Must contain at least one number",
     "errorPasswordMatch": "Passwords do not match",
     "errorNoToken": "No token found in the URL",
-    "errorGeneric": "An error occurred. Please try again."
+    "errorGeneric": "An error occurred. Please try again.",
+    "errorEmailConflict": "This email is already registered",
+    "verifyTokenExpiredHint": "Register again to receive a new verification link.",
+    "verifyRegisterAgain": "Register again",
+    "resetRequestNewLink": "Request a new link"
   },
   "schedule": {
     "empty": "Select a course or enter your UO to view the schedule",
@@ -419,6 +425,9 @@
     "cardBusiestDay": "with {hours} h and {classes} classes",
     "cardFirstClass": "is your earliest class",
     "cardLastClass": "is your latest class",
+    "sectionWeekly": "Weekly evolution",
+    "weeklyCompleted": "Completed",
+    "weeklyRemaining": "Remaining",
     "sectionByDay": "Load by day",
     "sectionBySubject": "Hours per subject",
     "sectionByType": "Class types",
@@ -431,9 +440,14 @@
     "insightFreeAfternoon": "You have free afternoons on {day}.",
     "insightEarlyStart": "Your earliest start time is {time}.",
     "typeTeoria": "Theory",
+    "typeLaboratorio": "Lab",
     "typePractica": "Practice",
+    "typeTutoria": "Tutorial",
+    "typeOtros": "Other",
     "typeExamen": "Exam",
-    "typeOtros": "Other"
+    "cardCompleted": "completed classes",
+    "cardRemaining": "remaining classes",
+    "retry": "Retry"
   },
   "history": {
     "tabInfo": "Information",
@@ -505,6 +519,11 @@
     "successMessage": "Thank you for contacting us. We will reply to the provided email within 48 hours.",
     "retryButton": "Send another message",
     "errorBanner": "Could not send message. Please try again."
+  },
+  "userMenu": {
+    "notifPrefsTitle": "Notifications",
+    "notifInApp": "In-app",
+    "notifEmail": "Email"
   },
   "welcome_modal": {
     "title": "👋 Welcome",

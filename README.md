@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HorariosHUB Frontend
 
-## Getting Started
+Frontend en Next.js de **HorariosHub**, el sistema de gestión de horarios del
+programa PCEO (doble grado Informática + Matemáticas, Universidad de
+Oviedo). Combina una vista pública de consulta de horarios (sin login) con
+un panel de gestión protegido por roles (usuario, profesor, admin).
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router, SSR) · React 19
+- Tailwind CSS
+- TanStack Query
+- next-intl (i18n, español por defecto)
+- Autenticación por JWT en cookie `httpOnly`
+- Docker
+
+## Desarrollo local
+
+Requiere Node 22 y pnpm 9.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+corepack enable
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Por defecto los módulos usan datos mock (ver `lib/config/mocks.ts`) para
+poder desarrollar la UI sin depender del backend. Para conectar un módulo a
+la API real, ver [docs/CONNECTING_BACKEND.md](docs/CONNECTING_BACKEND.md).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Variables de entorno
 
-## Learn More
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000   # desarrollo
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Otros comandos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm lint            # ESLint
+pnpm exec tsc --noEmit   # type-check
+pnpm build            # build de producción
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Docker
 
-## Deploy on Vercel
+```bash
+docker compose up --build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Sirve la app en el puerto `3000`. La imagen de producción (`Dockerfile`) usa
+build multi-stage con salida `standalone` de Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Estructura del código
+
+- `app/[locale]/` — rutas (App Router), agrupadas por i18n
+- `components/` — componentes de UI, organizados por dominio (schedule,
+  proposals, classes, users, ...)
+- `hooks/` · `lib/hooks/` — hooks de datos y estado
+- `lib/api/` — clientes de la API
+- `lib/config/` — flags de configuración (mocks, etc.)
+- `lib/types/` — tipos compartidos
+- `i18n/` · `messages/` — configuración e idiomas de next-intl
+- `docs/` — arquitectura, sistema de diseño y guía de conexión al backend
+
+## Documentación
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arquitectura, roles y permisos
+- [docs/DESIGN.md](docs/DESIGN.md) — sistema de diseño
+- [docs/ENDPOINTS.md](docs/ENDPOINTS.md) — endpoints de la API consumidos
+- [docs/CONNECTING_BACKEND.md](docs/CONNECTING_BACKEND.md) — cómo desactivar mocks módulo a módulo
+
+## Contribuir
+
+Ver [CONTRIBUTING.md](CONTRIBUTING.md).

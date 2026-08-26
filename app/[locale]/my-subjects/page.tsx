@@ -9,6 +9,10 @@ import { SubjectCatalog } from '@/components/subjects/SubjectCatalog';
 import { AutoSelectButton } from '@/components/subjects/AutoSelectButton';
 import { SaveBar } from '@/components/subjects/SaveBar';
 
+function isUoEmail(email: string): boolean {
+  return /^uo\d{4,6}@/i.test(email);
+}
+
 export default function MySubjectsPage() {
   const t = useTranslations('mySubjects');
   const { user, isLoading: authLoading } = useAuth();
@@ -98,10 +102,12 @@ export default function MySubjectsPage() {
           </p>
         </div>
 
-        <AutoSelectButton
-          onAutoSelect={autoSelect}
-          onComplete={handleAutoSelectComplete}
-        />
+        {user && isUoEmail(user.email) && (
+          <AutoSelectButton
+            onAutoSelect={autoSelect}
+            onComplete={handleAutoSelectComplete}
+          />
+        )}
       </div>
 
       {/* ── Catalog ─────────────────────────────────────────────────────────── */}
