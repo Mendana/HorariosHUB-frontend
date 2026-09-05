@@ -27,7 +27,9 @@ export default function ManageUsersPage() {
     }
   }, [currentUser, authLoading, router]);
 
-  const { users, isLoading, error, changeRole, deleteUser } = useUsers();
+  const { users, isLoading, error, changeRole, deleteUser } = useUsers(
+    !!currentUser && currentUser.role === 'admin',
+  );
 
   // Filter state
   const [search, setSearch] = useState('');

@@ -20,13 +20,14 @@ export interface UseSubjectsResult {
   autoSelect: () => Promise<AutoSelectResult>;
 }
 
-export function useSubjects(): UseSubjectsResult {
+export function useSubjects(enabled: boolean = true): UseSubjectsResult {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['subjects-catalog'],
     queryFn: fetchCatalog,
     staleTime: 5 * 60 * 1000,
+    enabled,
   });
 
   const saveSelection = useCallback(async (groups: string[]) => {
