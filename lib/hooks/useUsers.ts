@@ -7,7 +7,7 @@ import { fetchUsers, changeUserRole, deleteUser as apiDeleteUser } from '@/lib/a
 import type { User, UserRole } from '@/lib/types/users';
 import { getErrorMessage } from '@/lib/errors';
 
-export function useUsers(): {
+export function useUsers(enabled: boolean = true): {
   users: User[];
   isLoading: boolean;
   error: string | null;
@@ -21,6 +21,7 @@ export function useUsers(): {
     queryKey: ['users'],
     queryFn: fetchUsers,
     staleTime: 2 * 60 * 1000,
+    enabled,
   });
 
   const changeRoleMutation = useMutation({

@@ -56,14 +56,17 @@ export default function ManageClassesPage() {
     typeof window !== 'undefined' ? Number(localStorage.getItem('classesPageSize')) || DEFAULT_PAGE_SIZE : DEFAULT_PAGE_SIZE,
   );
 
-  const { classes, total, isLoading, error, refetch, createClass, updateClass, deleteClass } = useClasses({
-    search,
-    week: weekFilter,
-    sort: sortCol,
-    dir: sortDir,
-    page,
-    limit: pageSize,
-  });
+  const { classes, total, isLoading, error, refetch, createClass, updateClass, deleteClass } = useClasses(
+    {
+      search,
+      week: weekFilter,
+      sort: sortCol,
+      dir: sortDir,
+      page,
+      limit: pageSize,
+    },
+    !!user && user.role !== 'student',
+  );
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const hasActiveFilters = search !== '' || weekFilter !== '';

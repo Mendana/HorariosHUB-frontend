@@ -19,7 +19,7 @@ export interface UseClassesResult {
   deleteClass: (id: string) => Promise<void>;
 }
 
-export function useClasses(filter: ClassesFilter = {}): UseClassesResult {
+export function useClasses(filter: ClassesFilter = {}, enabled: boolean = true): UseClassesResult {
   const { toast } = useToast();
   const qc = useQueryClient();
 
@@ -27,6 +27,7 @@ export function useClasses(filter: ClassesFilter = {}): UseClassesResult {
     queryKey: ['classes', filter],
     queryFn: () => fetchClasses(filter),
     staleTime: 2 * 60 * 1000,
+    enabled,
   });
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['classes'] });
