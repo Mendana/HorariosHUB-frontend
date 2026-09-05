@@ -8,9 +8,9 @@ import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { useNotificationPreferences } from '@/lib/hooks/useNotificationPreferences';
 
 const ROLE_VARIANT: Record<Role, BadgeVariant> = {
-  student:  'default',
-  profesor: 'warning',
-  admin:    'accent',
+  student:   'default',
+  professor: 'warning',
+  admin:     'accent',
 };
 
 function getInitials(email: string): string {

@@ -6,7 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Select } from '@/components/ui/Select';
 import type { UserRole } from '@/lib/types/users';
 
-const ROLE_OPTIONS: UserRole[] = ['student', 'profesor', 'admin'];
+const ROLE_OPTIONS: UserRole[] = ['student', 'professor', 'admin'];
 
 interface RoleSelectorProps {
   email: string;

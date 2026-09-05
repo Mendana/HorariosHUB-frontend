@@ -9,9 +9,9 @@ import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { PageSizeSelector } from '@/components/ui/PageSizeSelector';
 
 const ROLE_VARIANT: Record<UserRole, BadgeVariant> = {
-  admin:    'accent',
-  profesor: 'warning',
-  student:  'default',
+  admin:     'accent',
+  professor: 'warning',
+  student:   'default',
 };
 
 interface UserListProps {
