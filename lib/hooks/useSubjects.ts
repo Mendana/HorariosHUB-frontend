@@ -11,6 +11,16 @@ export interface AutoSelectResult {
   selected_group_ids: string[];
 }
 
+export class AutoSelectFailedError extends Error {
+  detail?: string;
+
+  constructor(detail?: string) {
+    super('Auto-select failed');
+    this.name = 'AutoSelectFailedError';
+    this.detail = detail;
+  }
+}
+
 export interface UseSubjectsResult {
   subjects: CatalogSubject[];
   isLoading: boolean;
@@ -58,7 +68,7 @@ export function useSubjects(enabled: boolean = true): UseSubjectsResult {
               });
             } else if (status.status === 'failed') {
               clearInterval(intervalId);
-              reject(new Error(status.error ?? 'Auto-select failed'));
+              reject(new AutoSelectFailedError(status.error ?? undefined));
             }
           } catch (err) {
             clearInterval(intervalId);
