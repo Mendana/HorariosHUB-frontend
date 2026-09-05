@@ -172,7 +172,7 @@
   "roles": {
     "visitor": "Visitor",
     "student": "Student",
-    "profesor": "Professor",
+    "professor": "Professor",
     "admin": "Admin"
   },
   "classes": {

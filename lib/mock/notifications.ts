@@ -26,7 +26,7 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
   },
   {
     id: 'notif-002',
-    type: 'new_proposal',
+    type: 'proposal_created',
     title: 'Nueva propuesta pendiente',
     body: 'Hay una nueva propuesta de CDI pendiente de revisión',
     sessionId: null,
@@ -46,7 +46,7 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
   },
   {
     id: 'notif-006',
-    type: 'new_proposal',
+    type: 'proposal_created',
     title: 'Nueva propuesta pendiente',
     body: 'Hay una nueva propuesta de SO pendiente de revisión',
     sessionId: null,

@@ -44,7 +44,7 @@ export default function SchedulePage() {
 
   // ── Auth ─────────────────────────────────────────────────────────────────────
   const { user } = useAuth();
-  const canCreate = user?.role === 'profesor' || user?.role === 'admin';
+  const canCreate = user?.role === 'professor' || user?.role === 'admin';
 
   useEffect(() => {
     if (user && !identifier) setIdentifier(user.email);

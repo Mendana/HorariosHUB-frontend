@@ -63,7 +63,7 @@ export function SubjectPopover({
   const refreshSchedule = useContext(ScheduleRefreshContext);
   const { updateClass, deleteClass } = useClasses({}, false);
 
-  const canManage = user?.role === 'profesor' || user?.role === 'admin';
+  const canManage = user?.role === 'professor' || user?.role === 'admin';
   const canPropose = user !== null && !canManage;
 
   // ── Portal mount guard ──────────────────────────────────────────────────────

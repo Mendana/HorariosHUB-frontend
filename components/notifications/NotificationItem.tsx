@@ -28,8 +28,8 @@ const TYPE_CONFIG: Record<NotificationType, TypeConfig> = {
   exam_added:        { Icon: BookOpen,       iconClass: 'text-warning' },
   proposal_approved: { Icon: CheckCircle,    iconClass: 'text-success' },
   proposal_rejected: { Icon: XCircle,        iconClass: 'text-error' },
-  new_proposal:      { Icon: Clock,          iconClass: 'text-warning' },
-  scraper_conflict:  { Icon: AlertTriangle,  iconClass: 'text-warning' },
+  proposal_created:  { Icon: Clock,          iconClass: 'text-warning' },
+  scrapper_conflict: { Icon: AlertTriangle,  iconClass: 'text-warning' },
 };
 
 function linkForNotification(n: Notification): string | undefined {
