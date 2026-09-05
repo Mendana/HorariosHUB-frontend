@@ -5,28 +5,11 @@ import { MapPin } from 'lucide-react';
 import { getSubjectColorVars } from '@/lib/config/subjectColors';
 import { timeToMinutes, isCurrentlyOngoing } from '@/lib/utils/scheduleHelpers';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
-import type { Class } from '@/lib/types/classes';
-import { useAuth } from '@/hooks/useAuth';
 import { SubjectPopover } from './SubjectPopover';
-import { ClassForm } from '@/components/classes/ClassForm';
-import { ClassDeleteConfirm } from '@/components/classes/ClassDeleteConfirm';
 
 const GRID_START_MINS = 8 * 60; // 08:00
 
-type BlockState = null | 'popover' | 'editing' | 'deleting';
-
-function subjectToClass(s: SubjectWithLayout): Class {
-  const durationMinutes = timeToMinutes(s.endTime) - timeToMinutes(s.startTime);
-  return {
-    id: s.id,
-    name: s.name.split(' - ')[0].trim(),
-    classroom: s.classroom || undefined,
-    date: s.date,
-    startTime: s.startTime,
-    endTime: s.endTime,
-    durationMinutes,
-  };
-}
+type BlockState = null | 'popover';
 
 interface SubjectBlockProps {
   subject: SubjectWithLayout;
@@ -37,8 +20,6 @@ interface SubjectBlockProps {
 export function SubjectBlock({ subject, slotHeight, highlighted = false }: SubjectBlockProps) {
   const [blockState, setBlockState] = useState<BlockState>(null);
   const blockRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuth();
-  const canManage = user?.role === 'profesor' || user?.role === 'admin';
 
   // Scroll into view and play the brightness-pulse animation when highlighted
   useEffect(() => {
@@ -170,26 +151,6 @@ export function SubjectBlock({ subject, slotHeight, highlighted = false }: Subje
         <SubjectPopover
           subject={subject}
           anchorRef={blockRef}
-          onClose={() => setBlockState(null)}
-          onEdit={canManage ? () => setBlockState('editing') : undefined}
-          onDelete={canManage ? () => setBlockState('deleting') : undefined}
-        />
-      )}
-
-      {/* ── Edit modal (professor / admin only) ──────────────────────────── */}
-      {blockState === 'editing' && canManage && (
-        <ClassForm
-          initial={subjectToClass(subject)}
-          onSubmit={async () => setBlockState(null)}
-          onClose={() => setBlockState(null)}
-        />
-      )}
-
-      {/* ── Delete confirm modal (professor / admin only) ─────────────────── */}
-      {blockState === 'deleting' && canManage && (
-        <ClassDeleteConfirm
-          cls={subjectToClass(subject)}
-          onConfirm={async () => setBlockState(null)}
           onClose={() => setBlockState(null)}
         />
       )}

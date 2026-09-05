@@ -11,6 +11,7 @@ import { ClassDeleteConfirm } from '@/components/classes/ClassDeleteConfirm';
 import { ProposalForm } from '@/components/proposals/ProposalForm';
 import { HistoryTab } from '@/components/schedule/HistoryTab';
 import { ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
+import { useClasses } from '@/lib/hooks/useClasses';
 import { timeToMinutes } from '@/lib/utils/scheduleHelpers';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
 import type { Class } from '@/lib/types/classes';
@@ -39,10 +40,6 @@ interface SubjectPopoverProps {
   subject: SubjectWithLayout;
   anchorRef: React.RefObject<HTMLDivElement | null>;
   onClose: () => void;
-  /** Kept for backward compatibility — SubjectPopover now manages modals internally */
-  onEdit?: () => void;
-  /** Kept for backward compatibility — SubjectPopover now manages modals internally */
-  onDelete?: () => void;
 }
 
 export function SubjectPopover({
@@ -64,6 +61,7 @@ export function SubjectPopover({
   const locale = useLocale();
   const { user } = useAuth();
   const refreshSchedule = useContext(ScheduleRefreshContext);
+  const { updateClass, deleteClass } = useClasses({}, false);
 
   const canManage = user?.role === 'profesor' || user?.role === 'admin';
   const canPropose = user !== null && !canManage;
@@ -140,7 +138,8 @@ export function SubjectPopover({
     return (
       <ClassForm
         initial={subjectToClass(subject)}
-        onSubmit={async () => {
+        onSubmit={async (input) => {
+          await updateClass(subject.id, input);
           refreshSchedule();
           onClose();
         }}
@@ -154,6 +153,7 @@ export function SubjectPopover({
       <ClassDeleteConfirm
         cls={subjectToClass(subject)}
         onConfirm={async () => {
+          await deleteClass(subject.id);
           refreshSchedule();
           onClose();
         }}
