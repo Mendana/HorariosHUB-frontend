@@ -160,15 +160,6 @@
     "closeMenu": "Close menu",
     "profile": "Profile"
   },
-  "search": {
-    "placeholder": "Search class, subject...",
-    "clear": "Clear search",
-    "hint": "Search (⌘K)",
-    "noResults": "No results for \"{query}\"",
-    "groupThisWeek": "This week",
-    "groupNextWeek": "Next week",
-    "groupWeekOf": "Week of {date}"
-  },
   "roles": {
     "visitor": "Visitor",
     "student": "Student",

@@ -377,19 +377,6 @@
   animation: dropdown-in 250ms ease-in-out;
 }
 
-/* Resaltado de bloque al navegar desde búsqueda: 3 pulsos brightness. */
-@keyframes subject-highlight {
-  0%,  100% { filter: brightness(1);    }
-  16%        { filter: brightness(1.35); }
-  33%        { filter: brightness(1);    }
-  49%        { filter: brightness(1.35); }
-  66%        { filter: brightness(1);    }
-  82%        { filter: brightness(1.35); }
-}
-.subject-highlight {
-  animation: subject-highlight 1.2s ease-in-out;
-}
-
 /* Entrada de bloques de asignatura al cargar el horario.
    El stagger (animation-delay por slot en SubjectBlock) crea una cascada
    suave de arriba a abajo — el bloque de las 8:00 entra antes que el de las 20:00. */
@@ -406,9 +393,6 @@
    decorativas para usuarios con sensibilidad al movimiento.
    ───────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .subject-highlight {
-    animation: none;
-  }
   .animate-dropdown {
     animation: none;
   }

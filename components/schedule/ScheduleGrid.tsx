@@ -74,7 +74,6 @@ interface DayColumnProps {
   isLoading: boolean;
   isToday: boolean;
   currentTimePx: number | null;
-  highlightedId?: string | null;
   events: UserEvent[];
   eventsVisible: boolean;
   onEditEvent: (event: UserEvent) => void;
@@ -91,7 +90,6 @@ function DayColumn({
   isLoading,
   isToday,
   currentTimePx,
-  highlightedId,
   events,
   eventsVisible,
   onEditEvent,
@@ -187,7 +185,6 @@ function DayColumn({
             key={s.id}
             subject={s}
             slotHeight={SLOT_HEIGHT}
-            highlighted={s.id === highlightedId}
           />
         ))}
 
@@ -232,7 +229,6 @@ interface ScheduleGridProps {
   error?: string | null;
   onRetry?: () => void;
   onWeekChange?: (year: number, week: number) => void;
-  highlightedId?: string | null;
   events: UserEvent[];
   eventsVisible: boolean;
   onEditEvent: (event: UserEvent) => void;
@@ -251,7 +247,6 @@ export function ScheduleGrid({
   error,
   onRetry,
   onWeekChange,
-  highlightedId,
   events,
   eventsVisible,
   onEditEvent,
@@ -425,7 +420,6 @@ export function ScheduleGrid({
                 isLoading={isLoading}
                 isToday={isCurrentWeek && todayDayOfWeek === day}
                 currentTimePx={currentTimePx}
-                highlightedId={highlightedId}
                 events={dayEventsMap.get(day) ?? []}
                 eventsVisible={eventsVisible}
                 onEditEvent={onEditEvent}
@@ -450,7 +444,6 @@ export function ScheduleGrid({
                 isLoading={isLoading}
                 isToday={isCurrentWeek && todayDayOfWeek === selectedDay}
                 currentTimePx={currentTimePx}
-                highlightedId={highlightedId}
                 events={dayEventsMap.get(selectedDay) ?? []}
                 eventsVisible={eventsVisible}
                 onEditEvent={onEditEvent}
