@@ -358,7 +358,6 @@
     "deleteConfirm": "Delete",
     "deleteCancel": "Cancel",
     "changeRoleDisabledTip": "You cannot change your own role",
-    "errorSelfRole": "You cannot change your own role",
     "errorSelfDelete": "You cannot delete yourself",
     "paginationPrev": "Previous",
     "paginationNext": "Next",
