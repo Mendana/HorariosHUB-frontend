@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { MapPin } from 'lucide-react';
 import { getSubjectColorVars } from '@/lib/config/subjectColors';
 import { timeToMinutes, isCurrentlyOngoing } from '@/lib/utils/scheduleHelpers';
@@ -14,21 +14,11 @@ type BlockState = null | 'popover';
 interface SubjectBlockProps {
   subject: SubjectWithLayout;
   slotHeight: number; // px per 30-min slot
-  highlighted?: boolean;
 }
 
-export function SubjectBlock({ subject, slotHeight, highlighted = false }: SubjectBlockProps) {
+export function SubjectBlock({ subject, slotHeight }: SubjectBlockProps) {
   const [blockState, setBlockState] = useState<BlockState>(null);
   const blockRef = useRef<HTMLDivElement>(null);
-
-  // Scroll into view and play the brightness-pulse animation when highlighted
-  useEffect(() => {
-    if (!highlighted || !blockRef.current) return;
-    blockRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    blockRef.current.classList.add('subject-highlight');
-    const id = setTimeout(() => blockRef.current?.classList.remove('subject-highlight'), 1300);
-    return () => clearTimeout(id);
-  }, [highlighted]);
 
   const colorVars = getSubjectColorVars(subject.name);
   const ongoing = isCurrentlyOngoing(subject);
