@@ -22,6 +22,9 @@ type Modal =
 
 type PageTab = 'classes' | 'history';
 
+// Historial deshabilitado temporalmente: el backend todavía no expone el endpoint.
+const PAGE_TABS: PageTab[] = ['classes'];
+
 const DEFAULT_PAGE_SIZE = 10;
 
 export default function ManageClassesPage() {
@@ -125,24 +128,26 @@ export default function ManageClassesPage() {
         </div>
       </div>
 
-      {/* Page tabs */}
-      <div className="flex items-center bg-surface-raised border border-subtle rounded-md p-1 gap-0.5 w-fit mb-6">
-        {(['classes', 'history'] as PageTab[]).map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setPageTab(tab)}
-            className={[
-              'px-3 py-1.5 text-sm rounded-sm transition-[background-color,color,box-shadow] duration-150',
-              pageTab === tab
-                ? 'bg-surface-base shadow-sm text-primary font-medium'
-                : 'text-secondary hover:text-primary',
-            ].join(' ')}
-          >
-            {tab === 'classes' ? t('title') : th('tabTitle')}
-          </button>
-        ))}
-      </div>
+      {/* Page tabs — historial deshabilitado temporalmente: el backend aún no lo soporta */}
+      {PAGE_TABS.length > 1 && (
+        <div className="flex items-center bg-surface-raised border border-subtle rounded-md p-1 gap-0.5 w-fit mb-6">
+          {PAGE_TABS.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setPageTab(tab)}
+              className={[
+                'px-3 py-1.5 text-sm rounded-sm transition-[background-color,color,box-shadow] duration-150',
+                pageTab === tab
+                  ? 'bg-surface-base shadow-sm text-primary font-medium'
+                  : 'text-secondary hover:text-primary',
+              ].join(' ')}
+            >
+              {tab === 'classes' ? t('title') : th('tabTitle')}
+            </button>
+          ))}
+        </div>
+      )}
 
       {pageTab === 'classes' && (
         <>
