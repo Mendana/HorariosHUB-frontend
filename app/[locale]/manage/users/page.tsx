@@ -101,7 +101,7 @@ export default function ManageUsersPage() {
         isLoading={isLoading}
         error={error}
         currentUserEmail={currentUser.email}
-        onChangeRole={(email: string, role: UserRole) => changeRole(email, role)}
+        onChangeRole={(id: string, role: UserRole) => changeRole(id, role)}
         onDelete={(u) => setDeleteTarget(u)}
         onRetry={() => {}}
         page={page}

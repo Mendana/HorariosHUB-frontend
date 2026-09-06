@@ -358,7 +358,6 @@
     "deleteConfirm": "Eliminar",
     "deleteCancel": "Cancelar",
     "changeRoleDisabledTip": "No puedes cambiar tu propio rol",
-    "errorSelfRole": "No puedes cambiar tu propio rol",
     "errorSelfDelete": "No puedes eliminarte a ti mismo",
     "paginationPrev": "Anterior",
     "paginationNext": "Siguiente",

@@ -5,17 +5,18 @@ import { useTranslations } from 'next-intl';
 import { Spinner } from '@/components/ui/Spinner';
 import { Select } from '@/components/ui/Select';
 import type { UserRole } from '@/lib/types/users';
+import { getErrorMessage } from '@/lib/errors';
 
 const ROLE_OPTIONS: UserRole[] = ['student', 'professor', 'admin'];
 
 interface RoleSelectorProps {
-  email: string;
+  id: string;
   currentRole: UserRole;
   isSelf: boolean;
-  onChangeRole: (email: string, role: UserRole) => Promise<void>;
+  onChangeRole: (id: string, role: UserRole) => Promise<void>;
 }
 
-export function RoleSelector({ email, currentRole, isSelf, onChangeRole }: RoleSelectorProps) {
+export function RoleSelector({ id, currentRole, isSelf, onChangeRole }: RoleSelectorProps) {
   const t      = useTranslations('users');
   const tRoles = useTranslations('roles');
   const [isChanging, setIsChanging] = useState(false);
@@ -26,9 +27,9 @@ export function RoleSelector({ email, currentRole, isSelf, onChangeRole }: RoleS
     setIsChanging(true);
     setError(null);
     try {
-      await onChangeRole(email, newRole as UserRole);
-    } catch {
-      setError(t('errorSelfRole'));
+      await onChangeRole(id, newRole as UserRole);
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setIsChanging(false);
     }
