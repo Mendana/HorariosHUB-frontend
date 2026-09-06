@@ -18,8 +18,8 @@ export function changeUserRole(id: string, role: UserRole): Promise<void> {
   });
 }
 
-export function deleteUser(email: string): Promise<void> {
-  return apiFetch(`/users/${encodeURIComponent(email)}`, {
+export function deleteUser(id: string): Promise<void> {
+  return apiFetch(`/users/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   });
 }
