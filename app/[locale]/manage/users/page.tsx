@@ -72,7 +72,7 @@ export default function ManageUsersPage() {
 
   async function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    await deleteUser(deleteTarget.email);
+    await deleteUser(deleteTarget.id);
     setDeleteTarget(null);
   }
 
