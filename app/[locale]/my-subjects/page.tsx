@@ -24,7 +24,7 @@ export default function MySubjectsPage() {
     if (user === null) router.push('/auth/login');
   }, [user, authLoading, router]);
 
-  const { subjects, isLoading, error, reload, saveSelection, autoSelect } = useSubjects();
+  const { subjects, isLoading, error, reload, saveSelection, autoSelect } = useSubjects(!!user);
 
   // Local selection state — initialized once from catalog data
   const [localSelection, setLocalSelection] = useState<Set<string>>(new Set());
@@ -32,7 +32,7 @@ export default function MySubjectsPage() {
   const selectionInitialized = useRef(false);
 
   useEffect(() => {
-    if (!isLoading && !selectionInitialized.current) {
+    if (!authLoading && !isLoading && !selectionInitialized.current) {
       const ids = new Set(
         subjects.flatMap((s) => s.groups.filter((g) => g.selected).map((g) => g.id)),
       );
@@ -40,7 +40,7 @@ export default function MySubjectsPage() {
       setInitialSelection(new Set(ids));
       selectionInitialized.current = true;
     }
-  }, [subjects, isLoading]);
+  }, [subjects, isLoading, authLoading]);
 
   // Dirty state — count added + removed groups compared to server state
   const isDirty = useMemo(() => {

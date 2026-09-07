@@ -11,6 +11,16 @@ export interface AutoSelectResult {
   selected_group_ids: string[];
 }
 
+export class AutoSelectFailedError extends Error {
+  detail?: string;
+
+  constructor(detail?: string) {
+    super('Auto-select failed');
+    this.name = 'AutoSelectFailedError';
+    this.detail = detail;
+  }
+}
+
 export interface UseSubjectsResult {
   subjects: CatalogSubject[];
   isLoading: boolean;
@@ -20,13 +30,14 @@ export interface UseSubjectsResult {
   autoSelect: () => Promise<AutoSelectResult>;
 }
 
-export function useSubjects(): UseSubjectsResult {
+export function useSubjects(enabled: boolean = true): UseSubjectsResult {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['subjects-catalog'],
     queryFn: fetchCatalog,
     staleTime: 5 * 60 * 1000,
+    enabled,
   });
 
   const saveSelection = useCallback(async (groups: string[]) => {
@@ -57,7 +68,7 @@ export function useSubjects(): UseSubjectsResult {
               });
             } else if (status.status === 'failed') {
               clearInterval(intervalId);
-              reject(new Error(status.error ?? 'Auto-select failed'));
+              reject(new AutoSelectFailedError(status.error ?? undefined));
             }
           } catch (err) {
             clearInterval(intervalId);

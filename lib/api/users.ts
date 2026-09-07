@@ -12,15 +12,14 @@ export async function fetchUsers(): Promise<User[]> {
   return data.users.map((u) => ({ id: u.id, email: u.email, role: u.role }));
 }
 
-export function changeUserRole(email: string, role: UserRole): Promise<void> {
-  return apiFetch(`/users/${encodeURIComponent(email)}/role`, {
+export function changeUserRole(id: string, role: UserRole): Promise<void> {
+  return apiFetch(`/users/${encodeURIComponent(id)}/change/${role}`, {
     method: 'PATCH',
-    body: JSON.stringify({ role }),
   });
 }
 
-export function deleteUser(email: string): Promise<void> {
-  return apiFetch(`/users/${encodeURIComponent(email)}`, {
+export function deleteUser(id: string): Promise<void> {
+  return apiFetch(`/users/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   });
 }

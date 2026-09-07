@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Wand2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
-import type { AutoSelectResult } from '@/lib/hooks/useSubjects';
+import { AutoSelectFailedError, type AutoSelectResult } from '@/lib/hooks/useSubjects';
 
 interface AutoSelectButtonProps {
   onAutoSelect: () => Promise<AutoSelectResult>;
@@ -28,7 +28,12 @@ export function AutoSelectButton({ onAutoSelect, onComplete }: AutoSelectButtonP
       onComplete(result.selected_group_ids);
       setState('success');
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : t('autoSelectError'));
+      if (err instanceof AutoSelectFailedError) {
+        if (err.detail) console.error('Auto-select job failed:', err.detail);
+        setErrorMsg(t('autoSelectError'));
+      } else {
+        setErrorMsg(err instanceof Error ? err.message : t('autoSelectError'));
+      }
       setState('error');
     }
   }

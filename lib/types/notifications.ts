@@ -4,8 +4,8 @@ export type NotificationType =
   | 'exam_added'
   | 'proposal_approved'
   | 'proposal_rejected'
-  | 'new_proposal'
-  | 'scraper_conflict';
+  | 'proposal_created'
+  | 'scrapper_conflict';
 
 export interface Notification {
   id: string;

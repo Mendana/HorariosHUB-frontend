@@ -27,7 +27,9 @@ export default function ManageUsersPage() {
     }
   }, [currentUser, authLoading, router]);
 
-  const { users, isLoading, error, changeRole, deleteUser } = useUsers();
+  const { users, isLoading, error, changeRole, deleteUser } = useUsers(
+    !!currentUser && currentUser.role === 'admin',
+  );
 
   // Filter state
   const [search, setSearch] = useState('');
@@ -70,7 +72,7 @@ export default function ManageUsersPage() {
 
   async function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    await deleteUser(deleteTarget.email);
+    await deleteUser(deleteTarget.id);
     setDeleteTarget(null);
   }
 
@@ -99,7 +101,7 @@ export default function ManageUsersPage() {
         isLoading={isLoading}
         error={error}
         currentUserEmail={currentUser.email}
-        onChangeRole={(email: string, role: UserRole) => changeRole(email, role)}
+        onChangeRole={(id: string, role: UserRole) => changeRole(id, role)}
         onDelete={(u) => setDeleteTarget(u)}
         onRetry={() => {}}
         page={page}

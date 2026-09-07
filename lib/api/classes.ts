@@ -16,10 +16,10 @@ interface BackendClass {
 
 interface BackendClassInput {
   subject?: string;
-  group_id?: string;
+  groupId?: string;
   classroom?: string;
-  start_time?: string;
-  end_time?: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 function toIso(
@@ -35,12 +35,12 @@ function toIso(
 function toBackendInput(input: Partial<ClassInput>): BackendClassInput {
   const body: BackendClassInput = {};
   if (input.name) body.subject = input.name;
-  if (input.groupId) body.group_id = input.groupId;
+  if (input.groupId) body.groupId = input.groupId;
   if ("classroom" in input) body.classroom = input.classroom;
   if (input.date && input.startTime && input.durationMinutes !== undefined) {
-    body.start_time = toIso(input.date, input.startTime);
-    body.end_time = new Date(
-      new Date(body.start_time).getTime() + input.durationMinutes * 60_000,
+    body.startTime = toIso(input.date, input.startTime);
+    body.endTime = new Date(
+      new Date(body.startTime).getTime() + input.durationMinutes * 60_000,
     ).toISOString();
   }
   return body;

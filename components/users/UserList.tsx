@@ -9,9 +9,9 @@ import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { PageSizeSelector } from '@/components/ui/PageSizeSelector';
 
 const ROLE_VARIANT: Record<UserRole, BadgeVariant> = {
-  admin:    'accent',
-  profesor: 'warning',
-  student:  'default',
+  admin:     'accent',
+  professor: 'warning',
+  student:   'default',
 };
 
 interface UserListProps {
@@ -19,7 +19,7 @@ interface UserListProps {
   isLoading: boolean;
   error: string | null;
   currentUserEmail: string;
-  onChangeRole: (email: string, role: UserRole) => Promise<void>;
+  onChangeRole: (id: string, role: UserRole) => Promise<void>;
   onDelete: (user: User) => void;
   onRetry: () => void;
   page: number;
@@ -91,7 +91,7 @@ export function UserList({
         return (
           <>
             <RoleSelector
-              email={u.email}
+              id={u.id}
               currentRole={u.role}
               isSelf={isSelf}
               onChangeRole={onChangeRole}
@@ -155,7 +155,7 @@ export function UserList({
                 </div>
                 <div className="flex items-center gap-2">
                   <RoleSelector
-                    email={u.email}
+                    id={u.id}
                     currentRole={u.role}
                     isSelf={isSelf}
                     onChangeRole={onChangeRole}

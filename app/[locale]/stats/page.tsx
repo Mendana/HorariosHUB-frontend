@@ -94,8 +94,8 @@ export default function StatsPage() {
     setSemester(readStorage<1 | 2>('selectedSemester', getCurrentSemester()));
   }, []);
 
-  const { metrics, isLoading, isError, refetch } = useUserMetrics(semester);
-  const { weeks } = useUserMetricsWeekly(semester);
+  const { metrics, isLoading, isError, refetch } = useUserMetrics(semester, !!user);
+  const { weeks } = useUserMetricsWeekly(semester, !!user);
 
   // ── bar chart: by day ────────────────────────────────────────────────────
   const dayItems: BarChartItem[] = useMemo(() => {

@@ -105,7 +105,7 @@ export default function ProposalsPage() {
 
   if (authLoading || user === null) return null;
 
-  const isProfOrAdmin = user.role === 'profesor' || user.role === 'admin';
+  const isProfOrAdmin = user.role === 'professor' || user.role === 'admin';
 
   if (!isProfOrAdmin) {
     return (

@@ -7,12 +7,12 @@ import { fetchUsers, changeUserRole, deleteUser as apiDeleteUser } from '@/lib/a
 import type { User, UserRole } from '@/lib/types/users';
 import { getErrorMessage } from '@/lib/errors';
 
-export function useUsers(): {
+export function useUsers(enabled: boolean = true): {
   users: User[];
   isLoading: boolean;
   error: string | null;
-  changeRole: (email: string, role: UserRole) => Promise<void>;
-  deleteUser: (email: string) => Promise<void>;
+  changeRole: (id: string, role: UserRole) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
 } {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -21,15 +21,16 @@ export function useUsers(): {
     queryKey: ['users'],
     queryFn: fetchUsers,
     staleTime: 2 * 60 * 1000,
+    enabled,
   });
 
   const changeRoleMutation = useMutation({
-    mutationFn: ({ email, role }: { email: string; role: UserRole }) => changeUserRole(email, role),
-    onMutate: async ({ email, role }) => {
+    mutationFn: ({ id, role }: { id: string; role: UserRole }) => changeUserRole(id, role),
+    onMutate: async ({ id, role }) => {
       await queryClient.cancelQueries({ queryKey: ['users'] });
       const previous = queryClient.getQueryData<User[]>(['users']);
       queryClient.setQueryData<User[]>(['users'], (old = []) =>
-        old.map((u) => (u.email === email ? { ...u, role } : u)),
+        old.map((u) => (u.id === id ? { ...u, role } : u)),
       );
       return { previous };
     },
@@ -41,12 +42,12 @@ export function useUsers(): {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (email: string) => apiDeleteUser(email),
-    onMutate: async (email) => {
+    mutationFn: (id: string) => apiDeleteUser(id),
+    onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['users'] });
       const previous = queryClient.getQueryData<User[]>(['users']);
       queryClient.setQueryData<User[]>(['users'], (old = []) =>
-        old.filter((u) => u.email !== email),
+        old.filter((u) => u.id !== id),
       );
       return { previous };
     },
@@ -58,12 +59,12 @@ export function useUsers(): {
   });
 
   const changeRole = useCallback(
-    (email: string, role: UserRole) => changeRoleMutation.mutateAsync({ email, role }),
+    (id: string, role: UserRole) => changeRoleMutation.mutateAsync({ id, role }),
     [changeRoleMutation],
   );
 
   const deleteUser = useCallback(
-    (email: string) => deleteMutation.mutateAsync(email),
+    (id: string) => deleteMutation.mutateAsync(id),
     [deleteMutation],
   );
 
