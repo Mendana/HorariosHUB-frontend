@@ -15,13 +15,13 @@ interface UseScheduleResult {
   refreshSchedule: () => void; 
 }
 
-export function useSchedule(identifier: string | null, start?: string): UseScheduleResult {
+export function useSchedule(identifier: string | null, start?: string, enabled = true): UseScheduleResult {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['schedule', identifier, start],
     queryFn: async () => fetchSchedule(identifier!, start),
-    enabled: !!identifier,
+    enabled: enabled && !!identifier,
     staleTime: 5 * 60 * 1000,
   });
 
