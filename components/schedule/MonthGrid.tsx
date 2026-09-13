@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
+import { useSwipeNavigation } from '@/lib/hooks/useSwipeNavigation';
 import type { Subject } from '@/lib/types/schedule';
 import type { UserEvent } from '@/lib/types/events';
 import { MonthCell } from './MonthCell';
@@ -89,7 +90,6 @@ export function MonthGrid({
   const locale = useLocale();
 
   const [drawerDate, setDrawerDate] = useState<Date | null>(null);
-  const touchStartXRef = useRef<number | null>(null);
 
   const days = useMemo(() => getMonthCalendarDays(year, month), [year, month]);
 
@@ -124,28 +124,16 @@ export function MonthGrid({
     }
   }
 
-  // Swipe left/right to navigate months
-  function handleTouchStart(e: React.TouchEvent) {
-    touchStartXRef.current = e.touches[0].clientX;
-  }
-
-  function handleTouchEnd(e: React.TouchEvent) {
-    if (touchStartXRef.current === null) return;
-    const delta = e.changedTouches[0].clientX - touchStartXRef.current;
-    if (Math.abs(delta) > 50) {
-      shiftMonth(delta < 0 ? 1 : -1);
-    }
-    touchStartXRef.current = null;
-  }
+  // Swipe left/right to navigate months — ignores pinch-zoom and vertical scrolling.
+  const swipeHandlers = useSwipeNavigation({
+    onSwipeLeft: () => shiftMonth(1),
+    onSwipeRight: () => shiftMonth(-1),
+  });
 
   const drawerSubjects = drawerDate ? getSubjectsForDate(subjects, drawerDate) : [];
 
   return (
-    <div
-      className="w-full"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className="w-full" {...swipeHandlers}>
       {/* Month navigation header */}
       <div className="flex items-center gap-1.5 py-3 px-1">
         <button
@@ -164,7 +152,7 @@ export function MonthGrid({
           <button
             onClick={() => shiftMonth(-1)}
             aria-label="Previous month"
-            className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
+            className="size-9 sm:size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
           >
             <ChevronLeft size={16} />
           </button>
@@ -176,7 +164,7 @@ export function MonthGrid({
           <button
             onClick={() => shiftMonth(1)}
             aria-label="Next month"
-            className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
+            className="size-9 sm:size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
           >
             <ChevronRight size={16} />
           </button>

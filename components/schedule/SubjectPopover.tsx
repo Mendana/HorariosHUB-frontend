@@ -50,6 +50,9 @@ export function SubjectPopover({
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+  // Mobile renders as a bottom sheet (no anchor-relative positioning needed);
+  // desktop keeps the floating popover anchored next to the tapped block.
+  const [isMobile, setIsMobile] = useState(false);
   const [mode, setMode] = useState<Mode>('info');
   const [activeTab, setActiveTab] = useState<PopoverTab>('info');
   const [proposalSent, setProposalSent] = useState(false);
@@ -73,6 +76,13 @@ export function SubjectPopover({
   useEffect(() => {
     const anchor = anchorRef.current;
     if (!anchor) return;
+
+    // Mobile: bottom sheet — no anchor-relative position needed, CSS handles layout.
+    if (window.innerWidth < 640) {
+      setIsMobile(true);
+      requestAnimationFrame(() => setVisible(true));
+      return;
+    }
 
     const rect = anchor.getBoundingClientRect();
 
@@ -173,25 +183,45 @@ export function SubjectPopover({
   }
 
   // ── Info popover (default) ──────────────────────────────────────────────────
+  const desktopReady = !isMobile && pos !== null;
+
   const content = (
-    <div
-      ref={popoverRef}
-      role="dialog"
-      aria-label={subject.name}
-      style={{
-        position: 'fixed',
-        top: pos?.top ?? 0,
-        left: pos?.left ?? 0,
-        width: POPOVER_WIDTH,
-        zIndex: 50,
-        visibility: pos ? 'visible' : 'hidden',
-      }}
-      className={[
-        'bg-surface-raised border border-subtle rounded-md shadow-md p-4',
-        'origin-top-left transition-[opacity,transform] transition-smooth',
-        visible && pos ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
-      ].join(' ')}
-    >
+    <>
+      {/* Mobile-only dim backdrop — desktop popover has no overlay (small, anchored) */}
+      {isMobile && (
+        <div
+          aria-hidden
+          className="fixed inset-0 z-40 bg-black/50 transition-opacity transition-smooth"
+          style={{ opacity: visible ? 1 : 0 }}
+        />
+      )}
+      <div
+        ref={popoverRef}
+        role="dialog"
+        aria-label={subject.name}
+        style={
+          isMobile
+            ? undefined
+            : {
+                position: 'fixed',
+                top: pos?.top ?? 0,
+                left: pos?.left ?? 0,
+                width: POPOVER_WIDTH,
+                zIndex: 50,
+                visibility: pos ? 'visible' : 'hidden',
+              }
+        }
+        className={[
+          isMobile
+            ? 'fixed inset-x-0 bottom-0 z-50 w-full max-h-[85dvh] overflow-y-auto rounded-t-md'
+            : 'rounded-md',
+          'bg-surface-raised border border-subtle shadow-md p-4',
+          'origin-top-left transition-[opacity,transform] transition-smooth',
+          isMobile
+            ? (visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4')
+            : (visible && desktopReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'),
+        ].join(' ')}
+      >
       {/* ── Header: name + close button ──────────────────────────────────── */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <h3 className="text-sm font-medium text-primary leading-snug wrap-break-word min-w-0">
@@ -200,7 +230,7 @@ export function SubjectPopover({
         <button
           onClick={onClose}
           aria-label={tc('cancel')}
-          className="shrink-0 -mt-0.5 -mr-1 size-7 flex items-center justify-center rounded-sm text-tertiary transition-[background-color,color] transition-fast hover:text-primary hover:bg-surface-raised"
+          className="shrink-0 -mt-0.5 -mr-1 size-8 sm:size-7 flex items-center justify-center rounded-sm text-tertiary transition-[background-color,color] transition-fast hover:text-primary hover:bg-surface-raised"
         >
           <X size={14} aria-hidden />
         </button>
@@ -317,7 +347,8 @@ export function SubjectPopover({
       >
         <HistoryTab classId={subject.id} />
       </div>
-    </div>
+      </div>
+    </>
   );
 
   return createPortal(content, document.body);

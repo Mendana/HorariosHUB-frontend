@@ -7,8 +7,9 @@ import type { Subject } from '@/lib/types/schedule';
 
 interface NextClassBannerProps {
   subjects: Subject[];
-  isCurrentWeek: boolean;
-  scheduleView: 'week' | 'month';
+  /** True when the visible period (week or day) contains today. */
+  isCurrentPeriod: boolean;
+  scheduleView: 'day' | 'week' | 'month';
 }
 
 type BannerState = 'ongoing' | 'soon' | 'upcoming' | 'hidden';
@@ -37,12 +38,12 @@ function formatDuration(
 
 const SEP = <span className="opacity-40 select-none mx-0.5">·</span>;
 
-export function NextClassBanner({ subjects, isCurrentWeek, scheduleView }: NextClassBannerProps) {
+export function NextClassBanner({ subjects, isCurrentPeriod, scheduleView }: NextClassBannerProps) {
   const t = useTranslations('schedule');
   const { nextClass, minutesUntil, minutesRemaining, isOngoing } = useNextClass(subjects);
 
   const bannerState = getBannerState(nextClass, minutesUntil, isOngoing);
-  const shouldShow  = bannerState !== 'hidden' && isCurrentWeek && scheduleView === 'week';
+  const shouldShow  = bannerState !== 'hidden' && isCurrentPeriod && (scheduleView === 'week' || scheduleView === 'day');
 
   // Fade in/out: keep rendered during fade-out transition
   const [rendered, setRendered] = useState(false);

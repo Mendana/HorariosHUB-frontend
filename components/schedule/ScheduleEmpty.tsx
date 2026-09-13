@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 
-export type ScheduleEmptyVariant = 'no-identifier' | 'empty-week' | 'error';
+export type ScheduleEmptyVariant = 'no-identifier' | 'empty-week' | 'empty-day' | 'error';
 
 interface ScheduleEmptyProps {
   variant: ScheduleEmptyVariant;
@@ -91,6 +91,29 @@ export function ScheduleEmpty({ variant, errorMessage, onRetry }: ScheduleEmptyP
             </p>
             <p className="text-[12px] text-tertiary max-w-xs">
               {t('emptyWeekSubtitle')}
+            </p>
+          </div>
+          {user !== null && (
+            <Link
+              href="/my-subjects"
+              className="text-[12px] text-accent hover:text-accent-hover
+                transition-colors transition-base"
+            >
+              {t('emptyWeekMySubjects')}
+            </Link>
+          )}
+        </>
+      )}
+
+      {variant === 'empty-day' && (
+        <>
+          <CalendarX size={32} className="text-tertiary shrink-0" />
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-[14px] font-medium text-secondary">
+              {t('emptyDay')}
+            </p>
+            <p className="text-[12px] text-tertiary max-w-xs">
+              {t('emptyDaySubtitle')}
             </p>
           </div>
           {user !== null && (

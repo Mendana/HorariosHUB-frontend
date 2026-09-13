@@ -47,7 +47,14 @@ export function NotificationDropdown({
       role="dialog"
       aria-label={t('title')}
       aria-modal="false"
-      className="absolute right-0 top-full mt-2 z-50 w-80 bg-surface-raised rounded-md shadow-md border border-subtle overflow-hidden"
+      className={[
+        // Mobile: fixed to the viewport so it can never spill past the screen
+        // edge regardless of where the bell sits in the topbar.
+        'fixed inset-x-4 top-15',
+        // Desktop: anchored under the bell as before.
+        'sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80',
+        'z-50 bg-surface-raised rounded-md shadow-md border border-subtle overflow-hidden',
+      ].join(' ')}
       style={{
         opacity:    shown ? 1 : 0,
         transform:  shown ? 'translateY(0)' : 'translateY(-8px)',
