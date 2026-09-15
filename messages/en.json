@@ -529,8 +529,7 @@
     "submitButton": "Send message",
     "successTitle": "Message sent",
     "successMessage": "Thank you for contacting us. We will reply to the provided email within 48 hours.",
-    "retryButton": "Send another message",
-    "errorBanner": "Could not send message. Please try again."
+    "retryButton": "Send another message"
   },
   "userMenu": {
     "notifPrefsTitle": "Notifications",

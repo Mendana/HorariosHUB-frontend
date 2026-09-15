@@ -158,6 +158,16 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 | ------ | -------------------- | -------------------------------------- |
 | POST   | `/api/schedule/copy` | Confirmar copia (body: `{ from, to }`) |
 
+#### Contacto (`/about`, público)
+
+| Método | Endpoint        | Trigger                             |
+| ------ | ---------------- | ------------------------------------ |
+| POST   | `/api/feedback`  | Submit formulario de contacto        |
+
+- Sin autenticación, pero con rate limiting por IP (1 req/s, ráfaga de 5) — un `429` aquí es un caso esperado, no un fallo grave.
+- Body: `{ name, email, subject, body }`. `subject` es texto libre (se usa tal cual como asunto del email); el selector de categoría del formulario (bug/sugerencia/problema de horario/otro) se traduce a una etiqueta legible antes de enviarse. `subject` es opcional en el backend (si se omite, usa un asunto por defecto), pero el frontend siempre manda uno porque el selector tiene valor por defecto.
+- `200 { message }`. Errores: `422 validation_error`, `429 too_many_requests`, `500 internal_error` — formato `{ error, message }` estándar.
+
 #### Herramientas de administración (`/manage/admin`, solo admin)
 
 | Método | Endpoint                    | Trigger                                                           |
