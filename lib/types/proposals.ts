@@ -1,6 +1,7 @@
 export type ProposalAction = 'create' | 'modify' | 'delete';
 export type ProposalStatus = 'pending' | 'approved' | 'rejected';
 export type ProposalStatusFilter = ProposalStatus | 'all';
+export type ProposalHistoryStatusFilter = 'approved' | 'rejected' | 'all';
 
 export interface ClassSnapshot {
   subject?: string;
@@ -19,6 +20,9 @@ export interface Proposal {
   status: ProposalStatus;
   author: string;
   createdAt: string;
+  // Only present on GET /proposals/history: date the scraper sync archived this
+  // record (session removed or rejection), null while still "live".
+  archivedAt?: string | null;
 }
 
 export interface ProposalsResponse {
@@ -30,6 +34,12 @@ export interface ProposalsResponse {
 
 export interface GetProposalsParams {
   status?: ProposalStatusFilter;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetProposalHistoryParams {
+  status?: ProposalHistoryStatusFilter;
   page?: number;
   limit?: number;
 }
@@ -56,17 +66,4 @@ export interface ModifyChanges {
 
 export interface DeleteChanges {
   sessionId: string;
-}
-
-export interface ChangeRecord {
-  id: string;
-  classId?: string;
-  action: ProposalAction;
-  old: ClassSnapshot | null;
-  new: ClassSnapshot | null;
-  status: ProposalStatus;
-  author: string;
-  createdAt: string;
-  approvedBy?: string;
-  approvedAt?: string;
 }

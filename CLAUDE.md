@@ -123,13 +123,17 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 
 #### Propuestas
 
-| Método | Endpoint                                        | Trigger                                |
-| ------ | ----------------------------------------------- | -------------------------------------- |
-| POST   | `/api/proposals`                                | Enviar propuesta                       |
-| GET    | `/api/proposals?status=pending&page=1&limit=10` | Vista de revisión (profesor/admin)     |
-| GET    | `/api/proposals/mine?page=1&limit=10`           | Vista mis propuestas                   |
-| PATCH  | `/api/proposals/{id}/approve`                   | Aprobar                                |
-| PATCH  | `/api/proposals/{id}/reject`                    | Rechazar (body opcional: `{ reason }`) |
+| Método | Endpoint                                          | Trigger                                     |
+| ------ | -------------------------------------------------- | -------------------------------------------- |
+| POST   | `/api/proposals`                                   | Enviar propuesta                             |
+| GET    | `/api/proposals?status=pending&page=1&limit=10`    | Vista de revisión (profesor/admin)           |
+| GET    | `/api/proposals/mine?page=1&limit=10`              | Vista mis propuestas                         |
+| PATCH  | `/api/proposals/{id}/approve`                      | Aprobar                                      |
+| PATCH  | `/api/proposals/{id}/reject`                       | Rechazar (body opcional: `{ reason }`)       |
+| GET    | `/api/proposals/history?status=all&page=1&limit=10`| Pestaña "Historial" en `/manage/classes` (profesor/admin) |
+
+- `proposals/history` es solo lectura (nunca hay `pending`: `status` admite `approved` \| `rejected` \| `all`, default `all`). Misma forma de respuesta que `GET /proposals` más el campo `archivedAt` (fecha en que el sync del scraper archivó el registro, o `null` si sigue "vivo"). Orden: `archivedAt` desc si existe, si no `createdAt` desc.
+- No admite filtrar por clase — el historial por clase individual (popover de una sesión) no está soportado y no se muestra.
 
 #### Selección de grupos
 
