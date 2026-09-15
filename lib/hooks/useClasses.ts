@@ -30,7 +30,12 @@ export function useClasses(filter: ClassesFilter = {}, enabled: boolean = true):
     enabled,
   });
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['classes'] });
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['classes'] });
+    // A class create/edit/delete changes the underlying schedule sessions too.
+    qc.invalidateQueries({ queryKey: ['schedule'] });
+    qc.invalidateQueries({ queryKey: ['schedule-month'] });
+  };
 
   const createMutation = useMutation({
     mutationFn: (input: ClassInput) => createClass(input),

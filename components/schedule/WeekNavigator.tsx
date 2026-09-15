@@ -40,14 +40,12 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
 
   const [semester, setSemester] = useState<1 | 2>(() => getCurrentSemester());
 
-  // Rehydrate from localStorage on mount
+  // Rehydrate the semester tab from localStorage, but the week/year always
+  // starts on the current week — a stored week can be arbitrarily old and
+  // silently reopening it looks like a bug ("no abre en el día actual").
   useEffect(() => {
     const storedSem = readStorage<1 | 2>('selectedSemester', getCurrentSemester());
-    const storedYear = readStorage<number>('selectedWeekYear', getCurrentWeek().year);
-    const storedWeek = readStorage<number>('selectedWeek', getCurrentWeek().week);
     setSemester(storedSem);
-    onWeekChange(storedYear, storedWeek);
-     
   }, []);
 
   const handleSemesterChange = useCallback(
