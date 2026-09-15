@@ -12,7 +12,8 @@
     "stats": "Statistics",
     "proposals": "Proposals",
     "manage": "Management",
-    "manageUsers": "Users"
+    "manageUsers": "Users",
+    "manageAdmin": "Admin"
   },
   "auth": {
     "login": "Log in",
@@ -358,6 +359,35 @@
     "paginationPrev": "Previous",
     "paginationNext": "Next",
     "subtitle": "Manage roles and access for registered users"
+  },
+  "adminTools": {
+    "title": "Admin",
+    "subtitle": "Special system administration tools",
+    "syncTitle": "Sync schedules",
+    "syncSubtitle": "Trigger a manual schedule sync against the data source.",
+    "syncButton": "Sync now",
+    "syncRunning": "Syncing...",
+    "syncSuccess": "Sync completed",
+    "syncError": "Failed to sync. Please try again.",
+    "uploadTitle": "Import users",
+    "uploadSubtitle": "Upload a CSV with email,password columns to bulk-create users.",
+    "uploadLabel": "CSV file",
+    "uploadHint": "Format: header email,password. Maximum 500 rows.",
+    "uploadButton": "Import users",
+    "fieldRequired": "Select a CSV file",
+    "fieldInvalidType": "The file must have a .csv extension",
+    "retry": "Retry",
+    "colEmail": "Email",
+    "colStatus": "Status",
+    "colReason": "Reason",
+    "status_created": "Created",
+    "status_skipped": "Skipped",
+    "status_error": "Error",
+    "summary": "{total} rows processed · {created} created · {skipped} skipped · {failed} failed",
+    "emptyDetails": "No results",
+    "paginationPrev": "Previous",
+    "paginationNext": "Next",
+    "paginationStatus": "Page {page} of {totalPages}"
   },
   "notifications": {
     "title": "Notifications",

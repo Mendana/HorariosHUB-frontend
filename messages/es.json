@@ -12,7 +12,8 @@
     "stats": "Estadísticas",
     "proposals": "Propuestas",
     "manage": "Gestión",
-    "manageUsers": "Usuarios"
+    "manageUsers": "Usuarios",
+    "manageAdmin": "Admin"
   },
   "auth": {
     "login": "Iniciar sesión",
@@ -358,6 +359,35 @@
     "paginationPrev": "Anterior",
     "paginationNext": "Siguiente",
     "subtitle": "Gestiona los roles y el acceso de los usuarios registrados"
+  },
+  "adminTools": {
+    "title": "Administración",
+    "subtitle": "Herramientas especiales de administración del sistema",
+    "syncTitle": "Sincronizar horarios",
+    "syncSubtitle": "Lanza una sincronización manual de horarios contra la fuente de datos.",
+    "syncButton": "Sincronizar ahora",
+    "syncRunning": "Sincronizando...",
+    "syncSuccess": "Sincronización completada",
+    "syncError": "Error al sincronizar. Inténtalo de nuevo.",
+    "uploadTitle": "Importar usuarios",
+    "uploadSubtitle": "Sube un CSV con columnas email,password para crear usuarios en lote.",
+    "uploadLabel": "Archivo CSV",
+    "uploadHint": "Formato: cabecera email,password. Máximo 500 filas.",
+    "uploadButton": "Importar usuarios",
+    "fieldRequired": "Selecciona un archivo CSV",
+    "fieldInvalidType": "El archivo debe tener extensión .csv",
+    "retry": "Reintentar",
+    "colEmail": "Email",
+    "colStatus": "Estado",
+    "colReason": "Motivo",
+    "status_created": "Creado",
+    "status_skipped": "Omitido",
+    "status_error": "Error",
+    "summary": "{total} filas procesadas · {created} creados · {skipped} omitidos · {failed} con error",
+    "emptyDetails": "Sin resultados",
+    "paginationPrev": "Anterior",
+    "paginationNext": "Siguiente",
+    "paginationStatus": "Página {page} de {totalPages}"
   },
   "notifications": {
     "title": "Notificaciones",

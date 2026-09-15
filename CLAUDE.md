@@ -71,6 +71,7 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 /proposals                 → Mis propuestas (autenticado) / Revisar propuestas (profesor/admin)
 /manage/classes            → Crear/editar clases (profesor/admin)
 /manage/users              → Gestión de usuarios (solo admin)
+/manage/admin              → Herramientas de administración (solo admin)
 ```
 
 ### Mobile
@@ -152,6 +153,16 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 | Método | Endpoint             | Trigger                                |
 | ------ | -------------------- | -------------------------------------- |
 | POST   | `/api/schedule/copy` | Confirmar copia (body: `{ from, to }`) |
+
+#### Herramientas de administración (`/manage/admin`, solo admin)
+
+| Método | Endpoint            | Trigger                                                           |
+| ------ | -------------------- | ------------------------------------------------------------------ |
+| POST   | `/api/scraper/sync`  | Click "Sincronizar ahora" (sin body)                                |
+| POST   | `/api/users/import`  | Submit importar usuarios (`multipart/form-data`, part `file`, CSV con cabecera `email,password`) |
+
+- `users/import` responde `200` con `{ total, created, skipped, failed, details: [{ email, status, reason }] }`, `status` es `created` \| `skipped` \| `error`. `failed > 0` no es un fallo de la petición — se muestran los detalles igualmente, sin tratar la respuesta como error.
+- Errores de petición completa (401/403/400/500) siguen el formato `{ error, message }` estándar; no hay `details` en ese caso.
 
 ---
 
