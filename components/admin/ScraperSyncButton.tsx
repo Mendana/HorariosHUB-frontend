@@ -1,51 +1,88 @@
 'use client';
 
-import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
-import { triggerScraperSync } from '@/lib/api/admin';
-import { getErrorMessage } from '@/lib/errors';
+import { useScraperSync } from '@/lib/hooks/useScraperSync';
+import type { ScraperSyncResult } from '@/lib/types/admin';
 
-type State = 'idle' | 'running' | 'success' | 'error';
+const STAT_KEYS: (keyof Omit<ScraperSyncResult, 'message'>)[] = [
+  'sessionsInserted',
+  'sessionsFromChanges',
+  'changesApplied',
+  'changesIgnored',
+  'overridesExpired',
+  'pendingRejected',
+  'rejectedArchived',
+];
 
 export function ScraperSyncButton() {
   const t = useTranslations('adminTools');
-  const [state, setState] = useState<State>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
+  const locale = useLocale();
+  const { status, isStatusLoading, triggerState, result, errorMessage, trigger } = useScraperSync();
 
-  async function handleClick() {
-    setState('running');
-    setErrorMsg('');
-    try {
-      await triggerScraperSync();
-      setState('success');
-    } catch (err) {
-      setErrorMsg(getErrorMessage(err));
-      setState('error');
-    }
+  const isLocked = status?.syncing === true;
+  const isBusy = isLocked || triggerState === 'triggering';
+  const isDisabled = isStatusLoading || isBusy;
+
+  function formatTime(iso: string) {
+    return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
   }
 
   return (
-    <div className="flex flex-col items-start gap-1.5">
+    <div className="flex flex-col items-start gap-2">
       <Button
         variant="secondary"
         size="sm"
-        onClick={handleClick}
-        loading={state === 'running'}
-        iconLeft={state !== 'running' ? RefreshCw : undefined}
+        onClick={trigger}
+        disabled={isDisabled}
+        loading={isBusy}
+        iconLeft={!isBusy ? RefreshCw : undefined}
       >
         {t('syncButton')}
       </Button>
 
-      {state === 'running' && (
+      {isStatusLoading && (
+        <p className="text-xs text-secondary">{t('syncCheckingStatus')}</p>
+      )}
+
+      {!isStatusLoading && isLocked && status && (
+        <p className="text-xs text-secondary">
+          {t('syncLockedTitle')}
+          {status.lockedBy && ` · ${status.lockedBy === 'cronjob' ? t('syncLockedByCronjob') : t('syncLockedByManual')}`}
+          {status.lockedSince && ` · ${t('syncLockedSince', { time: formatTime(status.lockedSince) })}`}
+        </p>
+      )}
+
+      {!isStatusLoading && !isLocked && triggerState === 'triggering' && (
         <p className="text-xs text-secondary">{t('syncRunning')}</p>
       )}
-      {state === 'success' && (
-        <p className="text-xs text-success">{t('syncSuccess')}</p>
+
+      {triggerState === 'conflict' && (
+        <p className="text-xs text-secondary max-w-sm">{t('syncConflict')}</p>
       )}
-      {state === 'error' && (
-        <p className="text-xs text-error">{errorMsg || t('syncError')}</p>
+
+      {triggerState === 'success' && result && (
+        <div className="max-w-md">
+          <p className="text-xs text-success">{result.message}</p>
+          <dl className="mt-1.5 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1">
+            {STAT_KEYS.map((key) => (
+              <div key={key} className="flex flex-col">
+                <dt className="text-[11px] text-tertiary">{t(`stat_${key}`)}</dt>
+                <dd className="text-xs text-primary font-medium tabular-nums">{result[key]}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+
+      {triggerState === 'error' && (
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-error">{errorMessage || t('syncError')}</p>
+          <button type="button" onClick={trigger} className="shrink-0 text-xs font-medium text-error hover:underline">
+            {t('retry')}
+          </button>
+        </div>
       )}
     </div>
   );

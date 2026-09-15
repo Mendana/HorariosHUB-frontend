@@ -156,13 +156,16 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 
 #### Herramientas de administración (`/manage/admin`, solo admin)
 
-| Método | Endpoint            | Trigger                                                           |
-| ------ | -------------------- | ------------------------------------------------------------------ |
-| POST   | `/api/scraper/sync`  | Click "Sincronizar ahora" (sin body)                                |
-| POST   | `/api/users/import`  | Submit importar usuarios (`multipart/form-data`, part `file`, CSV con cabecera `email,password`) |
+| Método | Endpoint                    | Trigger                                                           |
+| ------ | ---------------------------- | ------------------------------------------------------------------ |
+| POST   | `/api/scraper/sync`          | Click "Sincronizar ahora" (sin body)                                |
+| GET    | `/api/scraper/sync/status`   | Al cargar la sección y en polling cada 10–15s mientras `syncing: true` |
+| POST   | `/api/users/import`          | Submit importar usuarios (`multipart/form-data`, part `file`, CSV con cabecera `email,password`) |
 
 - `users/import` responde `200` con `{ total, created, skipped, failed, details: [{ email, status, reason }] }`, `status` es `created` \| `skipped` \| `error`. `failed > 0` no es un fallo de la petición — se muestran los detalles igualmente, sin tratar la respuesta como error.
-- Errores de petición completa (401/403/400/500) siguen el formato `{ error, message }` estándar; no hay `details` en ese caso.
+- `scraper/sync` es una llamada síncrona y larga (hasta 30 min bloqueada, sin progreso intermedio salvo el polling de `/status` en paralelo). Responde `200` con `{ message, sessionsInserted, sessionsFromChanges, changesApplied, changesIgnored, overridesExpired, pendingRejected, rejectedArchived }`. Un `409 conflict` (ya hay otra sincronización en curso, manual o cronjob) se trata como caso normal, no como error grave.
+- `scraper/sync/status` responde `{ syncing, lockedBy, lockedSince }`, `lockedBy` es `"manual-trigger"` \| `"cronjob"` \| `null`. Un lock de más de 2h se considera caducado y se reporta como `syncing: false`.
+- Errores de petición completa (401/403/400/409/500) siguen el formato `{ error, message }` estándar; no hay `details` en ese caso.
 
 ---
 
