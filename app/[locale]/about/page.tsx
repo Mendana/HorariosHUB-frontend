@@ -12,7 +12,9 @@ import {
   Send,
   CheckCircle,
 } from 'lucide-react';
-import type { ContactForm } from '@/lib/types/contact';
+import type { ContactForm, ContactFormSubject } from '@/lib/types/contact';
+import { sendFeedback } from '@/lib/api/contact';
+import { getErrorMessage } from '@/lib/errors';
 
 // ─── Card reveal (IntersectionObserver, staggered) ────────────────────────
 
@@ -95,19 +97,30 @@ export default function AboutPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const subjectLabels: Record<ContactFormSubject, string> = {
+    bug: t('contact.subjectBug'),
+    suggestion: t('contact.subjectSuggestion'),
+    schedule_issue: t('contact.subjectScheduleIssue'),
+    other: t('contact.subjectOther'),
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
-    // TODO: Make mail work
     e.preventDefault();
     setError(null);
     if (!validateForm()) return;
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await sendFeedback({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: subjectLabels[formData.subject],
+        body: formData.message.trim(),
+      });
       setSubmitted(true);
       setFormData({ name: '', email: '', subject: 'bug', message: '' });
       setErrors({});
-    } catch {
-      setError(t('contact.errorBanner'));
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -370,6 +383,7 @@ export default function AboutPage() {
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={loading}
+                      maxLength={200}
                       required
                       aria-required="true"
                       aria-invalid={!!errors.name}
