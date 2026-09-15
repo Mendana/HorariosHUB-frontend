@@ -487,32 +487,7 @@
     "retry": "Reintentar"
   },
   "history": {
-    "tabInfo": "Información",
-    "tabHistory": "Historial",
-    "tabTitle": "Historial",
-    "empty": "Sin cambios registrados",
-    "approvedBy": "aprobado por {email}",
-    "relativeNow": "ahora",
-    "relativeMinutes": "hace {n} min",
-    "relativeHours": "hace {h} h",
-    "relativeYesterday": "ayer",
-    "relativeDays": "hace {d} días",
-    "colClass": "Clase",
-    "colAction": "Tipo",
-    "colAuthor": "Autor",
-    "colApprovedBy": "Aprobado por",
-    "colDate": "Fecha",
-    "actionCreate": "Crear",
-    "actionModify": "Editar",
-    "actionDelete": "Eliminar",
-    "filterSubjectPlaceholder": "Filtrar por clase...",
-    "filterActionAll": "Todos los tipos",
-    "filterClear": "Limpiar",
-    "countOne": "cambio registrado",
-    "countMany": "cambios registrados",
-    "paginationPrev": "Anterior",
-    "paginationNext": "Siguiente",
-    "paginationOf": "de"
+    "tabTitle": "Historial"
   },
   "errors": {
     "title": "Algo salió mal",
