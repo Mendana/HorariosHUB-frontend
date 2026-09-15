@@ -34,7 +34,12 @@ export function useProposals(
     staleTime: 2 * 60 * 1000,
   });
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['proposals'] });
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['proposals'] });
+    // Approving/rejecting a proposal changes the underlying schedule sessions too.
+    qc.invalidateQueries({ queryKey: ['schedule'] });
+    qc.invalidateQueries({ queryKey: ['schedule-month'] });
+  };
 
   const approveMutation = useMutation({
     mutationFn: (id: string) => approveProposal(id),
