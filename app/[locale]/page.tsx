@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { getCurrentWeek, getWeekDates, getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { getCurrentWeek, getWeekDates, getISOWeekFromDate, todayIsoDate } from '@/lib/utils/scheduleHelpers';
 import { useSchedule, ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
 import { useScheduleMonth } from '@/lib/hooks/useScheduleMonth';
 import { useEvents } from '@/lib/hooks/useEvents';
 import { useAuth } from '@/hooks/useAuth';
 import { ScheduleSearch } from '@/components/schedule/ScheduleSearch';
-import { WeekNavigator } from '@/components/schedule/WeekNavigator';
+import { WeekNavigator, type ScheduleViewMode } from '@/components/schedule/WeekNavigator';
 import { ScheduleGrid } from '@/components/schedule/ScheduleGrid';
+import { DayGrid } from '@/components/schedule/DayGrid';
 import { MonthGrid } from '@/components/schedule/MonthGrid';
 import { ImportBanner } from '@/components/schedule/ImportBanner';
 import { NextClassBanner } from '@/components/schedule/NextClassBanner';
@@ -33,11 +34,12 @@ export default function SchedulePage() {
   const [selectedYear, setSelectedYear] = useState(initial.year);
   const [selectedWeek, setSelectedWeek] = useState(initial.week);
 
-  const [scheduleView, setScheduleView] = useState<'week' | 'month'>('week');
+  const [scheduleView, setScheduleView] = useState<ScheduleViewMode>('week');
 
   const now = new Date();
   const [viewMonthYear, setViewMonthYear] = useState(now.getFullYear());
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);
+  const [viewDay, setViewDay] = useState(() => todayIsoDate());
 
   // ── Auth ─────────────────────────────────────────────────────────────────────
   const { user } = useAuth();
@@ -125,15 +127,29 @@ export default function SchedulePage() {
   // Rehydrate view preference from localStorage after mount
   useEffect(() => {
     const stored = localStorage.getItem('scheduleView');
-    if (stored === 'week' || stored === 'month') {
+    if (stored === 'day' || stored === 'week' || stored === 'month') {
       setScheduleView(stored);
     }
   }, []);
 
-  const weekDates = getWeekDates(selectedYear, selectedWeek);
+  // Day view browses a different date than the week grid; derive which ISO week
+  // it falls in so we can reuse the same weekly fetch (avoids a second network
+  // call for what's ultimately the same data source).
+  const dayWeekInfo = useMemo(() => {
+    const [y, m, d] = viewDay.split('-').map(Number);
+    return getISOWeekFromDate(new Date(Date.UTC(y, m - 1, d)));
+  }, [viewDay]);
+
+  const activeWeekYear = scheduleView === 'day' ? dayWeekInfo.year : selectedYear;
+  const activeWeekNum  = scheduleView === 'day' ? dayWeekInfo.week : selectedWeek;
+  const weekDates = getWeekDates(activeWeekYear, activeWeekNum);
   const weekStart = weekDates[0].toISOString();
 
-  const { subjects, isLoading, refreshSchedule } = useSchedule(identifier, weekStart);
+  const { subjects, isLoading, refreshSchedule } = useSchedule(
+    identifier,
+    weekStart,
+    scheduleView !== 'month',
+  );
 
   const monthParam = `${viewMonthYear}-${String(viewMonth).padStart(2, '0')}`;
   const { subjects: monthSubjects, isLoading: monthIsLoading } = useScheduleMonth(
@@ -147,9 +163,25 @@ export default function SchedulePage() {
     setSelectedWeek(week);
   };
 
-  const handleViewChange = 
-    (view: 'week' | 'month') => {
-      if (view === 'month' && scheduleView === 'week') {
+  const handleViewChange = (view: ScheduleViewMode) => {
+    if (view !== scheduleView) {
+      if (view === 'day') {
+        // Day view always opens on today — arrows/swipe move from there.
+        setViewDay(todayIsoDate());
+      } else if (scheduleView === 'day') {
+        const [y, m, d] = viewDay.split('-').map(Number);
+        const dayDate = new Date(Date.UTC(y, m - 1, d));
+        if (view === 'week') {
+          const { year: wy, week: wk } = getISOWeekFromDate(dayDate);
+          setSelectedYear(wy);
+          setSelectedWeek(wk);
+          localStorage.setItem('selectedWeekYear', JSON.stringify(wy));
+          localStorage.setItem('selectedWeek', JSON.stringify(wk));
+        } else if (view === 'month') {
+          setViewMonthYear(y);
+          setViewMonth(m);
+        }
+      } else if (view === 'month' && scheduleView === 'week') {
         const monday = getWeekDates(selectedYear, selectedWeek)[0];
         setViewMonthYear(monday.getUTCFullYear());
         setViewMonth(monday.getUTCMonth() + 1);
@@ -161,9 +193,10 @@ export default function SchedulePage() {
         localStorage.setItem('selectedWeekYear', JSON.stringify(wy));
         localStorage.setItem('selectedWeek', JSON.stringify(wk));
       }
-      setScheduleView(view);
-      localStorage.setItem('scheduleView', view);
-    };
+    }
+    setScheduleView(view);
+    localStorage.setItem('scheduleView', view);
+  };
 
   const handleMonthChange =(year: number, month: number) => {
     setViewMonthYear(year);
@@ -210,7 +243,7 @@ export default function SchedulePage() {
           onIdentifierChange={handleIdentifierChange}
           onShareClick={() => setShareOpen(true)}
           onCreateEvent={openCreateEvent}
-          showCreationHint={canCreate && creationHintVisible && scheduleView === 'week'}
+          showCreationHint={canCreate && creationHintVisible && (scheduleView === 'week' || scheduleView === 'day')}
         />
         <WeekNavigator
           year={selectedYear}
@@ -224,11 +257,30 @@ export default function SchedulePage() {
         {identifier !== null && (
           <NextClassBanner
             subjects={subjects}
-            isCurrentWeek={selectedYear === initial.year && selectedWeek === initial.week}
+            isCurrentPeriod={
+              scheduleView === 'day'
+                ? viewDay === todayIsoDate()
+                : selectedYear === initial.year && selectedWeek === initial.week
+            }
             scheduleView={scheduleView}
           />
         )}
-        {scheduleView === 'week' ? (
+        {scheduleView === 'day' ? (
+          <DayGrid
+            date={viewDay}
+            onDateChange={setViewDay}
+            subjects={subjects}
+            isLoading={isLoading}
+            hasIdentifier={identifier !== null}
+            events={effectiveEvents}
+            eventsVisible={eventsVisible}
+            onEditEvent={openEditEvent}
+            onDeleteEvent={handleDeleteEvent}
+            canCreate={canCreate}
+            onCellClick={handleCellClick}
+            ghostCell={ghostCell}
+          />
+        ) : scheduleView === 'week' ? (
           <ScheduleGrid
             subjects={subjects}
             isLoading={isLoading}

@@ -429,3 +429,19 @@
   outline: none;
   box-shadow: var(--shadow-focus);
 }
+
+/* ─────────────────────────────────────────────────────────
+   Móvil — evita el auto-zoom de iOS Safari al enfocar un
+   campo. Safari hace zoom automáticamente (y no vuelve a la
+   escala original al desenfocar) cuando el font-size de un
+   input/select/textarea es menor de 16px. Se sobreescribe
+   solo por debajo de 640px (breakpoint mobile) para no tocar
+   la escala tipográfica del sistema de diseño en desktop.
+   ───────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

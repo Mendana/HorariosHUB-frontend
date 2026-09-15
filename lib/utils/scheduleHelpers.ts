@@ -44,6 +44,16 @@ export function getDayOfWeek(date: Date): number {
   return d;
 }
 
+/** Today's calendar date as "YYYY-MM-DD", based on local wall-clock time. */
+export function todayIsoDate(): string {
+  const now = new Date();
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('-');
+}
+
 export function isSameDay(a: Date, b: Date): boolean {
   return (
     a.getUTCFullYear() === b.getUTCFullYear() &&
@@ -65,6 +75,14 @@ export function getSubjectsForWeek(
     );
     return year === isoYear && week === isoWeek;
   });
+}
+
+/** Subjects scheduled on a specific calendar date (UTC-based, matches getMonthCalendarDays). */
+export function getSubjectsForDate(subjects: Subject[], date: Date): Subject[] {
+  const y = date.getUTCFullYear();
+  const m = date.getUTCMonth() + 1;
+  const d = date.getUTCDate();
+  return subjects.filter((s) => s.date.year === y && s.date.month === m && s.date.day === d);
 }
 
 export function isCurrentlyOngoing(subject: Subject): boolean {
@@ -165,6 +183,18 @@ export function getNearestWeekInSemester(
 }
 
 // ─── Formatting ───────────────────────────────────────────────────────────────
+
+/** Formats an ISO year/week as the native `<input type="week">` value string ("2024-W12"). */
+export function formatIsoWeekParam(isoYear: number, isoWeek: number): string {
+  return `${isoYear}-W${String(isoWeek).padStart(2, '0')}`;
+}
+
+/** Parses an ISO week string ("2024-W12") back to its Monday date, or null if malformed. */
+export function isoWeekParamToMonday(isoWeekStr: string): Date | null {
+  const match = /^(\d{4})-W(\d{2})$/.exec(isoWeekStr);
+  if (!match) return null;
+  return getWeekDates(Number(match[1]), Number(match[2]))[0];
+}
 
 export function formatWeekRange(dates: Date[], locale: string): string {
   const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) =>

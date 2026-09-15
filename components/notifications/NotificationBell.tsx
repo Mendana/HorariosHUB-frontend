@@ -39,7 +39,7 @@ export function NotificationBell() {
         onClick={() => setOpen((o) => !o)}
         aria-label={t('notifications')}
         aria-expanded={open}
-        className="relative size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color] transition-fast"
+        className="relative size-9 sm:size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color] transition-fast"
       >
         <Bell size={16} aria-hidden />
         {unreadCount > 0 && (

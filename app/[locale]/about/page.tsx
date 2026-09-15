@@ -96,6 +96,7 @@ export default function AboutPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    // TODO: Make mail work
     e.preventDefault();
     setError(null);
     if (!validateForm()) return;
@@ -315,7 +316,7 @@ export default function AboutPage() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
             <a
-              href="https://github.com/PabloGarPe"
+              href="https://github.com/Mendana/HorariosHUB-api"
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${t('about.contribute.viewRepo')} (${t('about.openInNewTab')})`}
@@ -325,7 +326,7 @@ export default function AboutPage() {
               {t('about.contribute.viewRepo')}
             </a>
             <a
-              href="https://github.com/PabloGarPe/issues"
+              href="https://github.com/Mendana/HorariosHUB-api/issues"
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${t('about.contribute.reportIssue')} (${t('about.openInNewTab')})`}

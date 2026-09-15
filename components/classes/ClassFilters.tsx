@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 import { INPUT_FIELD_CLS } from '@/components/ui/Input';
+import { formatIsoWeekParam, isoWeekParamToMonday, getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
 
 interface ClassFiltersProps {
   search: string;
@@ -20,6 +21,26 @@ export function ClassFilters({
   onSearchChange, onWeekChange, onClear,
 }: ClassFiltersProps) {
   const t = useTranslations('classes');
+
+  // Native <input type="week"> isn't supported by Safari (iOS/macOS) — it falls
+  // back to free text, forcing users to type "2024-W12" by hand. A plain date
+  // input works everywhere; we just convert the picked day to/from the ISO
+  // week string the API expects (any day within the target week works).
+  const weekMonday = week ? isoWeekParamToMonday(week) : null;
+  const dateInputValue = weekMonday
+    ? [
+        weekMonday.getUTCFullYear(),
+        String(weekMonday.getUTCMonth() + 1).padStart(2, '0'),
+        String(weekMonday.getUTCDate()).padStart(2, '0'),
+      ].join('-')
+    : '';
+
+  function handleDateChange(value: string) {
+    if (!value) { onWeekChange(''); return; }
+    const [y, m, d] = value.split('-').map(Number);
+    const { year, week: isoWeek } = getISOWeekFromDate(new Date(Date.UTC(y, m - 1, d)));
+    onWeekChange(formatIsoWeekParam(year, isoWeek));
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -39,11 +60,11 @@ export function ClassFilters({
         />
       </div>
 
-      {/* Week */}
+      {/* Week — picked via any date within it (type="week" isn't supported in Safari) */}
       <input
-        type="week"
-        value={week}
-        onChange={(e) => onWeekChange(e.target.value)}
+        type="date"
+        value={dateInputValue}
+        onChange={(e) => handleDateChange(e.target.value)}
         aria-label={t('filterWeekLabel')}
         className={`${inputCls} w-44`}
       />

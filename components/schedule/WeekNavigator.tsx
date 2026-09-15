@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { ChevronLeft, ChevronRight, CalendarDays, CalendarRange, Flag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, CalendarDays, CalendarRange, Flag } from 'lucide-react';
 import {
   getCurrentWeek,
   getCurrentSemester,
@@ -12,12 +12,14 @@ import {
   formatWeekRange,
 } from '@/lib/utils/scheduleHelpers';
 
+export type ScheduleViewMode = 'day' | 'week' | 'month';
+
 interface WeekNavigatorProps {
   year: number;
   week: number;
   onWeekChange: (year: number, week: number) => void;
-  view: 'week' | 'month';
-  onViewChange: (view: 'week' | 'month') => void;
+  view: ScheduleViewMode;
+  onViewChange: (view: ScheduleViewMode) => void;
   eventsVisible: boolean;
   onToggleEvents: () => void;
 }
@@ -122,11 +124,24 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
             se eleva a surface-base con shadow-sm. Sin borde exterior. */}
         <div className="flex gap-0.5 p-0.5 rounded-sm bg-surface-raised" role="group" aria-label={t('viewToggleLabel')}>
           <button
+            onClick={() => onViewChange('day')}
+            aria-label={t('viewDay')}
+            aria-pressed={view === 'day'}
+            title={t('viewDay')}
+            className={`size-9 sm:size-8 flex items-center justify-center rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
+              view === 'day'
+                ? 'bg-surface-base text-primary shadow-sm'
+                : 'text-secondary hover:text-primary'
+            }`}
+          >
+            <Calendar size={15} aria-hidden />
+          </button>
+          <button
             onClick={() => onViewChange('week')}
             aria-label={t('viewWeek')}
             aria-pressed={view === 'week'}
             title={t('viewWeek')}
-            className={`px-2.5 py-1.5 flex items-center justify-center rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
+            className={`size-9 sm:size-8 flex items-center justify-center rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
               view === 'week'
                 ? 'bg-surface-base text-primary shadow-sm'
                 : 'text-secondary hover:text-primary'
@@ -139,7 +154,7 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
             aria-label={t('viewMonth')}
             aria-pressed={view === 'month'}
             title={t('viewMonth')}
-            className={`px-2.5 py-1.5 flex items-center justify-center rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
+            className={`size-9 sm:size-8 flex items-center justify-center rounded-[3px] transition-[background-color,color,box-shadow] transition-base ${
               view === 'month'
                 ? 'bg-surface-base text-primary shadow-sm'
                 : 'text-secondary hover:text-primary'
@@ -210,7 +225,7 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
             onClick={() => shiftWeek(-1)}
             aria-label={t('prevWeek')}
             title={t('shortcutPrevWeek')}
-            className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
+            className="size-9 sm:size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
           >
             <ChevronLeft size={16} aria-hidden />
           </button>
@@ -223,7 +238,7 @@ export function WeekNavigator({ year, week, onWeekChange, view, onViewChange, ev
             onClick={() => shiftWeek(1)}
             aria-label={t('nextWeek')}
             title={t('shortcutNextWeek')}
-            className="size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
+            className="size-9 sm:size-8 flex items-center justify-center rounded-sm text-secondary hover:text-primary hover:bg-surface-raised transition-[background-color,color,transform] transition-fast active:scale-[0.95]"
           >
             <ChevronRight size={16} aria-hidden />
           </button>

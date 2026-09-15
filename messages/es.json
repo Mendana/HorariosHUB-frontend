@@ -65,6 +65,8 @@
     "emptySubtitle": "Introduce tu UO o selecciona un curso para ver tus clases",
     "emptyWeek": "Sin clases esta semana",
     "emptyWeekSubtitle": "Navega a otra semana o comprueba tu selección de grupos",
+    "emptyDay": "Sin clases este día",
+    "emptyDaySubtitle": "Navega a otro día o comprueba tu selección de grupos",
     "emptyWeekMySubjects": "Revisar mis asignaturas →",
     "errorTitle": "No se pudo cargar el horario",
     "errorRetry": "Reintentar",
@@ -93,6 +95,7 @@
     "daySat": "Sáb",
     "daySun": "Dom",
     "viewToggleLabel": "Cambiar vista",
+    "viewDay": "Diaria",
     "viewWeek": "Semanal",
     "viewMonth": "Mensual",
     "emptyMonth": "Sin clases este mes",
@@ -119,6 +122,8 @@
     "createClassHint": "Click en el horario para añadir clase",
     "prevWeek": "Semana anterior",
     "nextWeek": "Semana siguiente",
+    "prevDay": "Día anterior",
+    "nextDay": "Día siguiente",
     "shortcutPrevWeek": "Semana anterior (Alt + ←)",
     "shortcutNextWeek": "Semana siguiente (Alt + →)",
     "shortcutToday": "Volver a hoy (Alt + H)",
@@ -220,7 +225,7 @@
     "noClassroom": "Sin aula",
     "filterSearchPlaceholder": "Buscar por asignatura...",
     "filterTypeAll": "Todos los tipos",
-    "filterWeekLabel": "Semana",
+    "filterWeekLabel": "Filtrar por semana (elige cualquier día de esa semana)",
     "filterClear": "Limpiar filtros",
     "countFoundOne": "1 clase encontrada",
     "countFoundMany": "{count} clases encontradas",
@@ -369,7 +374,7 @@
     "title": "Sobre Horarios Hub",
     "subtitle": "Una herramienta open source creada por estudiantes del PCEO de la Universidad de Oviedo para gestionar y consultar horarios académicos de forma sencilla y moderna.",
     "whatIs": {
-      "title": "¿Qué es HOrarios Hub?"
+      "title": "¿Qué es Horarios Hub?"
     },
     "features": {
       "0": {

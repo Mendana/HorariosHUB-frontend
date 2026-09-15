@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Menu, Moon, Sun } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import Link from "next/link";
@@ -34,14 +33,16 @@ export function Topbar() {
             aria-label="Horarios Hub"
             className="shrink-0 transition-opacity transition-fast hover:opacity-80"
           >
-            <Image
+            {/* Plain <img>, not next/image: the SVG's own intrinsic size (409×130)
+                doesn't match the 140×28 box it's displayed at, which makes next/image's
+                dev-only aspect-ratio checker warn on every load even though it renders
+                correctly. Already unoptimized, so next/image adds no real benefit here. */}
+            <img
               src="/main-logo.svg"
               alt="Horarios Hub"
               height={28}
               width={140}
               className="h-7 w-auto"
-              unoptimized
-              priority
             />
           </Link>
 

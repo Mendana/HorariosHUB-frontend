@@ -141,7 +141,7 @@ export function SubjectCatalog({
       <div className="flex flex-wrap items-center gap-2 mb-3">
 
         {/* Search */}
-        <div className="relative flex-1 min-w-[160px] max-w-[280px]">
+        <div className="relative w-full sm:w-auto sm:flex-1 sm:min-w-[160px] sm:max-w-[280px]">
           <Search
             size={13}
             aria-hidden
@@ -156,8 +156,8 @@ export function SubjectCatalog({
           />
         </div>
 
-        {/* Filter pill tray */}
-        <div className="flex items-center gap-px p-0.5 bg-surface-raised rounded-sm border border-subtle">
+        {/* Filter pill tray — wraps internally instead of overflowing on narrow screens */}
+        <div className="flex flex-wrap items-center gap-px p-0.5 bg-surface-raised rounded-sm border border-subtle">
           {FILTER_OPTIONS.map(({ key, label }) => (
             <button
               key={key}
