@@ -1,19 +1,14 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { ArrowUp, ArrowDown } from 'lucide-react';
-import type { UserEvent, EventType } from '@/lib/types/events';
+import { ArrowUp, ArrowDown, Repeat } from 'lucide-react';
+import type { DisplayEvent } from '@/lib/types/events';
 import { EventPopover } from './EventPopover';
 
-// ─── Color map by event type ────────────────────────────────────────────────
-// Uses semantic CSS variables from globals.css
-
-export const EVENT_TYPE_COLOR: Record<EventType, { css: string; tailwindText: string }> = {
-  delivery: { css: 'var(--warning)',        tailwindText: 'text-warning'   },
-  deadline: { css: 'var(--error)',          tailwindText: 'text-error'     },
-  reminder: { css: 'var(--accent)',         tailwindText: 'text-accent'    },
-  other:    { css: 'var(--text-secondary)', tailwindText: 'text-secondary' },
-};
+// All events render in a single flat color — the backend model dropped the
+// old "type" taxonomy (delivery/deadline/reminder/other).
+export const EVENT_CSS_COLOR = 'var(--accent)';
+export const EVENT_TEXT_CLS = 'text-accent';
 
 // ─── Grid constants (must match ScheduleGrid) ────────────────────────────────
 const SLOT_HEIGHT    = 36;
@@ -36,18 +31,15 @@ function timeToMinutes(time: string): number {
 // ─── Component ─────────────────────────────────────────────────────────────
 
 interface EventLineProps {
-  event: UserEvent;
+  event: DisplayEvent;
   /** Vertical offset for stacking same-time events (0, 1, 2, …) */
   stackIndex?: number;
-  onEdit:   (event: UserEvent) => void;
-  onDelete: (id: string) => void;
+  onEdit:   (event: DisplayEvent) => void;
+  onDelete: (event: DisplayEvent) => void;
 }
 
 export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLineProps) {
-  const color      = EVENT_TYPE_COLOR[event.type];
-  const cssColor   = event.color ?? color.css;
-  const textCls    = event.color ? '' : color.tailwindText;
-  const dotRef     = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
   const eventMins    = timeToMinutes(event.time);
@@ -81,14 +73,14 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
         {isBeforeGrid && (
           <ArrowUp
             size={10}
-            style={{ color: cssColor, marginLeft: 2, marginRight: 2, flexShrink: 0 }}
+            style={{ color: EVENT_CSS_COLOR, marginLeft: 2, marginRight: 2, flexShrink: 0 }}
             aria-hidden
           />
         )}
         {isAfterGrid && (
           <ArrowDown
             size={10}
-            style={{ color: cssColor, marginLeft: 2, marginRight: 2, flexShrink: 0 }}
+            style={{ color: EVENT_CSS_COLOR, marginLeft: 2, marginRight: 2, flexShrink: 0 }}
             aria-hidden
           />
         )}
@@ -100,7 +92,7 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
           style={{
             width:           6,
             height:          6,
-            backgroundColor: cssColor,
+            backgroundColor: EVENT_CSS_COLOR,
             marginLeft:      isOutOfRange ? 0 : 2,
             marginRight:     4,
           }}
@@ -109,7 +101,7 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
         {/* Horizontal line */}
         <div
           className="flex-1 h-px pointer-events-none"
-          style={{ backgroundColor: cssColor, opacity: 0.6 }}
+          style={{ backgroundColor: EVENT_CSS_COLOR, opacity: 0.6 }}
           aria-hidden
         />
 
@@ -119,9 +111,8 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
             'absolute left-4 text-[11px] font-medium leading-none',
             'whitespace-nowrap select-none pointer-events-none',
             'opacity-0 group-hover:opacity-0',
-            textCls,
+            EVENT_TEXT_CLS,
           ].join(' ')}
-          style={event.color ? { color: cssColor } : {}}
           aria-hidden
         >
           {event.title}{isOutOfRange ? ` [${event.time}]` : ''}
@@ -134,10 +125,10 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
         style={{ top: topPx - 9, left: 12, zIndex: 16 }}
         aria-hidden
       >
-        <span
-          className={['text-[11px] font-medium leading-none truncate max-w-32', textCls].join(' ')}
-          style={event.color ? { color: cssColor } : {}}
-        >
+        {event.isRecurring && (
+          <Repeat size={9} className={`${EVENT_TEXT_CLS} shrink-0 mr-0.5`} aria-hidden />
+        )}
+        <span className={['text-[11px] font-medium leading-none truncate max-w-32', EVENT_TEXT_CLS].join(' ')}>
           {event.title}
         </span>
         {isOutOfRange && (
@@ -156,7 +147,7 @@ export function EventLine({ event, stackIndex = 0, onEdit, onDelete }: EventLine
           anchorRef={dotRef}
           onClose={() => setOpen(false)}
           onEdit={(ev) => { setOpen(false); onEdit(ev); }}
-          onDelete={(id) => { setOpen(false); onDelete(id); }}
+          onDelete={(ev) => { setOpen(false); onDelete(ev); }}
         />
       )}
     </>

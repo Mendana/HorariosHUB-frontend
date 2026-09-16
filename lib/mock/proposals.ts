@@ -1,4 +1,4 @@
-import type { Proposal, ChangeRecord } from '@/lib/types/proposals';
+import type { Proposal } from '@/lib/types/proposals';
 
 export const MOCK_PROPOSALS: Proposal[] = [
   {
@@ -114,74 +114,5 @@ export const MOCK_PROPOSALS: Proposal[] = [
     status: 'pending',
     author: 'uo123456@uniovi.es',
     createdAt: '2026-03-25T08:20:00Z',
-  },
-];
-
-export const MOCK_CLASS_HISTORY: ChangeRecord[] = [
-  {
-    id: 'chg-001',
-    classId: 'cls-alg-t1',
-    action: 'modify',
-    old: { classroom: 'Aula 1', startsAt: '2026-03-20T09:00:00Z' },
-    new: { classroom: 'Aula 3', startsAt: '2026-03-20T11:00:00Z' },
-    status: 'approved',
-    approvedBy: 'profesor@uniovi.es',
-    approvedAt: '2026-03-20T10:00:00Z',
-    author: 'uo123456@uniovi.es',
-    createdAt: '2026-03-19T09:00:00Z',
-  },
-  {
-    id: 'chg-002',
-    classId: 'cls-alg-t1',
-    action: 'modify',
-    old: { classroom: 'Aula 3' },
-    new: { classroom: 'Aula 5' },
-    status: 'approved',
-    approvedBy: 'profesor@uniovi.es',
-    approvedAt: '2026-02-15T09:30:00Z',
-    author: 'uo234567@uniovi.es',
-    createdAt: '2026-02-14T09:00:00Z',
-  },
-  {
-    id: 'chg-003',
-    classId: 'cls-prg-p1',
-    action: 'modify',
-    old: { classroom: 'Lab 1', duration: 60 },
-    new: { classroom: 'Lab 3', duration: 120 },
-    status: 'approved',
-    approvedBy: 'admin@uniovi.es',
-    approvedAt: '2026-03-10T14:45:00Z',
-    author: 'uo345678@uniovi.es',
-    createdAt: '2026-03-09T14:00:00Z',
-  },
-  {
-    id: 'chg-004',
-    classId: 'cls-cdi-t3',
-    action: 'create',
-    old: null,
-    new: {
-      subject: 'CDI',
-      grp: 'A',
-      classroom: 'Sala Seminarios',
-      startsAt: '2026-03-18T12:00:00Z',
-      duration: 90,
-    },
-    status: 'approved',
-    approvedBy: 'profesor@uniovi.es',
-    approvedAt: '2026-03-05T11:00:00Z',
-    author: 'uo456789@uniovi.es',
-    createdAt: '2026-03-04T11:00:00Z',
-  },
-  {
-    id: 'chg-005',
-    classId: 'cls-bda-t1',
-    action: 'modify',
-    old: { startsAt: '2026-01-28T08:00:00Z', classroom: 'Aula 2' },
-    new: { startsAt: '2026-01-28T09:30:00Z', classroom: 'Aula 4' },
-    status: 'approved',
-    approvedBy: 'admin@uniovi.es',
-    approvedAt: '2026-01-28T16:20:00Z',
-    author: 'uo123456@uniovi.es',
-    createdAt: '2026-01-27T16:00:00Z',
   },
 ];

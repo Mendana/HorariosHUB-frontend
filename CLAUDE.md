@@ -70,6 +70,7 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 /my-subjects               → Selección de grupos (autenticado)
 /proposals                 → Mis propuestas (autenticado) / Revisar propuestas (profesor/admin)
 /manage/classes            → Crear/editar clases (profesor/admin)
+/manage/events             → Gestión de eventos de asignatura (profesor/admin)
 /manage/users              → Gestión de usuarios (solo admin)
 /manage/admin              → Herramientas de administración (solo admin)
 ```
@@ -121,15 +122,36 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 | PATCH  | `/api/classes/{id}` | Editar clase   |
 | DELETE | `/api/classes/{id}` | Eliminar clase |
 
+#### Eventos (`/manage/events`, profesor/admin)
+
+| Método | Endpoint                                               | Trigger                                              |
+| ------ | ------------------------------------------------------- | ----------------------------------------------------- |
+| POST   | `/api/events`                                            | Crear evento (`/manage/events` o "+" en el horario)    |
+| PATCH  | `/api/events/{id}`                                       | Editar evento                                          |
+| DELETE | `/api/events/{id}`                                       | Eliminar evento (siempre completo, no por ocurrencia)  |
+| GET    | `/api/events/{id}`                                       | Cargar definición completa antes de editar             |
+| GET    | `/api/events?subject=&search=&page=&limit=`              | Listado paginado en `/manage/events`                   |
+| GET    | `/api/events/occurrences?from=&to=&subject=`              | Pintar eventos en la cuadrícula de horario (cualquier usuario autenticado) |
+
+- Un evento pertenece a una asignatura obligatoria y opcionalmente a una lista de grupos concretos de esa asignatura (`groups: []` u omitido = toda la asignatura, actuales y futuros).
+- `recurrence: { interval: 'daily'|'weekly'|'biweekly'|'monthly', endDate }` es opcional. Las ocurrencias no se guardan como filas — se calculan al vuelo vía `/events/occurrences`. No existe edición/borrado de una sola ocurrencia: editar o borrar siempre afecta al evento completo (todas sus ocurrencias, pasadas y futuras). Para quitar la recurrencia de un evento ya creado hay que borrarlo y recrearlo como puntual (PATCH no lo permite).
+- `/events/occurrences` devuelve el catálogo completo en el rango, sin filtrar por usuario (mismo patrón que `GET /classes`) — el frontend cruza `subject`+`groups` de cada ocurrencia con las asignaturas/grupos que el usuario realmente cursa (derivado del horario ya cargado) para decidir qué mostrar en su calendario personal. `from`/`to` son obligatorios, rango máx. 366 días.
+- Solo profesor/admin puede crear/editar/eliminar. Cualquier usuario autenticado puede leer (`GET /events/{id}`, `/events`, `/events/occurrences`).
+- Errores: 401/403/404/422/400, formato `{ error, message }` estándar.
+
 #### Propuestas
 
-| Método | Endpoint                                        | Trigger                                |
-| ------ | ----------------------------------------------- | -------------------------------------- |
-| POST   | `/api/proposals`                                | Enviar propuesta                       |
-| GET    | `/api/proposals?status=pending&page=1&limit=10` | Vista de revisión (profesor/admin)     |
-| GET    | `/api/proposals/mine?page=1&limit=10`           | Vista mis propuestas                   |
-| PATCH  | `/api/proposals/{id}/approve`                   | Aprobar                                |
-| PATCH  | `/api/proposals/{id}/reject`                    | Rechazar (body opcional: `{ reason }`) |
+| Método | Endpoint                                          | Trigger                                     |
+| ------ | -------------------------------------------------- | -------------------------------------------- |
+| POST   | `/api/proposals`                                   | Enviar propuesta                             |
+| GET    | `/api/proposals?status=pending&page=1&limit=10`    | Vista de revisión (profesor/admin)           |
+| GET    | `/api/proposals/mine?page=1&limit=10`              | Vista mis propuestas                         |
+| PATCH  | `/api/proposals/{id}/approve`                      | Aprobar                                      |
+| PATCH  | `/api/proposals/{id}/reject`                       | Rechazar (body opcional: `{ reason }`)       |
+| GET    | `/api/proposals/history?status=all&page=1&limit=10`| Pestaña "Historial" en `/manage/classes` (profesor/admin) |
+
+- `proposals/history` es solo lectura (nunca hay `pending`: `status` admite `approved` \| `rejected` \| `all`, default `all`). Misma forma de respuesta que `GET /proposals` más el campo `archivedAt` (fecha en que el sync del scraper archivó el registro, o `null` si sigue "vivo"). Orden: `archivedAt` desc si existe, si no `createdAt` desc.
+- No admite filtrar por clase — el historial por clase individual (popover de una sesión) no está soportado y no se muestra.
 
 #### Selección de grupos
 
@@ -153,6 +175,16 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 | Método | Endpoint             | Trigger                                |
 | ------ | -------------------- | -------------------------------------- |
 | POST   | `/api/schedule/copy` | Confirmar copia (body: `{ from, to }`) |
+
+#### Contacto (`/about`, público)
+
+| Método | Endpoint        | Trigger                             |
+| ------ | ---------------- | ------------------------------------ |
+| POST   | `/api/feedback`  | Submit formulario de contacto        |
+
+- Sin autenticación, pero con rate limiting por IP (1 req/s, ráfaga de 5) — un `429` aquí es un caso esperado, no un fallo grave.
+- Body: `{ name, email, subject, body }`. `subject` es texto libre (se usa tal cual como asunto del email); el selector de categoría del formulario (bug/sugerencia/problema de horario/otro) se traduce a una etiqueta legible antes de enviarse. `subject` es opcional en el backend (si se omite, usa un asunto por defecto), pero el frontend siempre manda uno porque el selector tiene valor por defecto.
+- `200 { message }`. Errores: `422 validation_error`, `429 too_many_requests`, `500 internal_error` — formato `{ error, message }` estándar.
 
 #### Herramientas de administración (`/manage/admin`, solo admin)
 

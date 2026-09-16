@@ -1,5 +1,6 @@
 import type {
   CreateProposalInput,
+  GetProposalHistoryParams,
   GetProposalsParams,
   ProposalsResponse,
 } from '../types/proposals';
@@ -24,6 +25,14 @@ export async function fetchMyProposals(params: Pick<GetProposalsParams, 'page' |
   if (params.page) qs.set('page', String(params.page));
   if (params.limit) qs.set('limit', String(params.limit));
   return apiFetch<ProposalsResponse>(`/proposals/mine?${qs.toString()}`);
+}
+
+export async function fetchProposalHistory(params: GetProposalHistoryParams): Promise<ProposalsResponse> {
+  const qs = new URLSearchParams();
+  if (params.status) qs.set('status', params.status);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.limit) qs.set('limit', String(params.limit));
+  return apiFetch<ProposalsResponse>(`/proposals/history?${qs.toString()}`);
 }
 
 export function createProposal(input: CreateProposalInput): Promise<ProposalMutationResponse> {

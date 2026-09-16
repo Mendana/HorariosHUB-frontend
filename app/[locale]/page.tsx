@@ -1,10 +1,14 @@
 'use client';
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { getCurrentWeek, getWeekDates, getISOWeekFromDate, todayIsoDate } from '@/lib/utils/scheduleHelpers';
+import { getCurrentWeek, getWeekDates, getISOWeekFromDate, getMonthCalendarDays, todayIsoDate } from '@/lib/utils/scheduleHelpers';
 import { useSchedule, ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
 import { useScheduleMonth } from '@/lib/hooks/useScheduleMonth';
 import { useEvents } from '@/lib/hooks/useEvents';
+import { useEventOccurrences } from '@/lib/hooks/useEventOccurrences';
+import { useToast } from '@/lib/hooks/useToast';
+import { fetchEvent } from '@/lib/api/events';
+import { getErrorMessage } from '@/lib/errors';
 import { useAuth } from '@/hooks/useAuth';
 import { ScheduleSearch } from '@/components/schedule/ScheduleSearch';
 import { WeekNavigator, type ScheduleViewMode } from '@/components/schedule/WeekNavigator';
@@ -15,8 +19,9 @@ import { ImportBanner } from '@/components/schedule/ImportBanner';
 import { NextClassBanner } from '@/components/schedule/NextClassBanner';
 import { ShareModal } from '@/components/schedule/ShareModal';
 import { EventForm } from '@/components/events/EventForm';
+import { EventDeleteConfirm } from '@/components/events/EventDeleteConfirm';
 import { ClassForm } from '@/components/classes/ClassForm';
-import type { UserEvent, NewEventData } from '@/lib/types/events';
+import type { EventItem, EventInput, DisplayEvent } from '@/lib/types/events';
 import type { Class, ClassInput } from '@/lib/types/classes';
 import { useSearchParams } from 'next/navigation';
 import { WelcomeModal } from '@/components/modal/WelcomeModal';
@@ -89,30 +94,35 @@ export default function SchedulePage() {
   }
 
   // ── Events ───────────────────────────────────────────────────────────────────
-  const {
-    events,
-    eventsVisible,
-    toggleVisibility: toggleEventsVisibility,
-    createEvent,
-    updateEvent,
-    deleteEvent,
-  } = useEvents();
+  // List query disabled here — this page only needs the create/update/delete
+  // mutations; occurrences (what actually renders in the grid) come from
+  // useEventOccurrences below.
+  const { createEvent, updateEvent, deleteEvent } = useEvents({}, false);
+  const { toast } = useToast();
 
   // EventForm state: null = closed, undefined initial = create, defined = edit
   const [eventFormOpen, setEventFormOpen] = useState(false);
-  const [eventToEdit, setEventToEdit]     = useState<UserEvent | undefined>(undefined);
+  const [eventToEdit, setEventToEdit]     = useState<EventItem | undefined>(undefined);
+  const [deletingEvent, setDeletingEvent] = useState<DisplayEvent | null>(null);
 
   function openCreateEvent() {
     setEventToEdit(undefined);
     setEventFormOpen(true);
   }
 
-  function openEditEvent(event: UserEvent) {
-    setEventToEdit(event);
-    setEventFormOpen(true);
+  // Occurrences only carry a partial view of the event (no recurrence field) —
+  // editing always needs the full definition.
+  async function openEditEvent(occurrence: DisplayEvent) {
+    try {
+      const full = await fetchEvent(occurrence.id);
+      setEventToEdit(full);
+      setEventFormOpen(true);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    }
   }
 
-  async function handleEventSubmit(data: NewEventData) {
+  async function handleEventSubmit(data: EventInput) {
     if (eventToEdit) {
       await updateEvent(eventToEdit.id, data);
     } else {
@@ -120,8 +130,14 @@ export default function SchedulePage() {
     }
   }
 
-  async function handleDeleteEvent(id: string) {
-    await deleteEvent(id);
+  function handleRequestDeleteEvent(event: DisplayEvent) {
+    setDeletingEvent(event);
+  }
+
+  async function handleConfirmDeleteEvent() {
+    if (!deletingEvent) return;
+    await deleteEvent(deletingEvent.id);
+    setDeletingEvent(null);
   }
 
   // Rehydrate view preference from localStorage after mount
@@ -156,6 +172,36 @@ export default function SchedulePage() {
     identifier,
     monthParam,
     scheduleView === 'month',
+  );
+
+  // ── Event occurrences for the visible range ─────────────────────────────────
+  const monthCalendarDays = useMemo(
+    () => getMonthCalendarDays(viewMonthYear, viewMonth),
+    [viewMonthYear, viewMonth],
+  );
+
+  const eventsRange = useMemo(() => {
+    if (scheduleView === 'month') {
+      const to = new Date(monthCalendarDays[monthCalendarDays.length - 1]);
+      to.setUTCDate(to.getUTCDate() + 1);
+      return { from: monthCalendarDays[0].toISOString(), to: to.toISOString() };
+    }
+    const to = new Date(weekDates[4]);
+    to.setUTCDate(to.getUTCDate() + 1);
+    return { from: weekDates[0].toISOString(), to: to.toISOString() };
+  }, [scheduleView, monthCalendarDays, weekDates]);
+
+  const activeSubjects = scheduleView === 'month' ? monthSubjects : subjects;
+
+  const {
+    events,
+    eventsVisible,
+    toggleVisibility: toggleEventsVisibility,
+  } = useEventOccurrences(
+    eventsRange.from,
+    eventsRange.to,
+    activeSubjects,
+    user !== null && identifier !== null,
   );
 
   const handleWeekChange = (year: number, week: number) => {
@@ -212,9 +258,6 @@ export default function SchedulePage() {
     localStorage.setItem('scheduleView', 'week');
   };
 
-  // Only load events for authenticated users
-  const effectiveEvents = user ? events : [];
-
   // MODALS
   const [welcomeModalOpen, setWelcomeModalOpen] = useState(false);
 
@@ -243,6 +286,7 @@ export default function SchedulePage() {
           onIdentifierChange={handleIdentifierChange}
           onShareClick={() => setShareOpen(true)}
           onCreateEvent={openCreateEvent}
+          canCreateEvent={canCreate}
           showCreationHint={canCreate && creationHintVisible && (scheduleView === 'week' || scheduleView === 'day')}
         />
         <WeekNavigator
@@ -272,10 +316,10 @@ export default function SchedulePage() {
             subjects={subjects}
             isLoading={isLoading}
             hasIdentifier={identifier !== null}
-            events={effectiveEvents}
+            events={events}
             eventsVisible={eventsVisible}
             onEditEvent={openEditEvent}
-            onDeleteEvent={handleDeleteEvent}
+            onDeleteEvent={handleRequestDeleteEvent}
             canCreate={canCreate}
             onCellClick={handleCellClick}
             ghostCell={ghostCell}
@@ -288,10 +332,10 @@ export default function SchedulePage() {
             week={selectedWeek}
             hasIdentifier={identifier !== null}
             onWeekChange={handleWeekChange}
-            events={effectiveEvents}
+            events={events}
             eventsVisible={eventsVisible}
             onEditEvent={openEditEvent}
-            onDeleteEvent={handleDeleteEvent}
+            onDeleteEvent={handleRequestDeleteEvent}
             canCreate={canCreate}
             onCellClick={handleCellClick}
             ghostCell={ghostCell}
@@ -304,7 +348,7 @@ export default function SchedulePage() {
             month={viewMonth}
             onMonthChange={handleMonthChange}
             onGoToWeek={handleGoToWeek}
-            events={effectiveEvents}
+            events={events}
             eventsVisible={eventsVisible}
           />
         )}
@@ -325,6 +369,15 @@ export default function SchedulePage() {
           initial={eventToEdit}
           onSubmit={handleEventSubmit}
           onClose={() => setEventFormOpen(false)}
+        />
+      )}
+
+      {/* Event delete confirmation */}
+      {deletingEvent && (
+        <EventDeleteConfirm
+          event={deletingEvent}
+          onConfirm={handleConfirmDeleteEvent}
+          onClose={() => setDeletingEvent(null)}
         />
       )}
 

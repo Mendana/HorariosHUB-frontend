@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/Button';
 import { ClassForm } from '@/components/classes/ClassForm';
 import { ClassDeleteConfirm } from '@/components/classes/ClassDeleteConfirm';
 import { ProposalForm } from '@/components/proposals/ProposalForm';
-import { HistoryTab } from '@/components/schedule/HistoryTab';
 import { ScheduleRefreshContext } from '@/lib/hooks/useSchedule';
 import { useClasses } from '@/lib/hooks/useClasses';
 import { timeToMinutes } from '@/lib/utils/scheduleHelpers';
@@ -21,7 +20,6 @@ const POPOVER_HEIGHT_EST = 248; // estimated height for position clamping
 const GAP = 8; // min distance from viewport edges
 
 type Mode = 'info' | 'editing' | 'deleting' | 'proposing';
-type PopoverTab = 'info' | 'history';
 
 function subjectToClass(s: SubjectWithLayout): Class {
   const durationMinutes = timeToMinutes(s.endTime) - timeToMinutes(s.startTime);
@@ -54,13 +52,11 @@ export function SubjectPopover({
   // desktop keeps the floating popover anchored next to the tapped block.
   const [isMobile, setIsMobile] = useState(false);
   const [mode, setMode] = useState<Mode>('info');
-  const [activeTab, setActiveTab] = useState<PopoverTab>('info');
   const [proposalSent, setProposalSent] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const tc = useTranslations('classes');
   const tp = useTranslations('proposals');
-  const th = useTranslations('history');
   const locale = useLocale();
   const { user } = useAuth();
   const refreshSchedule = useContext(ScheduleRefreshContext);
@@ -236,31 +232,7 @@ export function SubjectPopover({
         </button>
       </div>
 
-      {/* ── Tabs ─────────────────────────────────────────────────────────── */}
-      <div className="flex gap-3 mb-3 border-b border-subtle">
-        {(['info', 'history'] as PopoverTab[]).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={[
-              'pb-1.5 text-xs transition-[color,border-color] transition-base',
-              activeTab === tab
-                ? 'font-medium text-primary border-b-2 border-accent -mb-px'
-                : 'font-normal text-secondary hover:text-primary',
-            ].join(' ')}
-          >
-            {tab === 'info' ? th('tabInfo') : th('tabHistory')}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Tab content ──────────────────────────────────────────────────── */}
-      <div
-        className={[
-          'transition-opacity transition-fast',
-          activeTab === 'info' ? 'opacity-100' : 'opacity-0 hidden',
-        ].join(' ')}
-      >
+      <div>
         {/* Group */}
         {subject.group && (
           <div className="flex items-center gap-1.5 mb-2">
@@ -337,15 +309,6 @@ export function SubjectPopover({
             )}
           </div>
         )}
-      </div>
-
-      <div
-        className={[
-          'transition-opacity transition-fast',
-          activeTab === 'history' ? 'opacity-100' : 'opacity-0 hidden',
-        ].join(' ')}
-      >
-        <HistoryTab classId={subject.id} />
       </div>
       </div>
     </>

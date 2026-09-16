@@ -22,8 +22,7 @@ type Modal =
 
 type PageTab = 'classes' | 'history';
 
-// Historial deshabilitado temporalmente: el backend todavía no expone el endpoint.
-const PAGE_TABS: PageTab[] = ['classes'];
+const PAGE_TABS: PageTab[] = ['classes', 'history'];
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -128,7 +127,7 @@ export default function ManageClassesPage() {
         </div>
       </div>
 
-      {/* Page tabs — historial deshabilitado temporalmente: el backend aún no lo soporta */}
+      {/* Page tabs */}
       {PAGE_TABS.length > 1 && (
         <div className="flex items-center bg-surface-raised border border-subtle rounded-md p-1 gap-0.5 w-fit mb-6">
           {PAGE_TABS.map((tab) => (

@@ -36,7 +36,9 @@ export function useProposals(
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['proposals'] });
-    // Approving/rejecting a proposal changes the underlying schedule sessions too.
+    // Resolving a proposal moves it into the history list, and changes the
+    // underlying schedule sessions too.
+    qc.invalidateQueries({ queryKey: ['proposal-history'] });
     qc.invalidateQueries({ queryKey: ['schedule'] });
     qc.invalidateQueries({ queryKey: ['schedule-month'] });
   };

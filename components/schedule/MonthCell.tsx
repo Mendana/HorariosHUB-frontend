@@ -3,21 +3,17 @@
 import { useTranslations } from 'next-intl';
 import { Flag } from 'lucide-react';
 import type { Subject } from '@/lib/types/schedule';
-import type { UserEvent, EventType } from '@/lib/types/events';
+import type { DisplayEvent } from '@/lib/types/events';
 import { getSubjectColorVars } from '@/lib/config/subjectColors';
 
-// ─── Event type colors (inline, matches EVENT_TYPE_COLOR in EventLine) ────────
-const EVENT_CSS_COLOR: Record<EventType, string> = {
-  delivery: 'var(--warning)',
-  deadline: 'var(--error)',
-  reminder: 'var(--accent)',
-  other:    'var(--text-secondary)',
-};
+// All events render in a single flat color — the backend model dropped the
+// old "type" taxonomy (delivery/deadline/reminder/other).
+const EVENT_CSS_COLOR = 'var(--accent)';
 
 interface MonthCellProps {
   date: Date;
   subjects: Subject[];
-  events: UserEvent[];
+  events: DisplayEvent[];
   eventsVisible: boolean;
   isCurrentMonth: boolean;
   isToday: boolean;
@@ -115,7 +111,7 @@ export function MonthCell({
             key={ev.id}
             size={8}
             className="shrink-0"
-            style={{ color: ev.color ?? EVENT_CSS_COLOR[ev.type] }}
+            style={{ color: EVENT_CSS_COLOR }}
             aria-hidden
           />
         ))}
@@ -144,12 +140,12 @@ export function MonthCell({
             <Flag
               size={10}
               className="shrink-0"
-              style={{ color: ev.color ?? EVENT_CSS_COLOR[ev.type] }}
+              style={{ color: EVENT_CSS_COLOR }}
               aria-hidden
             />
             <span
               className="text-[11px] truncate leading-tight"
-              style={{ color: ev.color ?? EVENT_CSS_COLOR[ev.type] }}
+              style={{ color: EVENT_CSS_COLOR }}
             >
               {ev.title}
             </span>
@@ -182,12 +178,12 @@ export function MonthCell({
             <Flag
               size={10}
               className="shrink-0"
-              style={{ color: ev.color ?? EVENT_CSS_COLOR[ev.type] }}
+              style={{ color: EVENT_CSS_COLOR }}
               aria-hidden
             />
             <span
               className="text-[11px] truncate leading-tight"
-              style={{ color: ev.color ?? EVENT_CSS_COLOR[ev.type] }}
+              style={{ color: EVENT_CSS_COLOR }}
             >
               {ev.title}
             </span>
