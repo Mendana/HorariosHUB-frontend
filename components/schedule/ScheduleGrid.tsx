@@ -15,7 +15,7 @@ import {
 } from '@/lib/utils/scheduleHelpers';
 import type { Subject } from '@/lib/types/schedule';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
-import type { UserEvent } from '@/lib/types/events';
+import type { DisplayEvent } from '@/lib/types/events';
 import { useSwipeNavigation } from '@/lib/hooks/useSwipeNavigation';
 import { SLOT_HEIGHT, START_HOUR, END_HOUR, DAY_START_MINS, TIME_COL_WIDTH } from '@/lib/config/scheduleGrid';
 
@@ -25,7 +25,7 @@ const DAY_LABELS_SHORT = ['L', 'M', 'X', 'J', 'V'];
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Get events for a specific date (YYYY-MM-DD) */
-function getEventsForDate(events: UserEvent[], dateISO: string): UserEvent[] {
+function getEventsForDate(events: DisplayEvent[], dateISO: string): DisplayEvent[] {
   return events.filter((e) => e.date === dateISO);
 }
 
@@ -40,10 +40,10 @@ interface ScheduleGridProps {
   error?: string | null;
   onRetry?: () => void;
   onWeekChange?: (year: number, week: number) => void;
-  events: UserEvent[];
+  events: DisplayEvent[];
   eventsVisible: boolean;
-  onEditEvent: (event: UserEvent) => void;
-  onDeleteEvent: (id: string) => void;
+  onEditEvent: (event: DisplayEvent) => void;
+  onDeleteEvent: (event: DisplayEvent) => void;
   canCreate?: boolean;
   onCellClick?: (date: string, time: string) => void;
   ghostCell?: { date: string; time: string } | null;
@@ -150,7 +150,7 @@ export function ScheduleGrid({
 
   // Build day → events map
   const dayEventsMap = useMemo(() => {
-    const map = new Map<number, UserEvent[]>();
+    const map = new Map<number, DisplayEvent[]>();
     for (const day of DAYS_MON_FRI) {
       const iso = dayDateMap.get(day) ?? '';
       map.set(day, iso ? getEventsForDate(events, iso) : []);

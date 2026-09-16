@@ -26,9 +26,8 @@ pnpm dev
 
 Abre [http://localhost:3000](http://localhost:3000).
 
-Por defecto los módulos usan datos mock (ver `lib/config/mocks.ts`) para
-poder desarrollar la UI sin depender del backend. Para conectar un módulo a
-la API real, ver [docs/CONNECTING_BACKEND.md](docs/CONNECTING_BACKEND.md).
+Todos los módulos consumen ya la API real — necesitas el backend levantado
+(ver `NEXT_PUBLIC_API_URL` abajo).
 
 ### Variables de entorno
 
@@ -60,17 +59,16 @@ build multi-stage con salida `standalone` de Next.js.
   proposals, classes, users, ...)
 - `hooks/` · `lib/hooks/` — hooks de datos y estado
 - `lib/api/` — clientes de la API
-- `lib/config/` — flags de configuración (mocks, etc.)
+- `lib/config/` — constantes de configuración (grid de horario, colores de asignatura, etc.)
 - `lib/types/` — tipos compartidos
 - `i18n/` · `messages/` — configuración e idiomas de next-intl
-- `docs/` — arquitectura, sistema de diseño y guía de conexión al backend
+- `docs/` — arquitectura, sistema de diseño y endpoints consumidos
 
 ## Documentación
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arquitectura, roles y permisos
 - [docs/DESIGN.md](docs/DESIGN.md) — sistema de diseño
 - [docs/ENDPOINTS.md](docs/ENDPOINTS.md) — endpoints de la API consumidos
-- [docs/CONNECTING_BACKEND.md](docs/CONNECTING_BACKEND.md) — cómo desactivar mocks módulo a módulo
 
 ## Contribuir
 

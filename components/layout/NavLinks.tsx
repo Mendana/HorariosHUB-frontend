@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { Role } from '@/hooks/useAuth';
 
-type NavLabelKey = 'schedule' | 'mySubjects' | 'stats' | 'proposals' | 'manage' | 'manageUsers' | 'manageAdmin';
+type NavLabelKey = 'schedule' | 'mySubjects' | 'stats' | 'proposals' | 'manage' | 'manageEvents' | 'manageUsers' | 'manageAdmin';
 
 interface NavItem {
   href: string;
@@ -41,6 +41,11 @@ const NAV_ITEMS: NavItem[] = [
     roles: ['professor', 'admin'],
   },
   {
+    href: '/manage/events',
+    labelKey: 'manageEvents',
+    roles: ['professor', 'admin'],
+  },
+  {
     href: '/manage/users',
     labelKey: 'manageUsers',
     roles: ['admin'],
@@ -71,6 +76,7 @@ export function NavLinks({ role, onNavigate, vertical = false }: NavLinksProps) 
     stats:       t('stats'),
     proposals:   t('proposals'),
     manage:      t('manage'),
+    manageEvents: t('manageEvents'),
     manageUsers: t('manageUsers'),
     manageAdmin: t('manageAdmin'),
   };

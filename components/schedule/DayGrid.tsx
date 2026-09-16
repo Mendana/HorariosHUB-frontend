@@ -11,7 +11,7 @@ import { getSubjectsForDate, layoutDay, getDayOfWeek, todayIsoDate } from '@/lib
 import { useSwipeNavigation } from '@/lib/hooks/useSwipeNavigation';
 import { SLOT_HEIGHT, END_HOUR, DAY_START_MINS } from '@/lib/config/scheduleGrid';
 import type { Subject } from '@/lib/types/schedule';
-import type { UserEvent } from '@/lib/types/events';
+import type { DisplayEvent } from '@/lib/types/events';
 
 function parseIsoDate(dateStr: string): Date {
   const [y, m, d] = dateStr.split('-').map(Number);
@@ -35,10 +35,10 @@ interface DayGridProps {
   hasIdentifier: boolean;
   error?: string | null;
   onRetry?: () => void;
-  events: UserEvent[];
+  events: DisplayEvent[];
   eventsVisible: boolean;
-  onEditEvent: (event: UserEvent) => void;
-  onDeleteEvent: (id: string) => void;
+  onEditEvent: (event: DisplayEvent) => void;
+  onDeleteEvent: (event: DisplayEvent) => void;
   canCreate?: boolean;
   onCellClick?: (date: string, time: string) => void;
   ghostCell?: { date: string; time: string } | null;

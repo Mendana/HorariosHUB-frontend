@@ -7,7 +7,7 @@ import { SubjectBlock } from './SubjectBlock';
 import { EventLine } from '@/components/events/EventLine';
 import { timeToMinutes } from '@/lib/utils/scheduleHelpers';
 import type { SubjectWithLayout } from '@/lib/utils/scheduleHelpers';
-import type { UserEvent } from '@/lib/types/events';
+import type { DisplayEvent } from '@/lib/types/events';
 import {
   SLOT_HEIGHT,
   SLOTS,
@@ -17,12 +17,12 @@ import {
 } from '@/lib/config/scheduleGrid';
 
 /** Get events for a specific date (YYYY-MM-DD), stacked by time */
-function getEventsForDate(events: UserEvent[], dateISO: string): UserEvent[] {
+function getEventsForDate(events: DisplayEvent[], dateISO: string): DisplayEvent[] {
   return events.filter((e) => e.date === dateISO);
 }
 
 /** Build stacking index map: events at the same time get consecutive indices */
-function buildStackMap(events: UserEvent[]): Map<string, number> {
+function buildStackMap(events: DisplayEvent[]): Map<string, number> {
   const timeCount = new Map<string, number>();
   const result    = new Map<string, number>();
   for (const ev of events) {
@@ -40,10 +40,10 @@ export interface DayColumnProps {
   isLoading: boolean;
   isToday: boolean;
   currentTimePx: number | null;
-  events: UserEvent[];
+  events: DisplayEvent[];
   eventsVisible: boolean;
-  onEditEvent: (event: UserEvent) => void;
-  onDeleteEvent: (id: string) => void;
+  onEditEvent: (event: DisplayEvent) => void;
+  onDeleteEvent: (event: DisplayEvent) => void;
   dateISO: string;
   canCreate: boolean;
   onCellClick?: (date: string, time: string) => void;
