@@ -2,22 +2,22 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Clock, Pencil, Trash2 } from 'lucide-react';
+import { X, Clock, MapPin, BookOpen, Repeat, Pencil, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
-import type { UserEvent } from '@/lib/types/events';
-import { EVENT_TYPE_COLOR } from './EventLine';
+import type { DisplayEvent } from '@/lib/types/events';
+import { EVENT_TEXT_CLS } from './EventLine';
 
-const POPOVER_WIDTH    = 224;
-const POPOVER_EST_HEIGHT = 168;
+const POPOVER_WIDTH    = 240;
+const POPOVER_EST_HEIGHT = 200;
 const GAP              = 8;
 
 interface EventPopoverProps {
-  event: UserEvent;
+  event: DisplayEvent;
   anchorRef: React.RefObject<HTMLDivElement | null>;
   onClose:  () => void;
-  onEdit:   (event: UserEvent) => void;
-  onDelete: (id: string) => void;
+  onEdit:   (event: DisplayEvent) => void;
+  onDelete: (event: DisplayEvent) => void;
 }
 
 export function EventPopover({ event, anchorRef, onClose, onEdit, onDelete }: EventPopoverProps) {
@@ -68,16 +68,7 @@ export function EventPopover({ event, anchorRef, onClose, onEdit, onDelete }: Ev
 
   if (!mounted) return null;
 
-  const color    = EVENT_TYPE_COLOR[event.type];
-  const cssColor = event.color ?? color.css;
-  const textCls  = event.color ? '' : color.tailwindText;
-
-  const TYPE_LABEL_KEYS: Record<string, string> = {
-    delivery: 'typeDelivery',
-    deadline: 'typeDeadline',
-    reminder: 'typeReminder',
-    other:    'typeOther',
-  };
+  const groupsLabel = event.groups.length > 0 ? event.groups.join(', ') : t('allGroups');
 
   const content = (
     <div
@@ -100,17 +91,10 @@ export function EventPopover({ event, anchorRef, onClose, onEdit, onDelete }: Ev
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2 min-w-0">
-          {/* Type badge */}
-          <span
-            className={['text-[10px] font-medium px-1.5 py-0.5 rounded-sm shrink-0', textCls].join(' ')}
-            style={{
-              ...(event.color ? { color: cssColor } : {}),
-              backgroundColor: `color-mix(in oklch, ${cssColor} 12%, transparent)`,
-            }}
-          >
-            {t(TYPE_LABEL_KEYS[event.type] ?? 'typeOther')}
-          </span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {event.isRecurring && (
+            <Repeat size={12} className={`${EVENT_TEXT_CLS} shrink-0`} aria-hidden />
+          )}
           <h3 className="text-sm font-medium text-primary leading-snug truncate">
             {event.title}
           </h3>
@@ -124,11 +108,29 @@ export function EventPopover({ event, anchorRef, onClose, onEdit, onDelete }: Ev
         </button>
       </div>
 
+      {/* Subject + groups */}
+      <div className="flex items-center gap-1.5 mb-2">
+        <BookOpen size={12} className="text-tertiary shrink-0" aria-hidden />
+        <span className="text-xs text-secondary truncate">
+          {event.subject} · {groupsLabel}
+        </span>
+      </div>
+
       {/* Time */}
       <div className="flex items-center gap-1.5 mb-2">
         <Clock size={12} className="text-tertiary shrink-0" aria-hidden />
-        <span className="text-xs text-secondary tabular-nums">{event.time}</span>
+        <span className="text-xs text-secondary tabular-nums">
+          {t('timeRange', { start: event.time, end: event.endTime })}
+        </span>
       </div>
+
+      {/* Classroom */}
+      {event.classroom && (
+        <div className="flex items-center gap-1.5 mb-2">
+          <MapPin size={12} className="text-tertiary shrink-0" aria-hidden />
+          <span className="text-xs text-secondary truncate">{event.classroom}</span>
+        </div>
+      )}
 
       {/* Description */}
       {event.description && (
@@ -151,7 +153,7 @@ export function EventPopover({ event, anchorRef, onClose, onEdit, onDelete }: Ev
           size="sm"
           variant="destructive"
           iconLeft={Trash2}
-          onClick={() => onDelete(event.id)}
+          onClick={() => onDelete(event)}
         >
           {t('delete')}
         </Button>

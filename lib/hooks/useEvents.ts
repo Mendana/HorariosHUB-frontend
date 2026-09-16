@@ -1,148 +1,66 @@
- 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { MOCK_EVENTS } from '@/lib/mock/events';
-import type { UserEvent, NewEventData } from '@/lib/types/events';
-import { MOCKS } from '@/lib/config/mocks';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { EventItem, EventInput, EventPatchInput } from '../types/events';
+import { fetchEvents, createEvent, updateEvent, deleteEvent, type FetchEventsParams } from '../api/events';
+import { getErrorMessage } from '../errors';
+import { useToast } from './useToast';
 
-function readStorage<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw === null) return fallback;
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
-
-let idCounter = MOCK_EVENTS.length;
-function nextId(): string {
-  idCounter += 1;
-  return `ev-${String(idCounter).padStart(3, '0')}`;
-}
-
-export function useEvents(): {
-  events: UserEvent[];
+export interface UseEventsResult {
+  events: EventItem[];
+  total: number;
   isLoading: boolean;
-  eventsVisible: boolean;
-  toggleVisibility: () => void;
-  createEvent: (data: NewEventData) => Promise<UserEvent>;
-  updateEvent: (id: string, data: Partial<NewEventData>) => Promise<UserEvent>;
+  error: string | null;
+  refetch: () => void;
+  createEvent: (input: EventInput) => Promise<EventItem>;
+  updateEvent: (id: string, input: EventPatchInput) => Promise<EventItem>;
   deleteEvent: (id: string) => Promise<void>;
-} {
-  if (MOCKS.events) {
-    const [events, setEvents]   = useState<UserEvent[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [eventsVisible, setEventsVisible] = useState<boolean>(true);
+}
 
-    // Simulate GET /api/events
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setEvents([...MOCK_EVENTS]);
-        setIsLoading(false);
-      }, 200);
-      return () => clearTimeout(timer);
-    }, []);
+export function useEvents(params: FetchEventsParams = {}, enabled: boolean = true): UseEventsResult {
+  const { toast } = useToast();
+  const qc = useQueryClient();
 
-    // Rehydrate visibility preference from localStorage
-    useEffect(() => {
-      setEventsVisible(readStorage<boolean>('eventsVisible', true));
-    }, []);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['events', params],
+    queryFn: () => fetchEvents(params),
+    staleTime: 2 * 60 * 1000,
+    enabled,
+  });
 
-    const toggleVisibility = useCallback(() => {
-      setEventsVisible((prev) => {
-        const next = !prev;
-        localStorage.setItem('eventsVisible', JSON.stringify(next));
-        return next;
-      });
-    }, []);
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['events'] });
+    // Occurrences are derived from event definitions — a mutation here
+    // changes what the schedule grid should render too.
+    qc.invalidateQueries({ queryKey: ['event-occurrences'] });
+  };
 
-    const createEvent = useCallback((data: NewEventData): Promise<UserEvent> => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const event: UserEvent = { ...data, id: nextId() };
-          setEvents((prev) => [...prev, event]);
-          resolve(event);
-        }, 400);
-      });
-    }, []);
+  const createMutation = useMutation({
+    mutationFn: (input: EventInput) => createEvent(input),
+    onSuccess: invalidate,
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
 
-    const updateEvent = useCallback((id: string, data: Partial<NewEventData>): Promise<UserEvent> => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          setEvents((prev) => {
-            const idx = prev.findIndex((e) => e.id === id);
-            if (idx === -1) { reject(new Error(`Event ${id} not found`)); return prev; }
-            const updated = { ...prev[idx], ...data };
-            const next = [...prev];
-            next[idx] = updated;
-            resolve(updated);
-            return next;
-          });
-        }, 400);
-      });
-    }, []);
+  const updateMutation = useMutation({
+    mutationFn: ({ id, input }: { id: string; input: EventPatchInput }) => updateEvent(id, input),
+    onSuccess: invalidate,
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
 
-    const deleteEvent = useCallback((id: string): Promise<void> => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          setEvents((prev) => prev.filter((e) => e.id !== id));
-          resolve();
-        }, 400);
-      });
-    }, []);
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteEvent(id),
+    onSuccess: invalidate,
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
 
-    return { events, isLoading, eventsVisible, toggleVisibility, createEvent, updateEvent, deleteEvent };
-  }
-
-  // ── Real implementation — descomentar cuando MOCKS.events = false ──────────
-  // import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-  // import { apiFetch } from '@/lib/apiFetch';
-  //
-  // const queryClient = useQueryClient();
-  // const { data, isLoading } = useQuery({
-  //   queryKey: ['events'],
-  //   queryFn: () => apiFetch<UserEvent[]>('/api/events'),
-  // });
-  //
-  // const [eventsVisible, setEventsVisible] = useState<boolean>(true);
-  // useEffect(() => {
-  //   setEventsVisible(readStorage<boolean>('eventsVisible', true));
-  // }, []);
-  //
-  // const toggleVisibility = useCallback(() => {
-  //   setEventsVisible((prev) => {
-  //     const next = !prev;
-  //     localStorage.setItem('eventsVisible', JSON.stringify(next));
-  //     return next;
-  //   });
-  // }, []);
-  //
-  // const createMutation = useMutation({
-  //   mutationFn: (data: NewEventData) =>
-  //     apiFetch<UserEvent>('/api/events', { method: 'POST', body: JSON.stringify(data) }),
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
-  // });
-  // const updateMutation = useMutation({
-  //   mutationFn: ({ id, data }: { id: string; data: Partial<NewEventData> }) =>
-  //     apiFetch<UserEvent>(`/api/events/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
-  // });
-  // const deleteMutation = useMutation({
-  //   mutationFn: (id: string) => apiFetch(`/api/events/${id}`, { method: 'DELETE' }),
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
-  // });
-  //
-  // return {
-  //   events: data ?? [],
-  //   isLoading,
-  //   eventsVisible,
-  //   toggleVisibility,
-  //   createEvent: (data) => createMutation.mutateAsync(data),
-  //   updateEvent: (id, data) => updateMutation.mutateAsync({ id, data }),
-  //   deleteEvent: (id) => deleteMutation.mutateAsync(id),
-  // };
-
-  throw new Error('MOCKS.events is false pero la implementación real no está conectada. Ver docs/CONNECTING_BACKEND.md');
+  return {
+    events: data?.events ?? [],
+    total: data?.total ?? 0,
+    isLoading,
+    error: error ? getErrorMessage(error) : null,
+    refetch: () => { void refetch(); },
+    createEvent: (input) => createMutation.mutateAsync(input),
+    updateEvent: (id, input) => updateMutation.mutateAsync({ id, input }),
+    deleteEvent: (id) => deleteMutation.mutateAsync(id).then(() => undefined),
+  };
 }

@@ -30,10 +30,12 @@ interface ScheduleSearchProps {
   onIdentifierChange: (id: string) => void;
   onShareClick?: () => void;
   onCreateEvent?: () => void;
+  /** Events are subject-wide announcements now — only professor/admin can create them. */
+  canCreateEvent?: boolean;
   showCreationHint?: boolean;
 }
 
-export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, onCreateEvent, showCreationHint }: ScheduleSearchProps) {
+export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, onCreateEvent, canCreateEvent, showCreationHint }: ScheduleSearchProps) {
   const t = useTranslations('schedule');
   const { user } = useAuth();
   const [uoInput, setUoInput] = useState('');
@@ -127,8 +129,8 @@ export function ScheduleSearch({ identifier, onIdentifierChange, onShareClick, o
           )
         )}
 
-        {/* Create event — only for authenticated users */}
-        {user && (
+        {/* Create event — subject-wide announcements, professor/admin only */}
+        {canCreateEvent && (
           <Button
             variant="ghost"
             size="sm"

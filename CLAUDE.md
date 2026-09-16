@@ -70,6 +70,7 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 /my-subjects               → Selección de grupos (autenticado)
 /proposals                 → Mis propuestas (autenticado) / Revisar propuestas (profesor/admin)
 /manage/classes            → Crear/editar clases (profesor/admin)
+/manage/events             → Gestión de eventos de asignatura (profesor/admin)
 /manage/users              → Gestión de usuarios (solo admin)
 /manage/admin              → Herramientas de administración (solo admin)
 ```
@@ -120,6 +121,23 @@ Los profesores pueden aprobar sus propias propuestas. Las propuestas de profesor
 | POST   | `/api/classes`      | Crear clase    |
 | PATCH  | `/api/classes/{id}` | Editar clase   |
 | DELETE | `/api/classes/{id}` | Eliminar clase |
+
+#### Eventos (`/manage/events`, profesor/admin)
+
+| Método | Endpoint                                               | Trigger                                              |
+| ------ | ------------------------------------------------------- | ----------------------------------------------------- |
+| POST   | `/api/events`                                            | Crear evento (`/manage/events` o "+" en el horario)    |
+| PATCH  | `/api/events/{id}`                                       | Editar evento                                          |
+| DELETE | `/api/events/{id}`                                       | Eliminar evento (siempre completo, no por ocurrencia)  |
+| GET    | `/api/events/{id}`                                       | Cargar definición completa antes de editar             |
+| GET    | `/api/events?subject=&search=&page=&limit=`              | Listado paginado en `/manage/events`                   |
+| GET    | `/api/events/occurrences?from=&to=&subject=`              | Pintar eventos en la cuadrícula de horario (cualquier usuario autenticado) |
+
+- Un evento pertenece a una asignatura obligatoria y opcionalmente a una lista de grupos concretos de esa asignatura (`groups: []` u omitido = toda la asignatura, actuales y futuros).
+- `recurrence: { interval: 'daily'|'weekly'|'biweekly'|'monthly', endDate }` es opcional. Las ocurrencias no se guardan como filas — se calculan al vuelo vía `/events/occurrences`. No existe edición/borrado de una sola ocurrencia: editar o borrar siempre afecta al evento completo (todas sus ocurrencias, pasadas y futuras). Para quitar la recurrencia de un evento ya creado hay que borrarlo y recrearlo como puntual (PATCH no lo permite).
+- `/events/occurrences` devuelve el catálogo completo en el rango, sin filtrar por usuario (mismo patrón que `GET /classes`) — el frontend cruza `subject`+`groups` de cada ocurrencia con las asignaturas/grupos que el usuario realmente cursa (derivado del horario ya cargado) para decidir qué mostrar en su calendario personal. `from`/`to` son obligatorios, rango máx. 366 días.
+- Solo profesor/admin puede crear/editar/eliminar. Cualquier usuario autenticado puede leer (`GET /events/{id}`, `/events`, `/events/occurrences`).
+- Errores: 401/403/404/422/400, formato `{ error, message }` estándar.
 
 #### Propuestas
 

@@ -1,4 +1,5 @@
 import type { Subject } from '../types/schedule';
+import type { EventOccurrence, DisplayEvent } from '../types/events';
 
 // ─── Time helpers ─────────────────────────────────────────────────────────────
 
@@ -37,6 +38,29 @@ export function getWeekDates(isoYear: number, isoWeek: number): Date[] {
   });
 }
 
+/** Full calendar-grid days for a month view: the visible range always starts
+ *  on the Monday on/before the 1st and ends on the Sunday on/after the last day. */
+export function getMonthCalendarDays(year: number, month: number): Date[] {
+  const firstDay = new Date(Date.UTC(year, month - 1, 1));
+  const lastDay = new Date(Date.UTC(year, month, 0));
+
+  const dayOfWeekFirst = firstDay.getUTCDay() || 7; // Mon=1, Sun=7
+  const startMonday = new Date(firstDay);
+  startMonday.setUTCDate(firstDay.getUTCDate() - (dayOfWeekFirst - 1));
+
+  const dayOfWeekLast = lastDay.getUTCDay() || 7;
+  const endSunday = new Date(lastDay);
+  endSunday.setUTCDate(lastDay.getUTCDate() + (7 - dayOfWeekLast));
+
+  const days: Date[] = [];
+  const d = new Date(startMonday);
+  while (d <= endSunday) {
+    days.push(new Date(d));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return days;
+}
+
 /** Day of week: Mon=1 … Fri=5. Returns 0 for Sat/Sun. */
 export function getDayOfWeek(date: Date): number {
   const d = date.getDay(); // 0=Sun
@@ -60,6 +84,59 @@ export function isSameDay(a: Date, b: Date): boolean {
     a.getUTCMonth() === b.getUTCMonth() &&
     a.getUTCDate() === b.getUTCDate()
   );
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+
+function isoToWallClock(iso: string): { date: string; time: string } {
+  const d = new Date(iso);
+  const date = [
+    d.getUTCFullYear(),
+    String(d.getUTCMonth() + 1).padStart(2, '0'),
+    String(d.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+  const time = `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+  return { date, time };
+}
+
+/**
+ * GET /events/occurrences returns the full catalog in range, unfiltered by
+ * user — the frontend has to cross-reference each occurrence's subject+groups
+ * against the subjects/groups the currently viewed identifier actually
+ * attends (derived from their already-loaded schedule) to decide what to show.
+ */
+export function filterOccurrencesForSchedule(
+  occurrences: EventOccurrence[],
+  subjects: Subject[],
+): DisplayEvent[] {
+  const enrolled = new Map<string, Set<string>>();
+  for (const s of subjects) {
+    if (!enrolled.has(s.name)) enrolled.set(s.name, new Set());
+    enrolled.get(s.name)!.add(s.group);
+  }
+
+  return occurrences
+    .filter((occ) => {
+      const groups = enrolled.get(occ.subject);
+      if (!groups) return false;
+      return occ.groups.length === 0 || occ.groups.some((g) => groups.has(g));
+    })
+    .map((occ) => {
+      const start = isoToWallClock(occ.startTime);
+      const end = isoToWallClock(occ.endTime);
+      return {
+        id: occ.eventId,
+        title: occ.title,
+        description: occ.description,
+        date: start.date,
+        time: start.time,
+        endTime: end.time,
+        subject: occ.subject,
+        groups: occ.groups,
+        classroom: occ.classroom,
+        isRecurring: occ.isRecurring,
+      };
+    });
 }
 
 // ─── Filtering ────────────────────────────────────────────────────────────────

@@ -3,35 +3,14 @@
 import { useMemo, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { getISOWeekFromDate } from '@/lib/utils/scheduleHelpers';
+import { getISOWeekFromDate, getMonthCalendarDays } from '@/lib/utils/scheduleHelpers';
 import { useSwipeNavigation } from '@/lib/hooks/useSwipeNavigation';
 import type { Subject } from '@/lib/types/schedule';
-import type { UserEvent } from '@/lib/types/events';
+import type { DisplayEvent } from '@/lib/types/events';
 import { MonthCell } from './MonthCell';
 import { MonthDayDrawer } from './MonthDayDrawer';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function getMonthCalendarDays(year: number, month: number): Date[] {
-  const firstDay = new Date(Date.UTC(year, month - 1, 1));
-  const lastDay = new Date(Date.UTC(year, month, 0));
-
-  const dayOfWeekFirst = firstDay.getUTCDay() || 7; // Mon=1, Sun=7
-  const startMonday = new Date(firstDay);
-  startMonday.setUTCDate(firstDay.getUTCDate() - (dayOfWeekFirst - 1));
-
-  const dayOfWeekLast = lastDay.getUTCDay() || 7;
-  const endSunday = new Date(lastDay);
-  endSunday.setUTCDate(lastDay.getUTCDate() + (7 - dayOfWeekLast));
-
-  const days: Date[] = [];
-  const d = new Date(startMonday);
-  while (d <= endSunday) {
-    days.push(new Date(d));
-    d.setUTCDate(d.getUTCDate() + 1);
-  }
-  return days;
-}
 
 function getSubjectsForDate(subjects: Subject[], date: Date): Subject[] {
   const y = date.getUTCFullYear();
@@ -40,7 +19,7 @@ function getSubjectsForDate(subjects: Subject[], date: Date): Subject[] {
   return subjects.filter((s) => s.date.year === y && s.date.month === m && s.date.day === d);
 }
 
-function getEventsForDate(events: UserEvent[], date: Date): UserEvent[] {
+function getEventsForDate(events: DisplayEvent[], date: Date): DisplayEvent[] {
   const y = String(date.getUTCFullYear());
   const m = String(date.getUTCMonth() + 1).padStart(2, '0');
   const d = String(date.getUTCDate()).padStart(2, '0');
@@ -72,7 +51,7 @@ interface MonthGridProps {
   month: number; // 1-12
   onMonthChange: (year: number, month: number) => void;
   onGoToWeek: (isoYear: number, isoWeek: number) => void;
-  events: UserEvent[];
+  events: DisplayEvent[];
   eventsVisible: boolean;
 }
 
